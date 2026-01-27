@@ -9,13 +9,16 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ai-sdk/google": "^3.0.13",
+    "@ai-sdk/react": "^3.0.52",
     "@auth/drizzle-adapter": "^1.11.1",
     "@neondatabase/serverless": "^1.0.2",
     "@sentry/nextjs": "^10.36.0",
+    "@xyflow/react": "^12.10.0",
+    "ai": "^6.0.50",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.1",
-    "jotai": "^2.16.2",
     "lucide-react": "^0.563.0",
     "next": "16.1.4",
     "next-auth": "5.0.0-beta.30",
@@ -23,7 +26,8 @@
     "react-dom": "19.2.3",
     "swr": "^2.3.8",
     "tailwind-merge": "^3.4.0",
-    "zod": "^4.3.6"
+    "zod": "^4.3.6",
+    "zustand": "^5.0.10"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
