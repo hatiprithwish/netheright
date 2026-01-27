@@ -1,0 +1,131 @@
+---
+trigger: model_decision
+description: How to do backend logging
+---
+
+# Logging
+
+We use a centralized, request-scoped logging pattern where loggers are created by middleware and passed through the request/function chain.
+
+## API Route Logging (Primary Pattern)
+
+Use middleware wrappers that automatically create loggers with request context:
+
+```typescript
+import { withError, withAuth, withEmailAccount, withEmailProvider } from "@/utils/middleware";
+
+// Basic route with error handling and logging
+export const POST = withError("my-route", async (request) => {
+  const logger = request.logger;
+  logger.info("Processing request");
+  // ...
+});
+
+// Authenticated route - logger includes userId
+export const GET = withAuth("my-route", async (request) => {
+  request.logger.info("User action"); // Already has userId context
+  // ...
+});
+
+// Email account route - logger includes emailAccountId, email
+export const POST = withEmailAccount("my-route", async (request) => {
+  request.logger.info("Email action"); // Has userId, emailAccountId, email
+  // ...
+});
+
+// Email provider route - same as email account, plus provides emailProvider
+export const GET = withEmailProvider("my-route", async (request) => {
+  request.logger.info("Provider action");
+  const emails = await request.emailProvider.getMessages();
+  // ...
+});
+```
+
+The middleware automatically adds:
+- `requestId` - Unique ID for request tracing
+- `url` - Request URL
+- `userId` - For authenticated routes
+- `emailAccountId`, `email` - For email account routes
+
+### Enriching Logger Context
+
+Add additional context within your route handler:
+
+```typescript
+export const POST = withEmailAccount("digest", async (request) => {
+  let logger = request.logger;
+  
+  const body = await request.json();
+  logger = logger.with({ messageId: body.messageId });
+  
+  logger.info("Processing message");
+  // ...
+});
+```
+
+## Helper Function Logging
+
+Helper functions called from routes should receive the logger as a parameter instead of creating their own:
+
+```typescript
+import type { Logger } from "@/utils/logger";
+
+export async function processEmail(
+  emailId: string,
+  logger: Logger,
+) {
+  logger = logger.with({ emailId });
+  logger.info("Processing email");
+  // ...
+}
+```
+
+Then call from your route:
+
+```typescript
+export const POST = withEmailAccount("process", async (request) => {
+  await processEmail(body.emailId, request.logger);
+});
+```
+
+## Server Action Logging
+
+Server actions using `actionClient` receive the logger through context, similar to route middleware:
+
+```typescript
+import { actionClient } from "@/utils/actions/safe-action";
+
+export const createRuleAction = actionClient
+  .metadata({ name: "createRule" })
+  .inputSchema(createRuleBody)
+  .action(
+    async ({
+      ctx: { emailAccountId, logger, provider },
+      parsedInput: { name, actions },
+    }) => {
+      logger.info("Creating rule", { name });
+      // ...
+    },
+  );
+```
+
+The `actionClient` context provides:
+- `logger` - Scoped logger with request context
+- `emailAccountId` - Current email account
+- `provider` - Email provider type
+
+## When to Use createScopedLogger
+
+Use `createScopedLogger` only for code that doesn't run within a middleware chain (route or action):
+
+```typescript
+import { createScopedLogger } from "@/utils/logger";
+
+// Standalone scripts
+const logger = createScopedLogger("script/migrate");
+
+// Tests
+const logger = createScopedLogger("test");
+```
+
+Don't use `.with()` for a global/file-level logger. Only use within a specific function.
