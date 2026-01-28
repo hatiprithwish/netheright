@@ -15,6 +15,13 @@
       "when": 1769482639263,
       "tag": "0001_famous_blizzard",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1769492909876,
+      "tag": "0002_yummy_leopardon",
+      "breakpoints": true
     }
   ]
 }

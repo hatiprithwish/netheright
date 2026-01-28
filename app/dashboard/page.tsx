@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/next-auth";
 import { redirect } from "next/navigation";
 import { Shield, User, Mail, Calendar } from "lucide-react";
 

@@ -1,5 +1,5 @@
-import { AuthButton } from "@/components/auth-button";
-import { auth } from "@/lib/auth";
+import { AuthButton } from "@/frontend/ui/auth-button";
+import { auth } from "@/lib/next-auth";
 
 export default async function Home() {
   const session = await auth();
@@ -79,12 +79,9 @@ export default async function Home() {
         )}
 
         <div className="text-center text-sm text-zinc-500 dark:text-zinc-500">
-          <p>
-            Powered by NextAuth v5 with Google and GitHub authentication
-          </p>
+          <p>Powered by NextAuth v5 with Google and GitHub authentication</p>
         </div>
       </main>
     </div>
   );
 }
-

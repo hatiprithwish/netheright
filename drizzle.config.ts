@@ -5,8 +5,8 @@ import { config } from "dotenv";
 config({ path: ".env.local" });
 
 export default defineConfig({
-  schema: "./db/schema/*",
-  out: "./drizzle",
+  schema: "./backend/db/schemas/*",
+  out: "./backend/drizzle",
   dialect: "postgresql",
   dbCredentials: {
     url: process.env.DATABASE_URL!,
