@@ -1,8 +1,7 @@
-
 CREATE TABLE IF NOT EXISTS sdi_sessions (
-  id                      BIGSERIAL PRIMARY KEY,
+  id                      TEXT PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id                 TEXT NOT NULL, -- REFERENCES users(id)
-  problem_id              TEXT NOT NULL,
+  problem_id              INTEGER NOT NULL,
   status                  INTEGER NOT NULL DEFAULT 1,
   current_phase           INTEGER NOT NULL DEFAULT 1,
   start_time              TIMESTAMP NOT NULL DEFAULT NOW(),

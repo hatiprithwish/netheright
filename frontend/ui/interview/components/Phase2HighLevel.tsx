@@ -1,7 +1,7 @@
 "use client";
 
 import { useChat, type Message } from "ai";
-import { useSdiStore } from "../zustand";
+import { useInterviewStore } from "../zustand";
 import { ArchitectureCanvas } from "./ArchitectureCanvas";
 import { useState } from "react";
 import { Send, Zap } from "lucide-react";
@@ -12,14 +12,15 @@ interface Phase2HighLevelProps {
 }
 
 export function Phase2HighLevel({ sessionId }: Phase2HighLevelProps) {
-  const { nodes, edges } = useSdiStore();
+  const { nodes, edges } = useInterviewStore();
   const [critique, setCritique] = useState<Critique | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
-    api: "/api/sdi/chat",
-    body: { sessionId, phase: "high_level" },
-  });
+  const { messages, input, handleInputChange, handleSubmit, isLoading } =
+    useChat({
+      api: "/api/sdi/chat",
+      body: { sessionId, phase: "high_level" },
+    });
 
   const handleAnalyze = async () => {
     if (nodes.length === 0) {
@@ -63,15 +64,25 @@ export function Phase2HighLevel({ sessionId }: Phase2HighLevelProps) {
         {/* Critique Display */}
         {critique && (
           <div className="mx-6 mt-4 p-4 bg-yellow-50 border-2 border-yellow-300 rounded-lg">
-            <h3 className="font-bold text-yellow-900 mb-2">Critical Flaw Identified</h3>
-            <p className="text-sm text-yellow-800 mb-3">{critique.criticalFlaw}</p>
+            <h3 className="font-bold text-yellow-900 mb-2">
+              Critical Flaw Identified
+            </h3>
+            <p className="text-sm text-yellow-800 mb-3">
+              {critique.criticalFlaw}
+            </p>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs font-semibold text-yellow-900">Severity:</span>
-              <span className={`text-xs px-2 py-1 rounded ${
-                critique.severity === "high" ? "bg-red-100 text-red-800" :
-                critique.severity === "medium" ? "bg-orange-100 text-orange-800" :
-                "bg-yellow-100 text-yellow-800"
-              }`}>
+              <span className="text-xs font-semibold text-yellow-900">
+                Severity:
+              </span>
+              <span
+                className={`text-xs px-2 py-1 rounded ${
+                  critique.severity === "high"
+                    ? "bg-red-100 text-red-800"
+                    : critique.severity === "medium"
+                      ? "bg-orange-100 text-orange-800"
+                      : "bg-yellow-100 text-yellow-800"
+                }`}
+              >
                 {critique.severity.toUpperCase()}
               </span>
             </div>
@@ -127,7 +138,9 @@ export function Phase2HighLevel({ sessionId }: Phase2HighLevelProps) {
       {/* Right: Canvas */}
       <div className="flex flex-col bg-white">
         <div className="border-b px-6 py-4 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900">Architecture Canvas</h3>
+          <h3 className="text-lg font-semibold text-gray-900">
+            Architecture Canvas
+          </h3>
           <button
             onClick={handleAnalyze}
             disabled={isAnalyzing || nodes.length === 0}

@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS hld_diagrams (
   id                      BIGSERIAL PRIMARY KEY,
-  session_id              BIGINT NOT NULL, -- REFERENCES sdi_sessions(id),
+  session_id              TEXT NOT NULL, -- REFERENCES sdi_sessions(id),
   topology                JSONB NOT NULL,
   raw_react_flow          JSONB NOT NULL,
   phase                   INT NOT NULL,

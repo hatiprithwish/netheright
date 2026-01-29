@@ -1,4 +1,4 @@
-import { auth, signIn, signOut } from "@/lib/auth";
+import { auth, signIn, signOut } from "@/lib/next-auth";
 import { LogIn, LogOut } from "lucide-react";
 
 export async function AuthButton() {

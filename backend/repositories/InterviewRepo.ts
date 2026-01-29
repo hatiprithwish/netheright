@@ -1,23 +1,22 @@
-import { google } from "@ai-sdk/google";
-import { generateText, streamText, generateObject } from "ai";
 import InterviewDAL from "@/backend/data-access-layer/InterviewDAL";
 import * as Schemas from "../../schemas";
+import gemini from "@/lib/gemini";
+import { streamText, convertToModelMessages, UIMessage } from "ai";
 
 class InterviewRepo {
-  // Session Lifecycle
-  static async createSession(userId: string, problemId: string) {
-    // Check if there's an active session first? Maybe allow multiple.
-    // implementing simple creation for now.
-    return await InterviewDAL.createSession({ userId, problemId });
+  static async createInterviewSession(
+    params: Schemas.CreateInterviewSessionRepoRequest,
+  ) {
+    return await InterviewDAL.createInterviewSession(params);
   }
 
-  static async getSession(sessionId: bigint) {
+  static async getSession(sessionId: string) {
     const session = await InterviewDAL.getSession(sessionId);
     if (!session) throw new Error("Session not found");
     return session;
   }
 
-  static async advancePhase(sessionId: bigint, currentPhase: string) {
+  static async advancePhase(sessionId: string, currentPhase: string) {
     // Logic to determine next phase
     const phases = [
       "requirements",
@@ -32,45 +31,44 @@ class InterviewRepo {
     return await InterviewDAL.updateSessionPhase(sessionId, nextPhase);
   }
 
-  static async endSession(sessionId: bigint) {
+  static async endSession(sessionId: string) {
     return await InterviewDAL.endSession(sessionId);
   }
 
-  // AI Interactions
-  static async chatStream(sessionId: bigint, messages: any[], phase: string) {
+  static async getChatStream(params: Schemas.GetChatStreamRequest) {
     // Persist user message
-    const lastMessage = messages[messages.length - 1];
-    if (lastMessage.role === "user") {
-      await InterviewDAL.addMessage({
-        sessionId,
-        role: Schemas.ChatRoleLabelEnum,
-        content: lastMessage.content,
-        phase: phase as any,
+    const lastMessage = params.messages[params.messages.length - 1];
+    if (lastMessage.role === Schemas.ChatRoleLabelEnum.User) {
+      await InterviewDAL.createMessageInAiChats({
+        sessionId: params.sessionId,
+        role: Schemas.ChatRoleIntEnum.User,
+        content: lastMessage.parts,
+        phase: Schemas.interviewPhaseLabelToInt[params.phaseLabel],
       });
     }
 
-    // Determine system prompt based on phase
-    const systemPrompt = this.getSystemPrompt(phase);
-
     const result = streamText({
-      model: google("gemini-1.5-flash"),
-      system: systemPrompt,
-      messages,
-      onFinish: async (event) => {
-        // Persist assistant message
-        await InterviewDAL.addMessage({
-          sessionId,
-          role: "assistant",
-          content: event.text,
-          phase: phase as any,
+      model: gemini("gemini-2.5-flash"),
+      system: this.getSystemPrompt(params.phaseLabel),
+      messages: await convertToModelMessages(params.messages as UIMessage[]),
+    });
+
+    return result.toUIMessageStreamResponse({
+      onFinish: async ({ messages }) => {
+        console.log(messages);
+        await InterviewDAL.createMessageInAiChats({
+          sessionId: params.sessionId,
+          role: Schemas.ChatRoleIntEnum.Assistant,
+          content: messages[messages.length - 1].parts
+            .map((p) => (p.type == "text" ? p.text : ""))
+            .join(""),
+          phase: Schemas.interviewPhaseLabelToInt[params.phaseLabel],
         });
       },
     });
-
-    return result;
   }
 
-  static async analyzeDesign(sessionId: bigint, graph: SerializedGraph) {
+  static async analyzeDesign(sessionId: string, graph: SerializedGraph) {
     const graphStr = graphToString(graph);
 
     const result = await generateText({
@@ -85,7 +83,7 @@ class InterviewRepo {
     return result.text;
   }
 
-  static async generateScorecard(sessionId: bigint) {
+  static async generateScorecard(sessionId: string) {
     // Fetch all messages and diagrams to analyze
     const messages = await InterviewDAL.getSessionMessages(sessionId);
     // simplified context construction

@@ -1,13 +1,16 @@
 import { apiClient } from "./apiClient";
+import * as Schemas from "@/schemas";
 
 export const analyzeDesign = async (sessionId: string, graph: any) => {
   return apiClient.post<any>("/api/interview/analyze", { sessionId, graph });
 };
 
-export const createInterviewSession = async (problemId: string) => {
-  return apiClient.post<{ sessionId: string; [key: string]: any }>(
+export const createInterviewSession = async (
+  params: Schemas.CreateInterviewSessionRequest,
+) => {
+  return apiClient.post<Schemas.CreateInterviewSessionResponse>(
     "/api/interview/session",
-    { problemId },
+    params,
   );
 };
 

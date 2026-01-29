@@ -1,11 +1,6 @@
-import { InterviewPhase, InterviewSessionStatus } from "./InterviewEnum";
+import { ApiResponse } from "../common";
+import { InterviewSession } from "./InterviewCommon";
 
-export interface GetInterviewSessionResponse {
-    id: string;
-    userId: string;
-    problemId: string;
-    status: InterviewSessionStatus;
-    currentPhase: InterviewPhase;
-    createdAt: string;
-    updatedAt: string;
+export interface CreateInterviewSessionResponse extends ApiResponse {
+  session: InterviewSession | null;
 }

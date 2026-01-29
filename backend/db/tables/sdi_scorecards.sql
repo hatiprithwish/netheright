@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS sdi_scorecards (
   id                          BIGSERIAL PRIMARY KEY,
-  session_id                  BIGINT NOT NULL, -- REFERENCES sdi_sessions(id)
+  session_id                  TEXT NOT NULL, -- REFERENCES sdi_sessions(id)
   overall_grade               INTEGER NOT NULL,
   requirements_gathering      INTEGER NOT NULL,
   data_modeling               INTEGER NOT NULL,

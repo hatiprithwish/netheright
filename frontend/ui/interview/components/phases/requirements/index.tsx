@@ -1,16 +1,21 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { Send, User, Bot, Loader2 } from "lucide-react";
+import { Send, User, Bot } from "lucide-react";
 import { useRef, useEffect, useState } from "react";
-import { useSdiStore } from "../../../zustand";
+import { useInterviewStore } from "../../../zustand";
 import { DefaultChatTransport } from "ai";
 import * as Schemas from "@/schemas";
 
 export function RequirementsStep() {
-  const { sessionId } = useSdiStore();
+  const { sessionId } = useInterviewStore();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [input, setInput] = useState("");
+
+  const body = {
+    sessionId: sessionId as string,
+    phaseLabel: Schemas.InterviewPhaseLabelEnum.RequirementsGathering,
+  };
 
   const { messages, sendMessage } = useChat({
     messages: [
@@ -18,10 +23,7 @@ export function RequirementsStep() {
     ],
     transport: new DefaultChatTransport({
       api: "/api/interview/chat",
-      body: {
-        // sessionId,
-        phase: Schemas.InterviewPhase.Requirements,
-      },
+      body,
     }),
   });
 
