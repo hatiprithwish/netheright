@@ -6,6 +6,7 @@ import { useRef, useEffect, useState } from "react";
 import { useInterviewStore } from "../../../zustand";
 import { DefaultChatTransport } from "ai";
 import * as Schemas from "@/schemas";
+import ReactMarkdown from "react-markdown";
 
 export function RequirementsStep() {
   const { sessionId } = useInterviewStore();
@@ -19,7 +20,7 @@ export function RequirementsStep() {
 
   const { messages, sendMessage } = useChat({
     messages: [
-      // Load messages from the DB on component mount
+      // LATER: Load messages from the DB on component mount
     ],
     transport: new DefaultChatTransport({
       api: "/api/interview/chat",
@@ -87,7 +88,48 @@ export function RequirementsStep() {
               {m.parts.map((part, index) => {
                 switch (part.type) {
                   case "text":
-                    return <p key={index}>{part.text}</p>;
+                    return m.role === "assistant" ? (
+                      <ReactMarkdown
+                        key={index}
+                        components={{
+                          p: ({ children }) => (
+                            <p className="mb-3 last:mb-0">{children}</p>
+                          ),
+                          strong: ({ children }) => (
+                            <strong className="font-semibold text-slate-900">
+                              {children}
+                            </strong>
+                          ),
+                          ul: ({ children }) => (
+                            <ul className="list-disc list-inside mb-3 space-y-1">
+                              {children}
+                            </ul>
+                          ),
+                          ol: ({ children }) => (
+                            <ol className="list-decimal list-inside mb-3 space-y-1">
+                              {children}
+                            </ol>
+                          ),
+                          li: ({ children }) => (
+                            <li className="ml-2">{children}</li>
+                          ),
+                          code: ({ children }) => (
+                            <code className="bg-slate-100 px-1.5 py-0.5 rounded text-xs font-mono">
+                              {children}
+                            </code>
+                          ),
+                          pre: ({ children }) => (
+                            <pre className="bg-slate-100 p-3 rounded-md overflow-x-auto mb-3">
+                              {children}
+                            </pre>
+                          ),
+                        }}
+                      >
+                        {part.text}
+                      </ReactMarkdown>
+                    ) : (
+                      <p key={index}>{part.text}</p>
+                    );
 
                   default:
                     return null;

@@ -32,8 +32,9 @@ export const ZAiMessage = z.object({
   role: z.enum(ChatRoleLabelEnum),
   parts: z.array(
     z.object({
-      type: z.literal("text"),
-      text: z.string(),
+      type: z.string(),
+      text: z.string().optional(),
+      state: z.string().optional(),
     }),
   ),
 });

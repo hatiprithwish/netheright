@@ -42,7 +42,7 @@ class InterviewRepo {
       await InterviewDAL.createMessageInAiChats({
         sessionId: params.sessionId,
         role: Schemas.ChatRoleIntEnum.User,
-        content: lastMessage.parts,
+        content: lastMessage.parts[0].text,
         phase: Schemas.interviewPhaseLabelToInt[params.phaseLabel],
       });
     }
@@ -55,7 +55,6 @@ class InterviewRepo {
 
     return result.toUIMessageStreamResponse({
       onFinish: async ({ messages }) => {
-        console.log(messages);
         await InterviewDAL.createMessageInAiChats({
           sessionId: params.sessionId,
           role: Schemas.ChatRoleIntEnum.Assistant,
