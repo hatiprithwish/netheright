@@ -91,3 +91,12 @@ export const interviewSessionStatusIntToLabel: Record<
   [InterviewSessionStatusIntEnum.Abandoned]:
     InterviewSessionStatusLabelEnum.Abandoned,
 };
+
+export enum RedFlagTypeEnum {
+  JimmyEffect = "Jimmy Effect",
+  MagicalBox = "Magical Box",
+  KeywordStuffing = "Keyword Stuffing",
+  PrematureOptimization = "Premature Optimization",
+  VagueRequirements = "Vague Requirements",
+  SkippedTradeoffs = "Skipped Tradeoffs",
+}

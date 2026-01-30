@@ -1,7 +1,17 @@
 import InterviewDAL from "@/backend/data-access-layer/InterviewDAL";
 import * as Schemas from "../../schemas";
 import gemini from "@/lib/gemini";
-import { streamText, convertToModelMessages, UIMessage } from "ai";
+import {
+  streamText,
+  convertToModelMessages,
+  UIMessage,
+  generateText,
+  generateObject,
+  stepCountIs,
+} from "ai";
+import { google } from "@ai-sdk/google";
+import Constants from "@/constants";
+import type { Logger } from "@/lib/logger";
 
 class InterviewRepo {
   static async createInterviewSession(
@@ -35,7 +45,24 @@ class InterviewRepo {
     return await InterviewDAL.endSession(sessionId);
   }
 
-  static async getChatStream(params: Schemas.GetChatStreamRequest) {
+  static async getChatStream(
+    params: Schemas.GetChatStreamRequest,
+    logger: Logger,
+  ) {
+    // Log the incoming payload from frontend
+    logger.info(
+      {
+        sessionId: params.sessionId,
+        phaseLabel: params.phaseLabel,
+        messageCount: params.messages.length,
+        lastMessageRole: params.messages[params.messages.length - 1]?.role,
+        lastMessagePreview: params.messages[
+          params.messages.length - 1
+        ]?.parts[0]?.text?.substring(0, 100),
+      },
+      "Received chat stream request from frontend",
+    );
+
     // Persist user message
     const lastMessage = params.messages[params.messages.length - 1];
     if (lastMessage.role === Schemas.ChatRoleLabelEnum.User) {
@@ -45,24 +72,118 @@ class InterviewRepo {
         content: lastMessage.parts[0].text,
         phase: Schemas.interviewPhaseLabelToInt[params.phaseLabel],
       });
+      logger.debug("Persisted user message to database");
     }
+
+    const systemPrompt = this.getSystemPrompt(params.phaseLabel);
+    const modelMessages = await convertToModelMessages(
+      params.messages as UIMessage[],
+    );
+
+    // Log payload being sent to Gemini
+    logger.info(
+      {
+        model: "gemini-2.5-flash",
+        systemPromptLength: systemPrompt.length,
+        messageCount: modelMessages.length,
+        toolsAvailable: ["recordRedFlag", "transitionToPhase"],
+      },
+      "Sending request to Gemini",
+    );
+
+    logger.debug(
+      {
+        systemPrompt,
+        messages: modelMessages,
+      },
+      "Gemini request details",
+    );
 
     const result = streamText({
       model: gemini("gemini-2.5-flash"),
-      system: this.getSystemPrompt(params.phaseLabel),
-      messages: await convertToModelMessages(params.messages as UIMessage[]),
+      system: systemPrompt,
+      messages: modelMessages,
+      // @ts-expect-error
+      maxSteps: 5,
+      stopWhen: stepCountIs(5),
+      tools: {
+        recordRedFlag: {
+          description:
+            "Call this when the candidate exhibits poor interviewing behavior such as jumping to solutions without clarifying requirements, using vague abstractions, or keyword stuffing.",
+          inputSchema: Schemas.ZRecordRedFlagParams,
+          execute: async ({ type, reason }) => {
+            logger.info({ type, reason }, "Tool call: recordRedFlag");
+            await InterviewDAL.createRedFlag({
+              sessionId: params.sessionId,
+              type,
+              reason,
+              phase: Schemas.interviewPhaseLabelToInt[params.phaseLabel],
+            });
+            logger.debug("Red flag recorded successfully");
+            return { status: "logged" };
+          },
+        },
+        transitionToPhase: {
+          description:
+            "Move the interview to the next phase when the current phase objectives are complete.",
+          inputSchema: Schemas.ZTransitionToPhaseParams,
+          execute: async ({ nextPhase }) => {
+            logger.info(
+              {
+                currentPhase: params.phaseLabel,
+                nextPhase,
+              },
+              "Tool call: transitionToPhase",
+            );
+            const phaseNumber = parseInt(
+              nextPhase,
+              10,
+            ) as Schemas.InterviewPhaseIntEnum;
+            await InterviewDAL.updateSessionPhase(
+              params.sessionId,
+              phaseNumber,
+            );
+            logger.debug("Phase transition completed successfully");
+            return { status: `Moved to phase ${phaseNumber}` };
+          },
+        },
+      },
     });
+
+    logger.info("Gemini stream initiated successfully");
 
     return result.toUIMessageStreamResponse({
       onFinish: async ({ messages }) => {
+        const assistantMessage = messages[messages.length - 1];
+        const content = assistantMessage.parts
+          .map((p) => (p.type == "text" ? p.text : ""))
+          .join("");
+
+        logger.info(
+          {
+            messageLength: content.length,
+            contentPreview: content.substring(0, 100),
+            partsCount: assistantMessage.parts.length,
+          },
+          "Received complete response from Gemini",
+        );
+
+        logger.debug(
+          {
+            content,
+            parts: assistantMessage.parts,
+          },
+          "Full Gemini response",
+        );
+
         await InterviewDAL.createMessageInAiChats({
           sessionId: params.sessionId,
           role: Schemas.ChatRoleIntEnum.Assistant,
-          content: messages[messages.length - 1].parts
-            .map((p) => (p.type == "text" ? p.text : ""))
-            .join(""),
+          content,
           phase: Schemas.interviewPhaseLabelToInt[params.phaseLabel],
         });
+
+        logger.debug("Persisted assistant message to database");
       },
     });
   }
@@ -92,7 +213,7 @@ class InterviewRepo {
 
     const { object } = await generateObject({
       model: google("gemini-1.5-flash"),
-      schema: ScorecardSchema,
+      schema: Schemas.ZScorecardSchema,
       system:
         "You are an expert interviewer grading a System Design Interview.",
       prompt: `Review the following interview transcript and generate a scorecard based on Requirements Gathering, Data Modeling, Trade-off Analysis, and Scalability.\n\nTranscript:\n${conversation}`,
@@ -115,11 +236,14 @@ class InterviewRepo {
 
   static getSystemPrompt(phase: string): string {
     switch (phase) {
-      case "requirements":
-        return "You are a System Design Interviewer. Phase 1: Requirements Gathering. Help the candidate clarify functional and non-functional requirements for a food delivery app. Do not solve the problem for them. Ask clarifying questions.";
-      case "high_level_design":
-        return "You are a System Design Interviewer. Phase 2: High Level Design. The candidate is drawing a diagram. Critique their choices, ask about trade-offs, DB choices, APi design.";
-      // ... others
+      case Schemas.InterviewPhaseLabelEnum.RequirementsGathering:
+        return Constants.SYSTEM_PROMPTS.REQUIREMENTS_GATHERING;
+      case Schemas.InterviewPhaseLabelEnum.HighLevelDesign:
+        return Constants.SYSTEM_PROMPTS.HIGH_LEVEL_DESIGN;
+      case Schemas.InterviewPhaseLabelEnum.DeepDive:
+        return Constants.SYSTEM_PROMPTS.DEEP_DIVE;
+      case Schemas.InterviewPhaseLabelEnum.Scorecard:
+        return Constants.SYSTEM_PROMPTS.SCORECARD;
       default:
         return "You are a System Design Interviewer.";
     }

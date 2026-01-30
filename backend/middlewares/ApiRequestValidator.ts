@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ZodTypeAny } from "zod";
 import { auth } from "@/lib/next-auth";
+import { createRequestLogger, Logger } from "@/lib/logger";
+import { randomUUID } from "crypto";
 
 interface ValidationError {
   statusCode: number;
@@ -44,6 +46,7 @@ const createValidationErrorResponse = (
 type RouteHandler = (
   req: NextRequest,
   data: any,
+  logger: Logger,
   ...args: any[]
 ) => Promise<NextResponse | Response> | NextResponse | Response;
 
@@ -58,6 +61,7 @@ export const validateRequest = (
   handler: (
     req: NextRequest,
     data: any,
+    logger: Logger,
     ...args: any[]
   ) => Promise<NextResponse | Response> | NextResponse | Response,
 ) => {
@@ -65,6 +69,9 @@ export const validateRequest = (
     req: NextRequest,
     ...args: any[]
   ): Promise<NextResponse | Response> => {
+    // Create request-scoped logger
+    const requestId = randomUUID();
+    const logger = createRequestLogger(requestId, req.url);
     try {
       let validatedBody: any = undefined;
 
@@ -210,7 +217,7 @@ export const validateRequest = (
 
       // Let's adopt a style where we pass `validatedBody` as an extra argument.
 
-      return handler(req, validatedBody, ...args);
+      return handler(req, validatedBody, logger, ...args);
     } catch (error) {
       console.error("Validation Middleware Error:", error);
       return NextResponse.json(

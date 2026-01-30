@@ -11,3 +11,10 @@ export interface CreateInterviewSessionSqlRequest {
   userId: string;
   problemId: number;
 }
+
+export interface CreateRedFlagSqlRequest {
+  sessionId: string;
+  type: string;
+  reason: string;
+  phase: InterviewPhaseIntEnum;
+}

@@ -47,6 +47,19 @@ export const verification_tokens = pgTable("verification_tokens", {
   expires: timestamp("expires", { mode: "date" }).notNull(),
 });
 
+export const sdiProblems = pgTable("sdi_problems", {
+  id: bigserial("id", { mode: "bigint" }).primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  functionalRequirements: text("functional_requirements").array().notNull(),
+  nonFunctionalRequirements: text("non_functional_requirements")
+    .array()
+    .notNull(),
+  boteFactores: jsonb("bote_factores").notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: "date" }),
+});
+
 export const sdiSessions = pgTable("sdi_sessions", {
   id: text("id")
     .primaryKey()
@@ -65,6 +78,15 @@ export const aiChats = pgTable("ai_chats", {
   sessionId: text("session_id").notNull(),
   role: integer("role").notNull(),
   content: jsonb("content").notNull(),
+  phase: integer("phase").notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+});
+
+export const redFlags = pgTable("red_flags", {
+  id: bigserial("id", { mode: "bigint" }).primaryKey(),
+  sessionId: text("session_id").notNull(),
+  type: text("type").notNull(),
+  reason: text("reason").notNull(),
   phase: integer("phase").notNull(),
   createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
 });

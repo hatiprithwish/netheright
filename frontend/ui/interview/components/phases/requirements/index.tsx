@@ -128,7 +128,44 @@ export function RequirementsStep() {
                         {part.text}
                       </ReactMarkdown>
                     ) : (
-                      <p key={index}>{part.text}</p>
+                      <ReactMarkdown
+                        key={index}
+                        components={{
+                          p: ({ children }) => (
+                            <p className="mb-3 last:mb-0">{children}</p>
+                          ),
+                          strong: ({ children }) => (
+                            <strong className="font-semibold text-white">
+                              {children}
+                            </strong>
+                          ),
+                          ul: ({ children }) => (
+                            <ul className="list-disc list-inside mb-3 space-y-1">
+                              {children}
+                            </ul>
+                          ),
+                          ol: ({ children }) => (
+                            <ol className="list-decimal list-inside mb-3 space-y-1">
+                              {children}
+                            </ol>
+                          ),
+                          li: ({ children }) => (
+                            <li className="ml-2">{children}</li>
+                          ),
+                          code: ({ children }) => (
+                            <code className="bg-primary-foreground/20 px-1.5 py-0.5 rounded text-xs font-mono">
+                              {children}
+                            </code>
+                          ),
+                          pre: ({ children }) => (
+                            <pre className="bg-primary-foreground/20 p-3 rounded-md overflow-x-auto mb-3">
+                              {children}
+                            </pre>
+                          ),
+                        }}
+                      >
+                        {part.text}
+                      </ReactMarkdown>
                     );
 
                   default:
@@ -154,7 +191,7 @@ export function RequirementsStep() {
           }}
           className="flex gap-2"
         >
-          <input
+          <textarea
             className="flex-1 bg-slate-50 border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
             value={input}
             placeholder="Asking clarifying questions..."

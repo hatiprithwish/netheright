@@ -3,6 +3,7 @@ import { eq, desc } from "drizzle-orm";
 import {
   sdiSessions,
   aiChats,
+  redFlags,
   hldDiagrams,
   sdiScorecards,
 } from "@/backend/db/models";
@@ -141,6 +142,27 @@ class InterviewDAL {
   static async getScorecard(sessionId: string) {
     return await db.query.sdiScorecards.findFirst({
       where: eq(sdiScorecards.sessionId, sessionId),
+    });
+  }
+
+  // Red Flags
+  static async createRedFlag(data: Schemas.CreateRedFlagSqlRequest) {
+    const [redFlag] = await db
+      .insert(redFlags)
+      .values({
+        sessionId: data.sessionId,
+        type: data.type,
+        reason: data.reason,
+        phase: data.phase,
+      })
+      .returning();
+    return redFlag;
+  }
+
+  static async getSessionRedFlags(sessionId: string) {
+    return await db.query.redFlags.findMany({
+      where: eq(redFlags.sessionId, sessionId),
+      orderBy: [desc(redFlags.createdAt)],
     });
   }
 }

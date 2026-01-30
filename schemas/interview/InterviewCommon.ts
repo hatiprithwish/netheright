@@ -5,6 +5,7 @@ import {
   InterviewPhaseLabelEnum,
   InterviewSessionStatusIntEnum,
   InterviewSessionStatusLabelEnum,
+  RedFlagTypeEnum,
 } from "./InterviewEnum";
 import { z } from "zod";
 
@@ -40,3 +41,20 @@ export const ZAiMessage = z.object({
 });
 
 export type AiMessage = z.infer<typeof ZAiMessage>;
+
+export const ZRecordRedFlagParams = z.object({
+  type: z.enum(RedFlagTypeEnum),
+  reason: z.string(),
+});
+
+export type RecordRedFlagParams = z.infer<typeof ZRecordRedFlagParams>;
+
+export const ZTransitionToPhaseParams = z.object({
+  nextPhase: z
+    .enum(["1", "2", "3", "4"])
+    .describe(
+      "Phase number: 1=Requirements, 2=High Level Design, 3=Deep Dive, 4=Scorecard",
+    ),
+});
+
+export type TransitionToPhaseParams = z.infer<typeof ZTransitionToPhaseParams>;

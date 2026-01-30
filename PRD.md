@@ -1,112 +1,91 @@
-The application is a **single-page application (SPA) experience** that guides the user through 4 locked phases.
+To implement a structured, multi-phase interview agent in Next.js using the Vercel AI SDK, you need a **State-Driven Orchestration** architecture. Relying on a single prompt to "remember" five phases is risky; instead, you should treat the AI as a stateless worker managed by a stateful backend.
 
-### **Phase 1: Scope & Capacity Planning**
+### 1. State Machine Architecture
 
-- **Interface:** Chat Only.
-- **Goal:** User defines Functional & Non-Functional Requirements.
-- **Interaction:**
-    - User types requirements (e.g., "Users can order food").
-    - AI (acting as PM) pushes back on missing edge cases (e.g., "What about driver tracking?").
-    - **Gate:** AI explicitly validates requirements are sufficient before unlocking Phase 2.
+You should not rely on the LLM to decide when a phase ends. Instead, use a **Phase Controller** in your Next.js API route to track the state in a database (like Supabase or Upstash Redis).
 
-### **Phase 2: High-Level Design (The "Architect's Defense")**
+#### **The Backend Logic (Next.js Route Handler)**
 
-- **Interface:** Split Screen (Chat Left | Canvas Right).
-- **Goal:** Draw the core architecture and defend trade-offs.
-- **Interaction:**
-    - **The Canvas:** User drags nodes (Service, SQL DB, NoSQL DB, Queue, LB) to build the graph.
-    - **The Trigger:** User clicks "Analyze Design."
-    - **The Critique:** AI analyzes the **Graph JSON** (not image). It identifies **1 critical flaw** (e.g., "Why SQL for high-velocity logs?") and enters "Defense Mode."
-    - **Success:** User justifies the choice or corrects the diagram.
+When a message comes in:
 
-### **Phase 3: Deep Dives**
+1. **Fetch State:** Retrieve the current phase and "Red Flag" log from the DB.
+2. **Select Prompt:** Load the specific system prompt for that phase.
+3. **Analyze for Transition:** Use a lightweight "Evaluator" call (or the same LLM) to check if phase exit criteria are met.
+4. **Append Context:** Send the relevant history to the LLM.
 
-- **Interface:** Chat + Canvas Highlight.
-- **Goal:** Solve specific SDE II complexity problems.
-- **Interaction:**
-    - AI picks 2 specific scenarios based on the "Food Delivery" config (e.g., *Geo-Spatial Indexing* or *Order State Machine*).
-    - User explains the algorithm or updates the diagram to show specific components (e.g., adding a QuadTree Service).
+---
 
-### **Phase 4: The Scorecard**
+### 2. Structuring the System Prompts
 
-- **Interface:** Dashboard View.
-- **Goal:** Feedback and Growth Tracking.
-- **Interaction:**
-    - Session ends.
-    - System saves the **Transcript**, **Final Diagram**, and **Scores** to the Database.
-    - User sees a graded report (Requirements, Data Modeling, Trade-offs) with actionable feedback.
+You should use **Dynamic System Prompts**. Instead of one giant prompt, use a base template that changes based on the phase.
 
-# Vercel AI SDK
-To build your multi-phase system design tutor application in Next.js, you can combine several powerful tools from the Vercel AI SDK. Here is a recommended combination of tools for each phase of your use case:
+**Base Template:**
 
-### 1. Phase-Based State Management (`useChat`)
+> "You are a Senior System Design Interviewer. Your current goal is [PHASE_GOAL]. Follow these constraints: [PHASE_CONSTRAINTS]. If the user exhibits [RED_FLAGS], silently log it by calling the `recordRedFlag` tool."
 
-The **`useChat`** hook is the ideal foundation for your single-page application (SPA) experience. It manages the conversational state, streams responses, and handles message history automatically.
+**Phase-Specific Injections:**
 
-* **Locked Phases**: You can control the progression by maintaining a "phase" state in your Next.js component. The UI can conditionally render different interfaces (Chat Only vs. Split Screen) based on this state.
+- **Phase 1 (Clarification):** "Be vague. If the user draws a database before asking about Read/Write ratio, call `recordRedFlag` with 'Jimmy Effect'."
+- **Phase 4 (Deep Dive):** "Identify the weakest link in their previous answer. Drill down into implementation details. Do not let them use 'Magical Boxes'."
 
+---
 
-* 
-**Gatekeeping**: Use the `onFinish` callback in `useChat` to have the AI evaluate if the requirements are sufficient before updating the phase state to unlock Phase 2.
+### 3. Red Flag Detection via Tool Calling
 
+The most reliable way to track red flags for final scoring is through **AI SDK Tools**. This forces the model to categorize the behavior explicitly.
 
+```typescript
+const tools = {
+  recordRedFlag: {
+    description:
+      "Call this when the candidate exhibits poor interviewing behavior.",
+    parameters: z.object({
+      type: z.enum(["Jimmy Effect", "Magical Box", "Keyword Stuffing"]),
+      reason: z.string(),
+    }),
+    execute: async ({ type, reason }) => {
+      await saveRedFlagToDb(interviewId, { type, reason });
+      return { status: "logged" };
+    },
+  },
+  transitionToPhase: {
+    description: "Move the interview to the next phase.",
+    parameters: z.object({ nextPhase: z.number() }),
+    execute: async ({ nextPhase }) => {
+      await updateInterviewPhase(interviewId, nextPhase);
+      return { status: `Moved to phase ${nextPhase}` };
+    },
+  },
+};
+```
 
-### 2. Validating Requirements & Graph Analysis (`generateObject`)
+---
 
-For both the gatekeeping in Phase 1 and the "Architect's Defense" in Phase 2, you need structured analysis rather than just plain text.
+### 4. Scoring Mechanism: The "Post-Game" Analysis
 
-* 
-**`generateObject`**: This tool allows you to constrain the AI's output to a specific **Zod schema**.
+For the final scoring, you have two options. Based on your need for accuracy, **Option B** is recommended:
 
+- **Option A (Summary-based):** After each phase, the LLM generates a 2-sentence summary of performance. At the end, a final prompt evaluates these 5 summaries.
+- **Option B (Full Transcript Analysis):** Once Phase 5 ends, trigger a background Cron job or an Edge Function that sends the **entire transcript + the database of Red Flags** to a high-reasoning model (like GPT-4o or Claude 3.5 Sonnet).
 
-* 
-**Phase 1 Gate**: Use it to check a "ready" boolean and list missing requirements.
+**Scoring Prompt Structure:**
 
+> "Review this full transcript. Specifically look at the 'Red Flags' logged: [RED_FLAG_LIST]. Score the candidate 1-10 on: 1. Analytical Thinking, 2. Technical Depth, 3. Communication. Provide a breakdown of why they passed or failed."
 
-* 
-**Phase 2 Critique**: Pass the Canvas Graph JSON to `generateObject` with a schema that requires the AI to identify exactly one critical flaw.
+---
 
+### 5. Recommended Technical Stack
 
+- **Framework:** Next.js (App Router).
+- **AI SDK:** `vercel-ai-sdk` (utilizing `generateText` for evaluation and `streamText` for the chat).
+- **Database:** **PostgreSQL (Prisma/Drizzle)** to store `messages`, `red_flags`, and `current_phase`.
+- **State Management:** Use a `useChat` hook on the frontend, but intercept the `onFinish` callback to check if the backend has triggered a phase transition.
 
+### Summary of Flow
 
-
-### 3. "Defense Mode" & Deep Dives (`stopWhen` & `tool`)
-
-To create an interactive agent that can pick scenarios or push back on trade-offs, use **Tool Calling**.
-
-* 
-**`tool`**: Define tools like `analyzeDesign` or `pickDeepDiveScenario` that the model can call to interact with your application's logic or database.
-
-
-* 
-**`stopWhen` with `stepCountIs**`: This feature enables **multi-step agentic flows**. It allows the model to call a tool, receive the results (like your "Defense Mode" critique), and immediately generate a follow-up response without user intervention.
-
-
-
-### 4. Interactive UI & Canvas Integration (`useChat` parts)
-
-* 
-**Canvas Synchronization**: Use the **`parts`** array within `useChat` to detect tool calls in real-time. When the model calls a tool to "Highlight" a canvas component in Phase 3, your frontend can react to that specific message part to trigger animations or visual changes on the right side of the split screen.
-
-
-
-### 5. Final Scorecard (`generateObject`)
-
-At the end of the session (Phase 4), use `generateObject` one last time to process the entire `messages` transcript and the final `graphJSON`. You can define a detailed schema for the "graded report" including numeric scores and an array of actionable feedback strings.
-
-### Summary of Tool Combinations
-
-| Requirement | Vercel AI SDK Tool |
-| --- | --- |
-| Core Chat & Streaming | <br>`useChat` 
-
- |
-| Structured Logic (Grades, Validation) | <br>`generateObject` 
-
- |
-| Agentic Behavior (Picking scenarios) | <br>`tool` + `stopWhen` 
-
- |
-| Multi-Modal/UI Interaction | <br>`parts` array in `useChat` 
-
- |
+1. **User sends message.**
+2. **Next.js Route** identifies Phase (e.g., Phase 2).
+3. **LLM** processes message using Phase 2 System Prompt.
+4. **LLM** calls `recordRedFlag` if the user fails the math check.
+5. **LLM** calls `transitionToPhase` when math is complete.
+6. **Final Phase** triggers a "Final Report" generation using the stored DB data.
