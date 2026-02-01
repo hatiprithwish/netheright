@@ -70,22 +70,29 @@ export function InterviewStart({
                 <li className="flex items-start gap-2">
                   <span className="text-primary font-bold mt-0.5">2.</span>
                   <span>
-                    <strong>High-Level Design:</strong> Create your system
-                    architecture diagram
+                    <strong>Back-of-the-Envelope:</strong> Estimate system scale
+                    and resource needs
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-primary font-bold mt-0.5">3.</span>
                   <span>
-                    <strong>Deep Dive:</strong> Discuss trade-offs and design
-                    decisions
+                    <strong>High-Level Design:</strong> Create your system
+                    architecture diagram
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-primary font-bold mt-0.5">4.</span>
                   <span>
-                    <strong>Scorecard:</strong> Review your performance and get
-                    feedback
+                    <strong>Component Deep Dive:</strong> Discuss implementation
+                    details of critical components
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary font-bold mt-0.5">5.</span>
+                  <span>
+                    <strong>Bottlenecks & Optimization:</strong> Identify
+                    bottlenecks and failure scenarios
                   </span>
                 </li>
               </ul>

@@ -3,7 +3,7 @@
 import { useInterviewStore } from "../../zustand";
 import { useEffect, useState } from "react";
 
-export function ScorecardStep() {
+export function BottlenecksDiscussionStep() {
   const { sessionId } = useInterviewStore();
   const [scorecard, setScorecard] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -20,9 +20,11 @@ export function ScorecardStep() {
     <div className="h-full w-full bg-slate-50 p-8 overflow-y-auto">
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="text-center">
-          <h1 className="text-3xl font-bold mb-2">Interview Complete</h1>
+          <h1 className="text-3xl font-bold mb-2">
+            Phase 5: Bottlenecks Discussion
+          </h1>
           <p className="text-muted-foreground">
-            Here is your performance breakdown.
+            Identify bottlenecks, optimizations, and failure scenarios.
           </p>
         </div>
 
@@ -30,28 +32,29 @@ export function ScorecardStep() {
           {/* Overall Grade */}
           <div className="bg-white p-6 rounded-xl shadow-sm border text-center flex flex-col justify-center items-center">
             <h3 className="text-lg font-medium text-muted-foreground mb-4">
-              Overall Grade
+              Discussion Status
             </h3>
-            <div className="text-6xl font-black text-primary">A-</div>
+            <div className="text-6xl font-black text-primary">Active</div>
           </div>
 
           {/* Categories */}
           <div className="md:col-span-2 bg-white p-6 rounded-xl shadow-sm border">
-            <h3 className="text-lg font-medium mb-4">Category Breakdown</h3>
+            <h3 className="text-lg font-medium mb-4">Key Discussion Points</h3>
             <div className="space-y-4">
-              <ScoreBar label="Requirements Gathering" score={85} />
-              <ScoreBar label="Data Modeling" score={72} />
-              <ScoreBar label="Trade-off Analysis" score={90} />
-              <ScoreBar label="Scalability" score={65} />
+              <ScoreBar label="Bottleneck Identification" score={0} />
+              <ScoreBar label="Scalability Analysis" score={0} />
+              <ScoreBar label="Failure Scenarios" score={0} />
+              <ScoreBar label="Optimization Strategies" score={0} />
             </div>
           </div>
         </div>
 
         {/* Placeholder for dynamic content */}
         <div className="bg-white p-6 rounded-xl shadow-sm border">
-          <h3 className="text-lg font-medium mb-4">Feedback</h3>
+          <h3 className="text-lg font-medium mb-4">Discussion Notes</h3>
           <p className="text-muted-foreground">
-            Analysis pending real backend implementation...
+            Discuss bottlenecks, caching strategies, database sharding,
+            monitoring, and failure recovery.
           </p>
         </div>
       </div>

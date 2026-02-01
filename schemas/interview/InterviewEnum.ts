@@ -12,16 +12,18 @@ export enum ChatRoleLabelEnum {
 
 export enum InterviewPhaseIntEnum {
   RequirementsGathering = 1,
-  HighLevelDesign = 2,
-  DeepDive = 3,
-  Scorecard = 4,
+  BotECalculation = 2,
+  HighLevelDesign = 3,
+  ComponentDeepDive = 4,
+  BottlenecksDiscussion = 5,
 }
 
 export enum InterviewPhaseLabelEnum {
-  RequirementsGathering = "requirements gathering",
-  HighLevelDesign = "high level design",
-  DeepDive = "deep dive",
-  Scorecard = "scorecard",
+  RequirementsGathering = "Requirements Gathering",
+  BotECalculation = "BotE Calculation",
+  HighLevelDesign = "High Level Design",
+  ComponentDeepDive = "Component Deep Dive",
+  BottlenecksDiscussion = "Bottlenecks Discussion",
 }
 
 export const interviewPhaseLabelToInt: Record<
@@ -32,8 +34,12 @@ export const interviewPhaseLabelToInt: Record<
     InterviewPhaseIntEnum.RequirementsGathering,
   [InterviewPhaseLabelEnum.HighLevelDesign]:
     InterviewPhaseIntEnum.HighLevelDesign,
-  [InterviewPhaseLabelEnum.DeepDive]: InterviewPhaseIntEnum.DeepDive,
-  [InterviewPhaseLabelEnum.Scorecard]: InterviewPhaseIntEnum.Scorecard,
+  [InterviewPhaseLabelEnum.ComponentDeepDive]:
+    InterviewPhaseIntEnum.ComponentDeepDive,
+  [InterviewPhaseLabelEnum.BottlenecksDiscussion]:
+    InterviewPhaseIntEnum.BottlenecksDiscussion,
+  [InterviewPhaseLabelEnum.BotECalculation]:
+    InterviewPhaseIntEnum.BotECalculation,
 };
 
 export const interviewPhaseIntToLabel: Record<
@@ -44,8 +50,12 @@ export const interviewPhaseIntToLabel: Record<
     InterviewPhaseLabelEnum.RequirementsGathering,
   [InterviewPhaseIntEnum.HighLevelDesign]:
     InterviewPhaseLabelEnum.HighLevelDesign,
-  [InterviewPhaseIntEnum.DeepDive]: InterviewPhaseLabelEnum.DeepDive,
-  [InterviewPhaseIntEnum.Scorecard]: InterviewPhaseLabelEnum.Scorecard,
+  [InterviewPhaseIntEnum.ComponentDeepDive]:
+    InterviewPhaseLabelEnum.ComponentDeepDive,
+  [InterviewPhaseIntEnum.BottlenecksDiscussion]:
+    InterviewPhaseLabelEnum.BottlenecksDiscussion,
+  [InterviewPhaseIntEnum.BotECalculation]:
+    InterviewPhaseLabelEnum.BotECalculation,
 };
 
 export enum InterviewGrade {

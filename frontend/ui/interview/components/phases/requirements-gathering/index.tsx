@@ -1,18 +1,24 @@
 "use client";
 
-import { useChat } from "@ai-sdk/react";
+import { useInterviewChat } from "../../../hooks/useInterviewChat";
 import { Send, User, Bot } from "lucide-react";
 import { useRef, useEffect, useState } from "react";
 import { useInterviewStore } from "../../../zustand";
-import { DefaultChatTransport } from "ai";
+
 import * as Schemas from "@/schemas";
 import ReactMarkdown from "react-markdown";
+import { useChat } from "@ai-sdk/react";
+import { DefaultChatTransport } from "ai";
+import { toast } from "sonner";
 
 export function RequirementsStep() {
-  const { sessionId } = useInterviewStore();
+  const { sessionId, setPhase, phase } = useInterviewStore();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [input, setInput] = useState("");
 
+  // const { messages, sendMessage } = useInterviewChat({
+  //   phaseLabel: Schemas.InterviewPhaseLabelEnum.RequirementsGathering,
+  // });
   const body = {
     sessionId: sessionId as string,
     phaseLabel: Schemas.InterviewPhaseLabelEnum.RequirementsGathering,
@@ -26,6 +32,7 @@ export function RequirementsStep() {
       api: "/api/interview/chat",
       body,
     }),
+    experimental_throttle: 50,
   });
 
   // Auto-scroll on new messages
@@ -35,8 +42,36 @@ export function RequirementsStep() {
     }
   }, [messages]);
 
+  useEffect(() => {
+    if (!messages || messages.length === 0) return;
+
+    const lastMessage = messages[messages.length - 1];
+
+    // Only look at Assistant messages
+    if (lastMessage.role !== "assistant") return;
+    console.log("HIIIII 1");
+    // Scan parts for the transition tool result
+    lastMessage.parts.forEach((part) => {
+      console.log("HIIIII 2");
+      console.log(part);
+      if (part.type === "tool-transitionToPhase" && part.output) {
+        console.log("HIIIII 3");
+        const result = part.output as { newPhase: number; status: string };
+
+        if (result.newPhase && result.newPhase !== phase) {
+          console.log("HIIIII 4");
+          setPhase(result.newPhase);
+        }
+      }
+    });
+  }, [messages, phase, setPhase]);
+  console.log(phase);
+
   return (
     <div className="flex flex-col h-full bg-slate-50 border rounded-xl overflow-hidden shadow-sm max-w-4xl mx-auto">
+      <div className="p-4 bg-gray-100 border-b">
+        Current Phase: <strong>{phase}</strong>
+      </div>
       <div className="p-4 border-b bg-white flex justify-between items-center">
         <div>
           <h2 className="font-semibold text-lg">

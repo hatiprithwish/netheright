@@ -50,11 +50,7 @@ export const ZRecordRedFlagParams = z.object({
 export type RecordRedFlagParams = z.infer<typeof ZRecordRedFlagParams>;
 
 export const ZTransitionToPhaseParams = z.object({
-  nextPhase: z
-    .enum(["1", "2", "3", "4"])
-    .describe(
-      "Phase number: 1=Requirements, 2=High Level Design, 3=Deep Dive, 4=Scorecard",
-    ),
+  nextPhase: z.enum(InterviewPhaseLabelEnum),
 });
 
 export type TransitionToPhaseParams = z.infer<typeof ZTransitionToPhaseParams>;

@@ -5,7 +5,10 @@ export async function POST(req: Request) {
   const { sessionId, graph } = await req.json();
 
   if (!sessionId || !graph) {
-    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Missing required fields" },
+      { status: 400 },
+    );
   }
 
   try {
@@ -13,6 +16,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ analysis });
   } catch (error) {
     console.error("Analysis failed:", error);
-    return NextResponse.json({ error: "Failed to analyze design" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to analyze design" },
+      { status: 500 },
+    );
   }
 }

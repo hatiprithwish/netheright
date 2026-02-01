@@ -6,63 +6,19 @@ import {
   convertToModelMessages,
   UIMessage,
   generateText,
-  generateObject,
   stepCountIs,
+  Output,
+  tool,
 } from "ai";
 import { google } from "@ai-sdk/google";
 import Constants from "@/constants";
 import type { Logger } from "@/lib/logger";
 
 class InterviewRepo {
-  static async createInterviewSession(
-    params: Schemas.CreateInterviewSessionRepoRequest,
-  ) {
-    return await InterviewDAL.createInterviewSession(params);
-  }
-
-  static async getSession(sessionId: string) {
-    const session = await InterviewDAL.getSession(sessionId);
-    if (!session) throw new Error("Session not found");
-    return session;
-  }
-
-  static async advancePhase(sessionId: string, currentPhase: string) {
-    // Logic to determine next phase
-    const phases = [
-      "requirements",
-      "high_level_design",
-      "deep_dive",
-      "scorecard",
-    ];
-    const currentIndex = phases.indexOf(currentPhase);
-    if (currentIndex === -1 || currentIndex === phases.length - 1) return null;
-
-    const nextPhase = phases[currentIndex + 1] as any;
-    return await InterviewDAL.updateSessionPhase(sessionId, nextPhase);
-  }
-
-  static async endSession(sessionId: string) {
-    return await InterviewDAL.endSession(sessionId);
-  }
-
   static async getChatStream(
     params: Schemas.GetChatStreamRequest,
     logger: Logger,
   ) {
-    // Log the incoming payload from frontend
-    logger.info(
-      {
-        sessionId: params.sessionId,
-        phaseLabel: params.phaseLabel,
-        messageCount: params.messages.length,
-        lastMessageRole: params.messages[params.messages.length - 1]?.role,
-        lastMessagePreview: params.messages[
-          params.messages.length - 1
-        ]?.parts[0]?.text?.substring(0, 100),
-      },
-      "Received chat stream request from frontend",
-    );
-
     // Persist user message
     const lastMessage = params.messages[params.messages.length - 1];
     if (lastMessage.role === Schemas.ChatRoleLabelEnum.User) {
@@ -72,23 +28,11 @@ class InterviewRepo {
         content: lastMessage.parts[0].text,
         phase: Schemas.interviewPhaseLabelToInt[params.phaseLabel],
       });
-      logger.debug("Persisted user message to database");
     }
 
     const systemPrompt = this.getSystemPrompt(params.phaseLabel);
     const modelMessages = await convertToModelMessages(
       params.messages as UIMessage[],
-    );
-
-    // Log payload being sent to Gemini
-    logger.info(
-      {
-        model: "gemini-2.5-flash",
-        systemPromptLength: systemPrompt.length,
-        messageCount: modelMessages.length,
-        toolsAvailable: ["recordRedFlag", "transitionToPhase"],
-      },
-      "Sending request to Gemini",
     );
 
     logger.debug(
@@ -103,50 +47,42 @@ class InterviewRepo {
       model: gemini("gemini-2.5-flash"),
       system: systemPrompt,
       messages: modelMessages,
-      // @ts-expect-error
-      maxSteps: 5,
-      stopWhen: stepCountIs(5),
+      // maxSteps: 5,
+      // experimental_continueSteps: true,
+      // experimental_toolCallStreaming: true,
       tools: {
-        recordRedFlag: {
+        // recordRedFlag: {
+        //   description:
+        //     "Call this when candidate exhibits poor behavior (jumping to solution, vague abstractions).",
+        //   inputSchema: Schemas.ZRecordRedFlagParams,
+        //   execute: async ({ type, reason }) => {
+        //     await InterviewDAL.createRedFlag({
+        //       sessionId: params.sessionId,
+        //       type,
+        //       reason,
+        //       phase: Schemas.interviewPhaseLabelToInt[params.phaseLabel],
+        //     });
+        //     console.log(`Red Flag: ${reason}`);
+        //     return "Flag recorded. Continue the interview naturally.";
+        //   },
+        // },
+        transitionToPhase: tool({
           description:
-            "Call this when the candidate exhibits poor interviewing behavior such as jumping to solutions without clarifying requirements, using vague abstractions, or keyword stuffing.",
-          inputSchema: Schemas.ZRecordRedFlagParams,
-          execute: async ({ type, reason }) => {
-            logger.info({ type, reason }, "Tool call: recordRedFlag");
-            await InterviewDAL.createRedFlag({
-              sessionId: params.sessionId,
-              type,
-              reason,
-              phase: Schemas.interviewPhaseLabelToInt[params.phaseLabel],
-            });
-            logger.debug("Red flag recorded successfully");
-            return { status: "logged" };
-          },
-        },
-        transitionToPhase: {
-          description:
-            "Move the interview to the next phase when the current phase objectives are complete.",
+            "Call this when the current phase is complete to move to the next phase.",
           inputSchema: Schemas.ZTransitionToPhaseParams,
           execute: async ({ nextPhase }) => {
-            logger.info(
-              {
-                currentPhase: params.phaseLabel,
-                nextPhase,
-              },
-              "Tool call: transitionToPhase",
-            );
-            const phaseNumber = parseInt(
-              nextPhase,
-              10,
-            ) as Schemas.InterviewPhaseIntEnum;
             await InterviewDAL.updateSessionPhase(
               params.sessionId,
-              phaseNumber,
+              Schemas.interviewPhaseLabelToInt[nextPhase],
             );
-            logger.debug("Phase transition completed successfully");
-            return { status: `Moved to phase ${phaseNumber}` };
+            console.log(`Transitioning to phase: ${nextPhase}`);
+
+            return {
+              status: "transition_complete",
+              newPhase: Schemas.interviewPhaseLabelToInt[nextPhase],
+            };
           },
-        },
+        }),
       },
     });
 
@@ -158,15 +94,6 @@ class InterviewRepo {
         const content = assistantMessage.parts
           .map((p) => (p.type == "text" ? p.text : ""))
           .join("");
-
-        logger.info(
-          {
-            messageLength: content.length,
-            contentPreview: content.substring(0, 100),
-            partsCount: assistantMessage.parts.length,
-          },
-          "Received complete response from Gemini",
-        );
 
         logger.debug(
           {
@@ -186,6 +113,38 @@ class InterviewRepo {
         logger.debug("Persisted assistant message to database");
       },
     });
+  }
+
+  static async createInterviewSession(
+    params: Schemas.CreateInterviewSessionRepoRequest,
+  ) {
+    return await InterviewDAL.createInterviewSession(params);
+  }
+
+  static async getSession(sessionId: string) {
+    const session = await InterviewDAL.getSession(sessionId);
+    if (!session) throw new Error("Session not found");
+    return session;
+  }
+
+  static async advancePhase(sessionId: string, currentPhase: string) {
+    // Logic to determine next phase
+    const phases = [
+      "requirements_gathering",
+      "bote_calculation",
+      "high_level_design",
+      "component_deep_dive",
+      "bottlenecks_discussion",
+    ];
+    const currentIndex = phases.indexOf(currentPhase);
+    if (currentIndex === -1 || currentIndex === phases.length - 1) return null;
+
+    const nextPhase = phases[currentIndex + 1] as any;
+    return await InterviewDAL.updateSessionPhase(sessionId, nextPhase);
+  }
+
+  static async endSession(sessionId: string) {
+    return await InterviewDAL.endSession(sessionId);
   }
 
   static async analyzeDesign(sessionId: string, graph: SerializedGraph) {
@@ -211,9 +170,11 @@ class InterviewRepo {
       .map((m) => `${m.role}: ${m.content}`)
       .join("\n");
 
-    const { object } = await generateObject({
+    const { output } = await generateText({
       model: google("gemini-1.5-flash"),
-      schema: Schemas.ZScorecardSchema,
+      output: Output.object({
+        schema: Schemas.ZScorecardSchema,
+      }),
       system:
         "You are an expert interviewer grading a System Design Interview.",
       prompt: `Review the following interview transcript and generate a scorecard based on Requirements Gathering, Data Modeling, Trade-off Analysis, and Scalability.\n\nTranscript:\n${conversation}`,
@@ -221,29 +182,31 @@ class InterviewRepo {
 
     await InterviewDAL.createScorecard({
       sessionId,
-      overallGrade: object.overallGrade,
-      requirementsGathering: object.categories.requirementsGathering,
-      dataModeling: object.categories.dataModeling,
-      tradeOffAnalysis: object.categories.tradeOffAnalysis,
-      scalability: object.categories.scalability,
-      strengths: object.strengths,
-      growthAreas: object.growthAreas,
-      actionableFeedback: object.actionableFeedback,
+      overallGrade: output.overallGrade,
+      requirementsGathering: output.categories.requirementsGathering,
+      dataModeling: output.categories.dataModeling,
+      tradeOffAnalysis: output.categories.tradeOffAnalysis,
+      scalability: output.categories.scalability,
+      strengths: output.strengths,
+      growthAreas: output.growthAreas,
+      actionableFeedback: output.actionableFeedback,
     });
 
-    return object;
+    return output;
   }
 
   static getSystemPrompt(phase: string): string {
     switch (phase) {
       case Schemas.InterviewPhaseLabelEnum.RequirementsGathering:
         return Constants.SYSTEM_PROMPTS.REQUIREMENTS_GATHERING;
+      case Schemas.InterviewPhaseLabelEnum.BotECalculation:
+        return Constants.SYSTEM_PROMPTS.BOTE_CALCULATION;
       case Schemas.InterviewPhaseLabelEnum.HighLevelDesign:
         return Constants.SYSTEM_PROMPTS.HIGH_LEVEL_DESIGN;
-      case Schemas.InterviewPhaseLabelEnum.DeepDive:
-        return Constants.SYSTEM_PROMPTS.DEEP_DIVE;
-      case Schemas.InterviewPhaseLabelEnum.Scorecard:
-        return Constants.SYSTEM_PROMPTS.SCORECARD;
+      case Schemas.InterviewPhaseLabelEnum.ComponentDeepDive:
+        return Constants.SYSTEM_PROMPTS.COMPONENT_DEEP_DIVE;
+      case Schemas.InterviewPhaseLabelEnum.BottlenecksDiscussion:
+        return Constants.SYSTEM_PROMPTS.BOTTLENECKS_DISCUSSION;
       default:
         return "You are a System Design Interviewer.";
     }
