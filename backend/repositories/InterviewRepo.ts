@@ -1,39 +1,67 @@
 import InterviewDAL from "@/backend/data-access-layer/InterviewDAL";
 import * as Schemas from "../../schemas";
 import gemini from "@/lib/gemini";
-import {
-  streamText,
-  convertToModelMessages,
-  UIMessage,
-  generateText,
-  stepCountIs,
-  Output,
-  tool,
-} from "ai";
-import { google } from "@ai-sdk/google";
+import { streamText, convertToModelMessages, UIMessage, tool } from "ai";
 import Constants from "@/constants";
 import type { Logger } from "@/lib/logger";
+import Utilities from "@/utils";
 
 class InterviewRepo {
   static async getChatStream(
     params: Schemas.GetChatStreamRequest,
     logger: Logger,
   ) {
-    // Persist user message
+    // 1. Persist user message
     const lastMessage = params.messages[params.messages.length - 1];
     if (lastMessage.role === Schemas.ChatRoleLabelEnum.User) {
       await InterviewDAL.createMessageInAiChats({
         sessionId: params.sessionId,
         role: Schemas.ChatRoleIntEnum.User,
         content: lastMessage.parts[0].text,
-        phase: Schemas.interviewPhaseLabelToInt[params.phaseLabel],
+        phase: params.phase,
       });
     }
 
-    const systemPrompt = this.getSystemPrompt(params.phaseLabel);
+    // 2. Get sdi problem details -- TODO: Add problems to redis
+    const sdiProblemDetails = await InterviewDAL.getSdiProblemDetails(
+      params.problemId,
+    );
+    if (!sdiProblemDetails.problem) {
+      return;
+    }
+    const systemPrompt = Constants.systemPrompts({
+      phase: params.phase,
+      systemName: sdiProblemDetails.problem?.title,
+      botEAssumptions: sdiProblemDetails.problem?.boteFactors,
+      functionalRequirements: sdiProblemDetails.problem?.functionalRequirements,
+      nonFunctionalRequirements:
+        sdiProblemDetails.problem?.nonFunctionalRequirements,
+    });
+
     const modelMessages = await convertToModelMessages(
       params.messages as UIMessage[],
     );
+
+    if (params.graph) {
+      const graphStr = Utilities.graphToString(params.graph);
+      const lastModelMessage = modelMessages[modelMessages.length - 1];
+      if (lastModelMessage.role === "user") {
+        const note = `\n\nHere is the serialized HLD graph:\n${graphStr}\n\nPlease analyze this graph and provide feedback as per the phase requirements.`;
+
+        if (typeof lastModelMessage.content === "string") {
+          lastModelMessage.content += note;
+        } else if (Array.isArray(lastModelMessage.content)) {
+          const textPart = lastModelMessage.content.find(
+            (p) => p.type === "text",
+          );
+          if (textPart && "text" in textPart) {
+            (textPart as any).text += note;
+          } else {
+            lastModelMessage.content.push({ type: "text", text: note });
+          }
+        }
+      }
+    }
 
     logger.debug(
       {
@@ -107,7 +135,7 @@ class InterviewRepo {
           sessionId: params.sessionId,
           role: Schemas.ChatRoleIntEnum.Assistant,
           content,
-          phase: Schemas.interviewPhaseLabelToInt[params.phaseLabel],
+          phase: params.phase,
         });
 
         logger.debug("Persisted assistant message to database");
@@ -125,91 +153,6 @@ class InterviewRepo {
     const session = await InterviewDAL.getSession(sessionId);
     if (!session) throw new Error("Session not found");
     return session;
-  }
-
-  static async advancePhase(sessionId: string, currentPhase: string) {
-    // Logic to determine next phase
-    const phases = [
-      "requirements_gathering",
-      "bote_calculation",
-      "high_level_design",
-      "component_deep_dive",
-      "bottlenecks_discussion",
-    ];
-    const currentIndex = phases.indexOf(currentPhase);
-    if (currentIndex === -1 || currentIndex === phases.length - 1) return null;
-
-    const nextPhase = phases[currentIndex + 1] as any;
-    return await InterviewDAL.updateSessionPhase(sessionId, nextPhase);
-  }
-
-  static async endSession(sessionId: string) {
-    return await InterviewDAL.endSession(sessionId);
-  }
-
-  static async analyzeDesign(sessionId: string, graph: SerializedGraph) {
-    const graphStr = graphToString(graph);
-
-    const result = await generateText({
-      model: google("gemini-1.5-flash"),
-      system:
-        "You are a Senior System Architect. Analyze the following system design topology for potential flaws, bottlenecks, or single points of failure. Be critical but constructive.",
-      prompt: `Analyze this system design:\n${graphStr}`,
-    });
-
-    // We could store this as a system message or separate critique record
-    // For now, returning text
-    return result.text;
-  }
-
-  static async generateScorecard(sessionId: string) {
-    // Fetch all messages and diagrams to analyze
-    const messages = await InterviewDAL.getSessionMessages(sessionId);
-    // simplified context construction
-    const conversation = messages
-      .map((m) => `${m.role}: ${m.content}`)
-      .join("\n");
-
-    const { output } = await generateText({
-      model: google("gemini-1.5-flash"),
-      output: Output.object({
-        schema: Schemas.ZScorecardSchema,
-      }),
-      system:
-        "You are an expert interviewer grading a System Design Interview.",
-      prompt: `Review the following interview transcript and generate a scorecard based on Requirements Gathering, Data Modeling, Trade-off Analysis, and Scalability.\n\nTranscript:\n${conversation}`,
-    });
-
-    await InterviewDAL.createScorecard({
-      sessionId,
-      overallGrade: output.overallGrade,
-      requirementsGathering: output.categories.requirementsGathering,
-      dataModeling: output.categories.dataModeling,
-      tradeOffAnalysis: output.categories.tradeOffAnalysis,
-      scalability: output.categories.scalability,
-      strengths: output.strengths,
-      growthAreas: output.growthAreas,
-      actionableFeedback: output.actionableFeedback,
-    });
-
-    return output;
-  }
-
-  static getSystemPrompt(phase: string): string {
-    switch (phase) {
-      case Schemas.InterviewPhaseLabelEnum.RequirementsGathering:
-        return Constants.SYSTEM_PROMPTS.REQUIREMENTS_GATHERING;
-      case Schemas.InterviewPhaseLabelEnum.BotECalculation:
-        return Constants.SYSTEM_PROMPTS.BOTE_CALCULATION;
-      case Schemas.InterviewPhaseLabelEnum.HighLevelDesign:
-        return Constants.SYSTEM_PROMPTS.HIGH_LEVEL_DESIGN;
-      case Schemas.InterviewPhaseLabelEnum.ComponentDeepDive:
-        return Constants.SYSTEM_PROMPTS.COMPONENT_DEEP_DIVE;
-      case Schemas.InterviewPhaseLabelEnum.BottlenecksDiscussion:
-        return Constants.SYSTEM_PROMPTS.BOTTLENECKS_DISCUSSION;
-      default:
-        return "You are a System Design Interviewer.";
-    }
   }
 }
 

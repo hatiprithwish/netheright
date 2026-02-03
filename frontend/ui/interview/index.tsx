@@ -6,23 +6,23 @@ import { MobileBlocker } from "./components/MobileBlocker";
 import { InterviewStart } from "./components/InterviewStart";
 import { RequirementsStep } from "./components/phases/requirements-gathering";
 import { BotECalculationStep } from "./components/phases/bote-calculations";
-import { Phase2Design } from "./components/Phase2Design";
-import { ComponentDeepDiveStep } from "./components/phases/ComponentDeepDiveStep";
-import { BottlenecksDiscussionStep } from "./components/phases/BottlenecksDiscussionStep";
+import { HighLevelDesign } from "./components/phases/high-level-design";
+import { ComponentsDeepDive } from "./components/phases/components-deep-dive";
+import { BottlenecksDiscussion } from "./components/phases/bottlenecks-discussion";
 import * as Schemas from "@/schemas";
 
 export default function InterviewPage({ problemId }: { problemId: number }) {
-  const { phase, setPhase, sessionId } = useInterviewStore();
+  const phase = useInterviewStore((state) => state.phase);
+  const setPhase = useInterviewStore((state) => state.setPhase);
+  const sessionId = useInterviewStore((state) => state.sessionId);
+  const maxReachedPhase = useInterviewStore((state) => state.maxReachedPhase);
   const [hasStarted, setHasStarted] = useState(false);
+  const setProblemId = useInterviewStore((state) => state.setProblemId);
 
   // Show start screen if no session exists - simplified check
   if (!sessionId && !hasStarted) {
-    return (
-      <InterviewStart
-        problemId={problemId}
-        onSessionCreated={() => setHasStarted(true)}
-      />
-    );
+    setProblemId(problemId);
+    return <InterviewStart onSessionCreated={() => setHasStarted(true)} />;
   }
 
   return (
@@ -35,6 +35,7 @@ export default function InterviewPage({ problemId }: { problemId: number }) {
             current={phase}
             step={Schemas.InterviewPhaseIntEnum.RequirementsGathering}
             label={`1. ${Schemas.InterviewPhaseLabelEnum.RequirementsGathering}`}
+            maxReachedPhase={maxReachedPhase}
             onClick={() =>
               setPhase(Schemas.InterviewPhaseIntEnum.RequirementsGathering)
             }
@@ -44,6 +45,7 @@ export default function InterviewPage({ problemId }: { problemId: number }) {
             current={phase}
             step={Schemas.InterviewPhaseIntEnum.BotECalculation}
             label={`2. ${Schemas.InterviewPhaseLabelEnum.BotECalculation}`}
+            maxReachedPhase={maxReachedPhase}
             onClick={() =>
               setPhase(Schemas.InterviewPhaseIntEnum.BotECalculation)
             }
@@ -53,15 +55,17 @@ export default function InterviewPage({ problemId }: { problemId: number }) {
             current={phase}
             step={Schemas.InterviewPhaseIntEnum.HighLevelDesign}
             label={`3. ${Schemas.InterviewPhaseLabelEnum.HighLevelDesign}`}
+            maxReachedPhase={maxReachedPhase}
             onClick={() =>
               setPhase(Schemas.InterviewPhaseIntEnum.HighLevelDesign)
             }
           />
-          <span className="text-slate-300">›</span>
+          {/* <span className="text-slate-300">›</span>
           <PhaseStep
             current={phase}
             step={Schemas.InterviewPhaseIntEnum.ComponentDeepDive}
             label={`4. ${Schemas.InterviewPhaseLabelEnum.ComponentDeepDive}`}
+            maxReachedPhase={maxReachedPhase}
             onClick={() =>
               setPhase(Schemas.InterviewPhaseIntEnum.ComponentDeepDive)
             }
@@ -71,10 +75,11 @@ export default function InterviewPage({ problemId }: { problemId: number }) {
             current={phase}
             step={Schemas.InterviewPhaseIntEnum.BottlenecksDiscussion}
             label={`5. ${Schemas.InterviewPhaseLabelEnum.BottlenecksDiscussion}`}
+            maxReachedPhase={maxReachedPhase}
             onClick={() =>
               setPhase(Schemas.InterviewPhaseIntEnum.BottlenecksDiscussion)
             }
-          />
+          /> */}
         </div>
 
         <div className="w-24 hidden md:block">
@@ -90,14 +95,14 @@ export default function InterviewPage({ problemId }: { problemId: number }) {
           <BotECalculationStep />
         )}
         {phase === Schemas.InterviewPhaseIntEnum.HighLevelDesign && (
-          <Phase2Design />
+          <HighLevelDesign />
         )}
-        {phase === Schemas.InterviewPhaseIntEnum.ComponentDeepDive && (
-          <ComponentDeepDiveStep />
+        {/* {phase === Schemas.InterviewPhaseIntEnum.ComponentDeepDive && (
+          <ComponentsDeepDive />
         )}
         {phase === Schemas.InterviewPhaseIntEnum.BottlenecksDiscussion && (
-          <BottlenecksDiscussionStep />
-        )}
+          <BottlenecksDiscussion />
+        )} */}
       </main>
     </div>
   );
@@ -107,18 +112,29 @@ function PhaseStep({
   current,
   step,
   label,
+  maxReachedPhase,
   onClick,
 }: {
   current: Schemas.InterviewPhaseIntEnum;
   step: Schemas.InterviewPhaseIntEnum;
   label: string;
+  maxReachedPhase: Schemas.InterviewPhaseIntEnum;
   onClick: () => void;
 }) {
   const isActive = current === step;
+  const isDisabled = step > maxReachedPhase;
+
   return (
     <button
       onClick={onClick}
-      className={`px-3 py-1.5 rounded-md transition-all whitespace-nowrap ${isActive ? "bg-white shadow text-primary font-medium" : "text-muted-foreground hover:text-foreground hover:bg-slate-100"}`}
+      disabled={isDisabled}
+      className={`px-3 py-1.5 rounded-md transition-all whitespace-nowrap ${
+        isActive
+          ? "bg-white shadow text-primary font-medium"
+          : isDisabled
+            ? "text-slate-300 cursor-not-allowed"
+            : "text-muted-foreground hover:text-foreground hover:bg-slate-100"
+      }`}
     >
       {label}
     </button>

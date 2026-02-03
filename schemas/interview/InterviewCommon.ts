@@ -1,4 +1,4 @@
-import { SerializedGraph } from "@/lib/serializeGraph";
+import { SanitizedGraph } from "../common/ReactFlow";
 import {
   ChatRoleLabelEnum,
   InterviewPhaseIntEnum,
@@ -11,7 +11,7 @@ import { z } from "zod";
 
 export type SaveDiagramParams = {
   sessionId: string;
-  topology: SerializedGraph;
+  topology: SanitizedGraph;
   rawReactFlow: any;
   phase: InterviewPhaseIntEnum;
   userId: string;
@@ -54,3 +54,12 @@ export const ZTransitionToPhaseParams = z.object({
 });
 
 export type TransitionToPhaseParams = z.infer<typeof ZTransitionToPhaseParams>;
+
+export interface SdiProblem {
+  id: number;
+  title: string;
+  description: string;
+  functionalRequirements: string;
+  nonFunctionalRequirements: string;
+  boteFactors: string;
+}

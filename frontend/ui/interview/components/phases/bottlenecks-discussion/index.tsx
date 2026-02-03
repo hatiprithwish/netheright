@@ -1,11 +1,10 @@
 "use client";
 
-import { useInterviewStore } from "../../zustand";
+import { useInterviewStore } from "../../../zustand";
 import { useEffect, useState } from "react";
 
-export function BottlenecksDiscussionStep() {
-  const { sessionId } = useInterviewStore();
-  const [scorecard, setScorecard] = useState<any>(null);
+export function BottlenecksDiscussion() {
+  const sessionId = useInterviewStore((state) => state.sessionId);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

@@ -55,7 +55,7 @@ export const sdiProblems = pgTable("sdi_problems", {
   nonFunctionalRequirements: text("non_functional_requirements")
     .array()
     .notNull(),
-  boteFactores: jsonb("bote_factores").notNull(),
+  boteFactors: text("bote_factors").array().notNull(),
   createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { mode: "date" }),
 });

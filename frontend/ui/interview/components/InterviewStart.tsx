@@ -6,24 +6,21 @@ import { createInterviewSession } from "@/frontend/api/mutations";
 import { Loader2, PlayCircle } from "lucide-react";
 
 interface InterviewStartProps {
-  problemId: number;
   onSessionCreated: () => void;
 }
 
-export function InterviewStart({
-  problemId,
-  onSessionCreated,
-}: InterviewStartProps) {
+export function InterviewStart({ onSessionCreated }: InterviewStartProps) {
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { setSessionId } = useInterviewStore();
+  const setSessionId = useInterviewStore((state) => state.setSessionId);
+  const problemId = useInterviewStore((state) => state.problemId);
 
   const handleStartInterview = async () => {
     setIsCreating(true);
     setError(null);
 
     try {
-      const response = await createInterviewSession({ problemId });
+      const response = await createInterviewSession({ problemId: problemId! });
       if (!response?.session) {
         throw new Error("Failed to create session");
       }

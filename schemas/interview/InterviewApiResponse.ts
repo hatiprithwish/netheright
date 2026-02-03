@@ -1,8 +1,12 @@
 import { ApiResponse } from "../common";
-import { InterviewSession } from "./InterviewCommon";
+import { InterviewSession, SdiProblem } from "./InterviewCommon";
 import { z } from "zod";
 
 export interface CreateInterviewSessionResponse extends ApiResponse {
+  session: InterviewSession | null;
+}
+
+export interface GetInterviewSessionResponse extends ApiResponse {
   session: InterviewSession | null;
 }
 
@@ -20,3 +24,7 @@ export const ZScorecardSchema = z.object({
 });
 
 export type ScorecardSchema = z.infer<typeof ZScorecardSchema>;
+
+export interface GetSdiProblemDetailsResponse extends ApiResponse {
+  problem: SdiProblem | null;
+}

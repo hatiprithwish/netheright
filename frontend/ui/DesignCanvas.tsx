@@ -19,7 +19,11 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { Plus, Download, FileJson } from "lucide-react";
-import { serializeGraph, graphToString, exportGraphJSON } from "@/lib/serializeGraph";
+import {
+  sanitizeGraph,
+  graphToString,
+  exportGraphJSON,
+} from "@/lib/serializeGraph";
 import CustomNode, { type CustomNodeData } from "./CustomNode";
 
 // Register custom node types
@@ -28,7 +32,9 @@ const nodeTypes = {
 } as const;
 
 export default function DesignCanvas() {
-  const [nodes, setNodes, onNodesChange] = useNodesState<Node<CustomNodeData>>([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node<CustomNodeData>>(
+    [],
+  );
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [nodeIdCounter, setNodeIdCounter] = useState(1);
 
@@ -52,7 +58,7 @@ export default function DesignCanvas() {
       };
       setEdges((eds) => addEdge(newEdge, eds));
     },
-    [setEdges]
+    [setEdges],
   );
 
   const addNode = useCallback(() => {
@@ -74,28 +80,30 @@ export default function DesignCanvas() {
     (edgeId: string, newLabel: string) => {
       setEdges((eds) =>
         eds.map((edge) =>
-          edge.id === edgeId ? { ...edge, label: newLabel } : edge
-        )
+          edge.id === edgeId ? { ...edge, label: newLabel } : edge,
+        ),
       );
     },
-    [setEdges]
+    [setEdges],
   );
 
   const onEdgeClick = useCallback(
     (event: React.MouseEvent, edge: Edge) => {
-      const newLabel = prompt("Enter edge label:", edge.label as string || "");
+      const newLabel = prompt(
+        "Enter edge label:",
+        (edge.label as string) || "",
+      );
       if (newLabel !== null) {
         handleEdgeLabelChange(edge.id, newLabel);
       }
     },
-    [handleEdgeLabelChange]
+    [handleEdgeLabelChange],
   );
 
-
   const handleExportJSON = () => {
-    const serialized = serializeGraph(nodes, edges);
+    const serialized = sanitizeGraph(nodes, edges);
     const json = exportGraphJSON(serialized);
-    
+
     // Create download
     const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -107,10 +115,12 @@ export default function DesignCanvas() {
   };
 
   const handleViewTopology = () => {
-    const serialized = serializeGraph(nodes, edges);
+    const serialized = sanitizeGraph(nodes, edges);
     const readable = graphToString(serialized);
-    
-    alert(`Graph Topology:\n\n${readable || "No connections yet"}\n\nJSON:\n${exportGraphJSON(serialized)}`);
+
+    alert(
+      `Graph Topology:\n\n${readable || "No connections yet"}\n\nJSON:\n${exportGraphJSON(serialized)}`,
+    );
   };
 
   return (
@@ -120,7 +130,7 @@ export default function DesignCanvas() {
         <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-50">
           Design Canvas
         </h2>
-        
+
         {/* Add Node Button */}
         <button
           onClick={addNode}
@@ -132,7 +142,9 @@ export default function DesignCanvas() {
 
         <div className="mb-4 rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-700 dark:bg-zinc-800">
           <p className="text-xs text-zinc-600 dark:text-zinc-400">
-            <strong>Tip:</strong> Click a node to edit its name and notes. Connect nodes by dragging from the bottom handle to the top handle of another node. Click an edge to change its label.
+            <strong>Tip:</strong> Click a node to edit its name and notes.
+            Connect nodes by dragging from the bottom handle to the top handle
+            of another node. Click an edge to change its label.
           </p>
         </div>
 
@@ -181,7 +193,10 @@ export default function DesignCanvas() {
           <Background />
           <Controls />
           <MiniMap />
-          <Panel position="top-right" className="bg-white dark:bg-zinc-900 rounded-lg shadow-lg p-2">
+          <Panel
+            position="top-right"
+            className="bg-white dark:bg-zinc-900 rounded-lg shadow-lg p-2"
+          >
             <div className="text-xs text-zinc-600 dark:text-zinc-400">
               Nodes: {nodes.length} | Edges: {edges.length}
             </div>

@@ -1,116 +1,63 @@
-"use client";
-
 import { useChat } from "@ai-sdk/react";
-import { UIMessage } from "ai";
-import { useInterviewStore } from "../zustand";
+import { DefaultChatTransport } from "ai";
 import * as Schemas from "@/schemas";
-import { useSWRConfig } from "swr";
-import { useCallback, useMemo } from "react";
+import { UIMessage } from "ai";
+import { useEffect } from "react";
+import { useInterviewStore } from "../zustand";
 
 interface UseInterviewChatProps {
-  phaseLabel: Schemas.InterviewPhaseLabelEnum;
+  sessionId: string;
+  phase: Schemas.InterviewPhaseIntEnum;
+  problemId: number;
+  graph?: Schemas.SanitizedGraph;
   initialMessages?: UIMessage[];
 }
 
 export function useInterviewChat({
-  phaseLabel,
+  sessionId,
+  phase,
+  graph,
+  problemId,
   initialMessages = [],
 }: UseInterviewChatProps) {
-  const { sessionId, setPhase } = useInterviewStore();
-  const { mutate } = useSWRConfig();
+  const body: Omit<Schemas.GetChatStreamRequest, "messages"> = {
+    sessionId,
+    phase,
+    graph,
+    problemId,
+  };
 
-  // Stabilize initialMessages
-  const stableInitialMessages = useMemo(
-    () => initialMessages,
-    [initialMessages],
-  );
-
-  // @ts-ignore - useChat types might be mismatching
-  const {
-    messages,
-    input,
-    setInput,
-    sendMessage: chatSendMessage,
-    isLoading,
-    stop,
-    reload,
-  } = useChat({
-    initialMessages: stableInitialMessages,
-    api: "/api/interview/chat",
-    onFinish: (result: any) => {
-      // handling potential different signatures
-      const message = result.message || result;
-
-      // Check for tool calls
-      if (message.toolInvocations) {
-        for (const toolInvocation of message.toolInvocations) {
-          if (
-            toolInvocation.toolName === "transitionToPhase" &&
-            toolInvocation.state === "result"
-          ) {
-            const result = toolInvocation.result;
-            const args = toolInvocation.args;
-
-            if (args && args.nextPhase) {
-              const nextPhaseInt = parseInt(
-                args.nextPhase,
-                10,
-              ) as Schemas.InterviewPhaseIntEnum;
-
-              console.log("Creating phase transition to:", nextPhaseInt);
-              setPhase(nextPhaseInt);
-            }
-          }
-        }
-      }
-
-      // Revalidate session data to ensure backend state is synced
-      if (sessionId) {
-        mutate(`/api/interview/session/${sessionId}`);
-      }
-    },
+  const { messages, sendMessage } = useChat({
+    messages: initialMessages,
+    transport: new DefaultChatTransport({
+      api: "/api/interview/chat",
+      body,
+    }),
+    experimental_throttle: 50,
   });
 
-  const sendMessage = useCallback(
-    (message: { text: string }) => {
-      console.log("sendMessage called", message);
+  const currentPhase = useInterviewStore((state) => state.phase);
+  const setPhase = useInterviewStore((state) => state.setPhase);
 
-      if (!sessionId) {
-        console.error("Session ID is missing, cannot send message");
-        return;
-      }
+  useEffect(() => {
+    if (!messages || messages.length === 0) return;
 
-      if (chatSendMessage) {
-        console.log("Calling chatSendMessage with dynamic body", {
-          sessionId,
-          phaseLabel,
-        });
-        chatSendMessage(
-          {
-            role: "user",
-            content: message.text,
-          },
-          {
-            body: {
-              sessionId,
-              phaseLabel,
-            },
-          },
-        );
-      } else {
-        console.error("chatSendMessage is undefined");
+    const lastMessage = messages[messages.length - 1];
+
+    if (lastMessage.role !== "assistant") return;
+    lastMessage.parts.forEach((part) => {
+      if (part.type === "tool-transitionToPhase" && part.output) {
+        const result = part.output as { newPhase: number; status: string };
+
+        if (result.newPhase && result.newPhase !== currentPhase) {
+          setPhase(result.newPhase);
+        }
       }
-    },
-    [chatSendMessage, sessionId, phaseLabel],
-  );
+    });
+  }, [messages, currentPhase, setPhase]);
 
   return {
-    messages: (messages || []) as unknown as UIMessage[],
-    input,
-    setInput,
+    messages,
     sendMessage,
-    isLoading,
-    stop,
-    reload,
   };
 }

@@ -1,15 +1,52 @@
 import { db } from "@/backend/db";
-import { eq, desc } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import {
   sdiSessions,
   aiChats,
   redFlags,
-  hldDiagrams,
-  sdiScorecards,
+  sdiProblems,
 } from "@/backend/db/models";
 import * as Schemas from "@/schemas";
 
 class InterviewDAL {
+  static async getSdiProblemDetails(problemId: number) {
+    let response: Schemas.GetSdiProblemDetailsResponse = {
+      isSuccess: false,
+      message: "Failed to get sdi problem details",
+      problem: null,
+    };
+
+    try {
+      const [dbResult] = await db
+        .select({
+          id: sdiProblems.id,
+          title: sdiProblems.title,
+          description: sdiProblems.description,
+          functionalRequirements: sdiProblems.functionalRequirements,
+          nonFunctionalRequirements: sdiProblems.nonFunctionalRequirements,
+          boteFactors: sdiProblems.boteFactors,
+        })
+        .from(sdiProblems)
+        .where(eq(sdiProblems.id, BigInt(problemId)))
+        .limit(1);
+
+      response.problem = {
+        ...dbResult,
+        id: Number(dbResult.id),
+        functionalRequirements: dbResult.functionalRequirements.join("\n"),
+        nonFunctionalRequirements:
+          dbResult.nonFunctionalRequirements.join("\n"),
+        boteFactors: dbResult.boteFactors.join("\n"),
+      };
+
+      response.isSuccess = true;
+      response.message = "Sdi problem details fetched successfully";
+      return response;
+    } catch (error) {
+      return response;
+    }
+  }
+
   static async createInterviewSession(
     params: Schemas.CreateInterviewSessionSqlRequest,
   ) {
@@ -97,55 +134,6 @@ class InterviewDAL {
     return message;
   }
 
-  static async getSessionMessages(sessionId: string) {
-    return await db.query.aiChats.findMany({
-      where: eq(aiChats.sessionId, sessionId),
-      orderBy: [desc(aiChats.createdAt)],
-    });
-  }
-
-  // Diagrams
-  static async saveDiagram({
-    sessionId,
-    topology,
-    rawReactFlow,
-    phase,
-    userId,
-  }: Schemas.SaveDiagramParams) {
-    const [diagram] = await db
-      .insert(hldDiagrams)
-      .values({
-        sessionId,
-        topology,
-        rawReactFlow,
-        phase,
-        createdBy: userId,
-        updatedBy: userId,
-      })
-      .returning();
-    return diagram;
-  }
-
-  static async getLatestDiagram(sessionId: string) {
-    return await db.query.hldDiagrams.findFirst({
-      where: eq(hldDiagrams.sessionId, sessionId),
-      orderBy: [desc(hldDiagrams.createdAt)],
-    });
-  }
-
-  // Scorecards
-  static async createScorecard(data: typeof sdiScorecards.$inferInsert) {
-    const [scorecard] = await db.insert(sdiScorecards).values(data).returning();
-    return scorecard;
-  }
-
-  static async getScorecard(sessionId: string) {
-    return await db.query.sdiScorecards.findFirst({
-      where: eq(sdiScorecards.sessionId, sessionId),
-    });
-  }
-
-  // Red Flags
   static async createRedFlag(data: Schemas.CreateRedFlagSqlRequest) {
     const [redFlag] = await db
       .insert(redFlags)
@@ -157,13 +145,6 @@ class InterviewDAL {
       })
       .returning();
     return redFlag;
-  }
-
-  static async getSessionRedFlags(sessionId: string) {
-    return await db.query.redFlags.findMany({
-      where: eq(redFlags.sessionId, sessionId),
-      orderBy: [desc(redFlags.createdAt)],
-    });
   }
 }
 
