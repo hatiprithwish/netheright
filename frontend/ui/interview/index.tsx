@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useInterviewStore } from "./zustand";
 import { MobileBlocker } from "./components/MobileBlocker";
 import { InterviewStart } from "./components/InterviewStart";
+import { InterviewCompletionScreen } from "./components/InterviewCompletionScreen";
 import { RequirementsStep } from "./components/phases/requirements-gathering";
 import { BotECalculationStep } from "./components/phases/bote-calculations";
 import { HighLevelDesign } from "./components/phases/high-level-design";
@@ -44,6 +45,12 @@ function InterviewSessionView({
   const phase = useInterviewStore((state) => state.phase);
   const setPhase = useInterviewStore((state) => state.setPhase);
   const maxReachedPhase = useInterviewStore((state) => state.maxReachedPhase);
+  const isCompleted = useInterviewStore((state) => state.isCompleted);
+
+  // Show completion screen if interview is completed
+  if (isCompleted) {
+    return <InterviewCompletionScreen />;
+  }
 
   return (
     <InterviewChatWrapper

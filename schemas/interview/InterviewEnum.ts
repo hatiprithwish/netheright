@@ -65,11 +65,11 @@ export const interviewPhaseIntToLabel: Record<
 };
 
 export enum InterviewGrade {
-  S = 1,
-  A = 2,
+  F = 1,
+  C = 2,
   B = 3,
-  C = 4,
-  F = 5,
+  A = 4,
+  S = 5,
 }
 
 export enum InterviewSessionStatusIntEnum {

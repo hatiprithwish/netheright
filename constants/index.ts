@@ -107,6 +107,37 @@ class Constants {
     }
   };
 
+  static readonly GRADE_LABELS: Record<number, string> = {
+    5: "S",
+    4: "A",
+    3: "B",
+    2: "C",
+    1: "F",
+  };
+
+  static readonly GRADE_COLORS: Record<
+    number,
+    { bg: string; text: string; border: string }
+  > = {
+    5: {
+      bg: "bg-green-100",
+      text: "text-green-700",
+      border: "border-green-300",
+    },
+    4: { bg: "bg-blue-100", text: "text-blue-700", border: "border-blue-300" },
+    3: {
+      bg: "bg-yellow-100",
+      text: "text-yellow-700",
+      border: "border-yellow-300",
+    },
+    2: {
+      bg: "bg-orange-100",
+      text: "text-orange-700",
+      border: "border-orange-300",
+    },
+    1: { bg: "bg-red-100", text: "text-red-700", border: "border-red-300" },
+  };
+
   static scoreCardPrompt = ({
     conversationHistory,
   }: {

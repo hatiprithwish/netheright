@@ -16,6 +16,7 @@ interface InterviewState {
   phase: InterviewPhaseIntEnum;
   maxReachedPhase: InterviewPhaseIntEnum;
   isHighLevelDesignSubmitted: boolean;
+  isCompleted: boolean;
 
   // Graph State
   nodes: Node[];
@@ -26,6 +27,7 @@ interface InterviewState {
   setProblemId: (id: number) => void;
   setPhase: (phase: InterviewPhaseIntEnum) => void;
   setHighLevelDesignSubmitted: (submitted: boolean) => void;
+  setCompleted: (completed: boolean) => void;
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
   setNodes: (nodes: Node[]) => void;
@@ -45,6 +47,7 @@ export const useInterviewStore = create<InterviewState>()(
       nodes: [],
       edges: [],
       isHighLevelDesignSubmitted: false,
+      isCompleted: false,
 
       setSessionId: (id) => set({ sessionId: id }),
       setProblemId: (id) => set({ problemId: id }),
@@ -58,6 +61,7 @@ export const useInterviewStore = create<InterviewState>()(
       },
       setHighLevelDesignSubmitted: (submitted) =>
         set({ isHighLevelDesignSubmitted: submitted }),
+      setCompleted: (completed) => set({ isCompleted: completed }),
 
       onNodesChange: (changes) => {
         set({
@@ -85,9 +89,11 @@ export const useInterviewStore = create<InterviewState>()(
       reset: () =>
         set({
           sessionId: null,
+          problemId: null,
           phase: InterviewPhaseIntEnum.RequirementsGathering,
           maxReachedPhase: InterviewPhaseIntEnum.RequirementsGathering,
           isHighLevelDesignSubmitted: false,
+          isCompleted: false,
           nodes: [],
           edges: [],
         }),

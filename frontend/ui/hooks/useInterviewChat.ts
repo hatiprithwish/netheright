@@ -59,6 +59,7 @@ export function useInterviewChat({
 
   const currentPhase = useInterviewStore((state) => state.phase);
   const setPhase = useInterviewStore((state) => state.setPhase);
+  const setCompleted = useInterviewStore((state) => state.setCompleted);
 
   useEffect(() => {
     if (!messages || messages.length === 0) return;
@@ -67,6 +68,7 @@ export function useInterviewChat({
 
     if (lastMessage.role !== "assistant") return;
     lastMessage.parts.forEach((part) => {
+      // Handle phase transition
       if (part.type === "tool-transitionToPhase" && part.output) {
         const result = part.output as { newPhase: number; status: string };
 
@@ -74,8 +76,16 @@ export function useInterviewChat({
           setPhase(result.newPhase);
         }
       }
+
+      // Handle interview completion
+      if (part.type === "tool-endInterview" && part.output) {
+        const result = part.output as { status: string };
+        if (result.status === "interview_completed") {
+          setCompleted(true);
+        }
+      }
     });
-  }, [messages, currentPhase, setPhase]);
+  }, [messages, currentPhase, setPhase, setCompleted]);
 
   return {
     messages,
