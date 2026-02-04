@@ -5,6 +5,7 @@ import { streamText, convertToModelMessages, UIMessage, tool } from "ai";
 import Constants from "@/constants";
 import type { Logger } from "@/lib/logger";
 import Utilities from "@/utils";
+import z from "zod";
 
 class InterviewRepo {
   static async getChatStream(
@@ -22,7 +23,19 @@ class InterviewRepo {
       });
     }
 
-    // 2. Get sdi problem details -- TODO: Add problems to redis
+    // 2. Fetch message history from database (clean, without tool invocations)
+    const dbMessages = await InterviewDAL.getMessagesBySession(
+      params.sessionId,
+    );
+
+    // 3. Convert DB messages to UIMessage format
+    const uiMessages: UIMessage[] = dbMessages.map((msg) => ({
+      id: msg.id,
+      role: msg.role as "user" | "assistant",
+      parts: [{ type: "text", text: msg.content }],
+    }));
+
+    // 4. Get sdi problem details -- TODO: Add problems to redis
     const sdiProblemDetails = await InterviewDAL.getSdiProblemDetails(
       params.problemId,
     );
@@ -38,9 +51,7 @@ class InterviewRepo {
         sdiProblemDetails.problem?.nonFunctionalRequirements,
     });
 
-    const modelMessages = await convertToModelMessages(
-      params.messages as UIMessage[],
-    );
+    const modelMessages = await convertToModelMessages(uiMessages);
 
     if (params.graph) {
       const graphStr = Utilities.graphToString(params.graph);
@@ -63,19 +74,20 @@ class InterviewRepo {
       }
     }
 
-    logger.debug(
-      {
-        systemPrompt,
-        messages: modelMessages,
-      },
-      "Gemini request details",
-    );
+    // logger.debug(
+    //   {
+    //     systemPrompt,
+    //     messages: modelMessages,
+    //   },
+    //   "Gemini request details",
+    // );
 
     const result = streamText({
       model: gemini("gemini-2.5-flash"),
       system: systemPrompt,
       messages: modelMessages,
-      // maxSteps: 5,
+      // @ts-expect-error
+      maxSteps: 5,
       // experimental_continueSteps: true,
       // experimental_toolCallStreaming: true,
       tools: {
@@ -99,7 +111,7 @@ class InterviewRepo {
             "Call this when the current phase is complete to move to the next phase.",
           inputSchema: Schemas.ZTransitionToPhaseParams,
           execute: async ({ nextPhase }) => {
-            await InterviewDAL.updateSessionPhase(
+            await InterviewDAL.updateInterviewPhase(
               params.sessionId,
               Schemas.interviewPhaseLabelToInt[nextPhase],
             );
@@ -111,10 +123,61 @@ class InterviewRepo {
             };
           },
         }),
+        endInterview: tool({
+          description: "Call this when the interview is complete.",
+          inputSchema: z.object({}),
+          execute: async () => {
+            console.log("Ending interview session");
+            await InterviewDAL.endInterviewSession(params.sessionId);
+
+            // Generate scorecard by sending entire chat history to LLM
+            const allMessages = await InterviewDAL.getMessagesBySession(
+              params.sessionId,
+            );
+
+            // Create a conversation summary for the LLM
+            const conversationHistory = allMessages
+              .map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
+              .join("\n\n");
+
+            try {
+              const { generateObject } = await import("ai");
+              const scorecardResult = await generateObject({
+                model: gemini("gemini-2.5-flash"),
+                schema: Schemas.ZScorecardSchema,
+                prompt: Constants.scoreCardPrompt({ conversationHistory }),
+              });
+
+              // Save scorecard to database
+              await InterviewDAL.createScorecard({
+                sessionId: params.sessionId,
+                overallGrade: scorecardResult.object.overallGrade,
+                requirementsGathering:
+                  scorecardResult.object.categories.requirementsGathering,
+                dataModeling: scorecardResult.object.categories.dataModeling,
+                tradeOffAnalysis:
+                  scorecardResult.object.categories.tradeOffAnalysis,
+                scalability: scorecardResult.object.categories.scalability,
+                strengths: scorecardResult.object.strengths,
+                growthAreas: scorecardResult.object.growthAreas,
+                actionableFeedback: scorecardResult.object.actionableFeedback,
+              });
+
+              logger.info(
+                { scorecard: scorecardResult.object },
+                "Scorecard generated and saved successfully",
+              );
+            } catch (error) {
+              logger.error({ error }, "Failed to generate or save scorecard");
+            }
+
+            return {
+              status: "interview_completed",
+            };
+          },
+        }),
       },
     });
-
-    logger.info("Gemini stream initiated successfully");
 
     return result.toUIMessageStreamResponse({
       onFinish: async ({ messages }) => {
@@ -123,22 +186,12 @@ class InterviewRepo {
           .map((p) => (p.type == "text" ? p.text : ""))
           .join("");
 
-        logger.debug(
-          {
-            content,
-            parts: assistantMessage.parts,
-          },
-          "Full Gemini response",
-        );
-
         await InterviewDAL.createMessageInAiChats({
           sessionId: params.sessionId,
           role: Schemas.ChatRoleIntEnum.Assistant,
           content,
           phase: params.phase,
         });
-
-        logger.debug("Persisted assistant message to database");
       },
     });
   }

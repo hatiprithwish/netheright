@@ -5,6 +5,7 @@ import {
   aiChats,
   redFlags,
   sdiProblems,
+  sdiScorecards,
 } from "@/backend/db/models";
 import * as Schemas from "@/schemas";
 
@@ -97,7 +98,7 @@ class InterviewDAL {
     });
   }
 
-  static async updateSessionPhase(
+  static async updateInterviewPhase(
     sessionId: string,
     phase: Schemas.InterviewPhaseIntEnum,
   ) {
@@ -109,7 +110,7 @@ class InterviewDAL {
     return updated;
   }
 
-  static async endSession(sessionId: string) {
+  static async endInterviewSession(sessionId: string) {
     const [ended] = await db
       .update(sdiSessions)
       .set({
@@ -145,6 +146,53 @@ class InterviewDAL {
       })
       .returning();
     return redFlag;
+  }
+
+  static async getMessagesBySession(
+    sessionId: string,
+    upToPhase?: Schemas.InterviewPhaseIntEnum,
+  ) {
+    let query = db
+      .select({
+        id: aiChats.id,
+        role: aiChats.role,
+        content: aiChats.content,
+        phase: aiChats.phase,
+        createdAt: aiChats.createdAt,
+      })
+      .from(aiChats)
+      .where(eq(aiChats.sessionId, sessionId));
+
+    const messages = await query.orderBy(aiChats.createdAt);
+
+    // Filter by phase if specified (include messages up to and including the specified phase)
+    const filteredMessages = upToPhase
+      ? messages.filter((msg) => msg.phase <= upToPhase)
+      : messages;
+
+    return filteredMessages.map((msg) => ({
+      id: msg.id.toString(),
+      role: Schemas.chatRoleIntToLabel[msg.role as Schemas.ChatRoleIntEnum],
+      content: msg.content as string,
+    }));
+  }
+
+  static async createScorecard(data: Schemas.CreateScorecardSqlRequest) {
+    const [scorecard] = await db
+      .insert(sdiScorecards)
+      .values({
+        sessionId: data.sessionId,
+        overallGrade: data.overallGrade,
+        requirementsGathering: data.requirementsGathering,
+        dataModeling: data.dataModeling,
+        tradeOffAnalysis: data.tradeOffAnalysis,
+        scalability: data.scalability,
+        strengths: data.strengths,
+        growthAreas: data.growthAreas,
+        actionableFeedback: data.actionableFeedback,
+      })
+      .returning();
+    return scorecard;
   }
 }
 

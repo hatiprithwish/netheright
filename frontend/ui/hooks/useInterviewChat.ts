@@ -2,33 +2,54 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import * as Schemas from "@/schemas";
 import { UIMessage } from "ai";
-import { useEffect } from "react";
-import { useInterviewStore } from "../zustand";
+import { useEffect, useState } from "react";
+import { useInterviewStore } from "../interview/zustand";
 
 interface UseInterviewChatProps {
   sessionId: string;
   phase: Schemas.InterviewPhaseIntEnum;
   problemId: number;
-  graph?: Schemas.SanitizedGraph;
-  initialMessages?: UIMessage[];
 }
 
 export function useInterviewChat({
   sessionId,
   phase,
-  graph,
   problemId,
-  initialMessages = [],
 }: UseInterviewChatProps) {
+  const [previousMessages, setPreviousMessages] = useState<UIMessage[]>([]);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(true);
+
   const body: Omit<Schemas.GetChatStreamRequest, "messages"> = {
     sessionId,
     phase,
-    graph,
     problemId,
   };
 
+  // Fetch messages from current phase on mount
+  useEffect(() => {
+    const fetchPreviousMessages = async () => {
+      try {
+        setIsLoadingMessages(true);
+        // Fetch messages for the current phase only
+        const response = await fetch(
+          `/api/interview/messages?sessionId=${sessionId}&upToPhase=${phase}`,
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setPreviousMessages(data.messages || []);
+        }
+      } catch (error) {
+        console.error("Error fetching previous messages:", error);
+      } finally {
+        setIsLoadingMessages(false);
+      }
+    };
+
+    fetchPreviousMessages();
+  }, [sessionId, phase]);
+
   const { messages, sendMessage } = useChat({
-    messages: initialMessages,
+    messages: previousMessages,
     transport: new DefaultChatTransport({
       api: "/api/interview/chat",
       body,
@@ -59,5 +80,6 @@ export function useInterviewChat({
   return {
     messages,
     sendMessage,
+    isLoadingMessages,
   };
 }

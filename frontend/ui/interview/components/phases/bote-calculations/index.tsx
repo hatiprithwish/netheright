@@ -1,20 +1,12 @@
 "use client";
 
-import { useInterviewChat } from "../../../hooks/useInterviewChat";
-import { useInterviewStore } from "../../../zustand";
 import { ChatInterface } from "../../common/ChatInterface";
-import * as Schemas from "@/schemas";
+import { InterviewPhaseProps } from "../../../utils";
 
-export function BotECalculationStep() {
-  const sessionId = useInterviewStore((state) => state.sessionId);
-  const problemId = useInterviewStore((state) => state.problemId);
-
-  const { messages, sendMessage } = useInterviewChat({
-    phase: Schemas.InterviewPhaseIntEnum.BotECalculation,
-    sessionId: sessionId!,
-    problemId: problemId!,
-  });
-
+export function BotECalculationStep({
+  messages,
+  sendMessage,
+}: InterviewPhaseProps) {
   return (
     <div className="h-full max-w-4xl mx-auto flex flex-col">
       <ChatInterface

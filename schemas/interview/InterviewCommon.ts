@@ -36,6 +36,7 @@ export const ZAiMessage = z.object({
       type: z.string(),
       text: z.string().optional(),
       state: z.string().optional(),
+      toolInvocation: z.any().optional(),
     }),
   ),
 });

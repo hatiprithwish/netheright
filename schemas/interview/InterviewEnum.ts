@@ -10,6 +10,12 @@ export enum ChatRoleLabelEnum {
   System = "system",
 }
 
+export const chatRoleIntToLabel: Record<ChatRoleIntEnum, ChatRoleLabelEnum> = {
+  [ChatRoleIntEnum.User]: ChatRoleLabelEnum.User,
+  [ChatRoleIntEnum.Assistant]: ChatRoleLabelEnum.Assistant,
+  [ChatRoleIntEnum.System]: ChatRoleLabelEnum.System,
+};
+
 export enum InterviewPhaseIntEnum {
   RequirementsGathering = 1,
   BotECalculation = 2,
@@ -73,9 +79,9 @@ export enum InterviewSessionStatusIntEnum {
 }
 
 export enum InterviewSessionStatusLabelEnum {
-  Active = "active",
-  Completed = "completed",
-  Abandoned = "abandoned",
+  Active = "Active",
+  Completed = "Completed",
+  Abandoned = "Abandoned",
 }
 
 export const interviewSessionStatusLabelToInt: Record<

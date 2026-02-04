@@ -1,20 +1,12 @@
 "use client";
 
-import { useInterviewChat } from "../../../hooks/useInterviewChat";
-import { useInterviewStore } from "../../../zustand";
-import * as Schemas from "@/schemas";
 import { ChatInterface } from "../../common/ChatInterface";
+import { InterviewPhaseProps } from "../../../utils";
 
-export function RequirementsStep() {
-  const sessionId = useInterviewStore((state) => state.sessionId);
-  const problemId = useInterviewStore((state) => state.problemId);
-
-  const { messages, sendMessage } = useInterviewChat({
-    sessionId: sessionId as string,
-    phase: Schemas.InterviewPhaseIntEnum.RequirementsGathering,
-    problemId: problemId as number,
-  });
-
+export function RequirementsStep({
+  messages,
+  sendMessage,
+}: InterviewPhaseProps) {
   return (
     <div className="h-full max-w-4xl mx-auto flex flex-col">
       <ChatInterface

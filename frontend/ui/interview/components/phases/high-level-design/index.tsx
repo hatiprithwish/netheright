@@ -1,17 +1,17 @@
 "use client";
 
-import { useInterviewChat } from "../../../hooks/useInterviewChat";
-import * as Schemas from "@/schemas";
 import { useInterviewStore } from "../../../zustand";
 import { ArchitectureCanvas } from "./ArchitectureCanvas";
+import Utilities from "@/utils";
 import { useState } from "react";
 import { Bot, Loader2, Wand2 } from "lucide-react";
-import Utilities from "@/utils";
 import { ChatInterface } from "../../common/ChatInterface";
+import { InterviewPhaseProps } from "../../../utils";
 
-export function HighLevelDesign() {
-  const sessionId = useInterviewStore((state) => state.sessionId);
-  const problemId = useInterviewStore((state) => state.problemId);
+export function HighLevelDesign({
+  messages,
+  sendMessage,
+}: InterviewPhaseProps) {
   const nodes = useInterviewStore((state) => state.nodes);
   const edges = useInterviewStore((state) => state.edges);
   const isHighLevelDesignSubmitted = useInterviewStore(
@@ -22,17 +22,19 @@ export function HighLevelDesign() {
   );
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  const { messages, sendMessage } = useInterviewChat({
-    sessionId: sessionId!,
-    phase: Schemas.InterviewPhaseIntEnum.HighLevelDesign,
-    problemId: problemId!,
-    graph: Utilities.sanitizeGraph(nodes, edges),
-  });
-
   const handleAnalyze = async () => {
     setIsAnalyzing(true);
     try {
-      await sendMessage({ text: "Please analyze the design" });
+      await sendMessage(
+        {
+          text: "Please analyze the design",
+        },
+        {
+          body: {
+            graph: Utilities.sanitizeGraph(nodes, edges),
+          },
+        },
+      );
       setHighLevelDesignSubmitted(true);
     } catch (e) {
       console.error(e);
@@ -46,7 +48,7 @@ export function HighLevelDesign() {
       {/* Left: Chat */}
       <div className="w-1/3 h-full">
         <ChatInterface
-          title="Phase 2: Design"
+          title="Phase 3: High Level Design"
           subtitle="Draw your system and discuss trade-offs."
           messages={messages}
           onSendMessage={(text) => sendMessage({ text })}

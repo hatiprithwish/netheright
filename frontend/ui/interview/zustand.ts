@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
 import {
   Node,
   Edge,
@@ -94,6 +94,7 @@ export const useInterviewStore = create<InterviewState>()(
     }),
     {
       name: "interview-storage",
+      storage: createJSONStorage(() => localStorage),
     },
   ),
 );
