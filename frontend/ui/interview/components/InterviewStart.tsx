@@ -14,12 +14,16 @@ export function InterviewStart({ onSessionCreated }: InterviewStartProps) {
   const [error, setError] = useState<string | null>(null);
   const setSessionId = useInterviewStore((state) => state.setSessionId);
   const problemId = useInterviewStore((state) => state.problemId);
+  const resetInterview = useInterviewStore((state) => state.reset);
 
   const handleStartInterview = async () => {
     setIsCreating(true);
     setError(null);
 
     try {
+      // Reset all previous interview state (including nodes and edges)
+      resetInterview();
+
       const response = await createInterviewSession({ problemId: problemId! });
       if (!response?.session) {
         throw new Error("Failed to create session");
@@ -35,7 +39,7 @@ export function InterviewStart({ onSessionCreated }: InterviewStartProps) {
   };
 
   return (
-    <div className="h-full flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
       <div className="max-w-2xl w-full mx-auto p-8">
         <div className="bg-white rounded-2xl shadow-xl p-10 border border-slate-200">
           <div className="text-center space-y-6">
@@ -78,7 +82,7 @@ export function InterviewStart({ onSessionCreated }: InterviewStartProps) {
                     architecture diagram
                   </span>
                 </li>
-                <li className="flex items-start gap-2">
+                {/* <li className="flex items-start gap-2">
                   <span className="text-primary font-bold mt-0.5">4.</span>
                   <span>
                     <strong>Component Deep Dive:</strong> Discuss implementation
@@ -91,7 +95,7 @@ export function InterviewStart({ onSessionCreated }: InterviewStartProps) {
                     <strong>Bottlenecks & Optimization:</strong> Identify
                     bottlenecks and failure scenarios
                   </span>
-                </li>
+                </li> */}
               </ul>
             </div>
 
@@ -104,7 +108,7 @@ export function InterviewStart({ onSessionCreated }: InterviewStartProps) {
             <button
               onClick={handleStartInterview}
               disabled={isCreating}
-              className="w-full bg-primary text-primary-foreground px-8 py-4 rounded-lg font-semibold text-lg hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-lg hover:shadow-xl"
+              className="cursor-pointer w-full bg-primary text-primary-foreground px-8 py-4 rounded-lg font-semibold text-lg hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-lg hover:shadow-xl"
             >
               {isCreating ? (
                 <>

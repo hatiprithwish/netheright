@@ -17,6 +17,7 @@ interface InterviewState {
   maxReachedPhase: InterviewPhaseIntEnum;
   isHighLevelDesignSubmitted: boolean;
   isCompleted: boolean;
+  pendingPhaseTransitionFromUser: number | null;
 
   // Graph State
   nodes: Node[];
@@ -28,6 +29,8 @@ interface InterviewState {
   setPhase: (phase: InterviewPhaseIntEnum) => void;
   setHighLevelDesignSubmitted: (submitted: boolean) => void;
   setCompleted: (completed: boolean) => void;
+  setPendingPhaseTransition: (phase: number | null) => void;
+  confirmPhaseTransition: () => void;
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
   setNodes: (nodes: Node[]) => void;
@@ -48,6 +51,7 @@ export const useInterviewStore = create<InterviewState>()(
       edges: [],
       isHighLevelDesignSubmitted: false,
       isCompleted: false,
+      pendingPhaseTransitionFromUser: null,
 
       setSessionId: (id) => set({ sessionId: id }),
       setProblemId: (id) => set({ problemId: id }),
@@ -62,6 +66,23 @@ export const useInterviewStore = create<InterviewState>()(
       setHighLevelDesignSubmitted: (submitted) =>
         set({ isHighLevelDesignSubmitted: submitted }),
       setCompleted: (completed) => set({ isCompleted: completed }),
+      setPendingPhaseTransition: (phase) =>
+        set({ pendingPhaseTransitionFromUser: phase }),
+      confirmPhaseTransition: () => {
+        const pendingPhase = get().pendingPhaseTransitionFromUser;
+        if (pendingPhase !== null) {
+          const currentMax = get().maxReachedPhase;
+          if (pendingPhase > currentMax) {
+            set({
+              phase: pendingPhase,
+              maxReachedPhase: pendingPhase,
+              pendingPhaseTransitionFromUser: null,
+            });
+          } else {
+            set({ phase: pendingPhase, pendingPhaseTransitionFromUser: null });
+          }
+        }
+      },
 
       onNodesChange: (changes) => {
         set({
@@ -86,7 +107,7 @@ export const useInterviewStore = create<InterviewState>()(
           }),
         });
       },
-      reset: () =>
+      reset: () => {
         set({
           sessionId: null,
           problemId: null,
@@ -96,7 +117,11 @@ export const useInterviewStore = create<InterviewState>()(
           isCompleted: false,
           nodes: [],
           edges: [],
-        }),
+          pendingPhaseTransitionFromUser: null,
+        });
+        // Clear localStorage to ensure complete cleanup
+        localStorage.removeItem("interview-storage");
+      },
     }),
     {
       name: "interview-storage",

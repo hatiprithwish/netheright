@@ -2,8 +2,9 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import * as Schemas from "@/schemas";
 import { UIMessage } from "ai";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useInterviewStore } from "../interview/zustand";
+import Constants from "@/constants";
 
 interface UseInterviewChatProps {
   sessionId: string;
@@ -18,12 +19,18 @@ export function useInterviewChat({
 }: UseInterviewChatProps) {
   const [previousMessages, setPreviousMessages] = useState<UIMessage[]>([]);
   const [isLoadingMessages, setIsLoadingMessages] = useState(true);
+  const hasAutoStartedRef = useRef(false);
 
   const body: Omit<Schemas.GetChatStreamRequest, "messages"> = {
     sessionId,
     phase,
     problemId,
   };
+
+  // Reset auto-start flag when phase changes
+  useEffect(() => {
+    hasAutoStartedRef.current = false;
+  }, [phase]);
 
   // Fetch messages from current phase on mount
   useEffect(() => {
@@ -58,8 +65,34 @@ export function useInterviewChat({
   });
 
   const currentPhase = useInterviewStore((state) => state.phase);
-  const setPhase = useInterviewStore((state) => state.setPhase);
+  const setPendingPhaseTransition = useInterviewStore(
+    (state) => state.setPendingPhaseTransition,
+  );
+  const confirmPhaseTransition = useInterviewStore(
+    (state) => state.confirmPhaseTransition,
+  );
+  const pendingPhaseTransitionFromUser = useInterviewStore(
+    (state) => state.pendingPhaseTransitionFromUser,
+  );
   const setCompleted = useInterviewStore((state) => state.setCompleted);
+
+  // Auto-start conversation for all phases when they have no messages
+  useEffect(() => {
+    // Only auto-start if:
+    // 1. Messages have finished loading
+    // 2. There are no previous messages for this phase
+    // 3. We haven't already triggered auto-start
+    if (
+      !isLoadingMessages &&
+      previousMessages.length === 0 &&
+      !hasAutoStartedRef.current
+    ) {
+      hasAutoStartedRef.current = true;
+      // Send trigger message to initiate LLM response
+      // The LLM will receive the full chat history from previous phases via the API
+      sendMessage({ text: Constants.AUTO_START_TRIGGER_MESSAGE });
+    }
+  }, [phase, isLoadingMessages, previousMessages, sendMessage]);
 
   useEffect(() => {
     if (!messages || messages.length === 0) return;
@@ -73,7 +106,8 @@ export function useInterviewChat({
         const result = part.output as { newPhase: number; status: string };
 
         if (result.newPhase && result.newPhase !== currentPhase) {
-          setPhase(result.newPhase);
+          // Set pending phase transition instead of auto-transitioning
+          setPendingPhaseTransition(result.newPhase);
         }
       }
 
@@ -85,11 +119,13 @@ export function useInterviewChat({
         }
       }
     });
-  }, [messages, currentPhase, setPhase, setCompleted]);
+  }, [messages, currentPhase, setPendingPhaseTransition, setCompleted]);
 
   return {
     messages,
     sendMessage,
     isLoadingMessages,
+    pendingPhaseTransitionFromUser,
+    confirmTransition: confirmPhaseTransition,
   };
 }

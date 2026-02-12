@@ -6,6 +6,8 @@ import { InterviewPhaseProps } from "../../../utils";
 export function RequirementsStep({
   messages,
   sendMessage,
+  pendingPhaseTransition,
+  onConfirmTransition,
 }: InterviewPhaseProps) {
   return (
     <div className="h-full max-w-4xl mx-auto flex flex-col">
@@ -15,6 +17,8 @@ export function RequirementsStep({
         messages={messages}
         onSendMessage={(text) => sendMessage({ text })}
         placeholder="Asking clarifying questions..."
+        pendingPhaseTransition={pendingPhaseTransition}
+        onConfirmTransition={onConfirmTransition}
         emptyState={
           <div className="text-center text-muted-foreground py-10">
             <p>

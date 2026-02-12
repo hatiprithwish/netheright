@@ -11,6 +11,8 @@ import { InterviewPhaseProps } from "../../../utils";
 export function HighLevelDesign({
   messages,
   sendMessage,
+  pendingPhaseTransition,
+  onConfirmTransition,
 }: InterviewPhaseProps) {
   const nodes = useInterviewStore((state) => state.nodes);
   const edges = useInterviewStore((state) => state.edges);
@@ -59,6 +61,8 @@ export function HighLevelDesign({
               : "Submit design to start chat..."
           }
           headerClassName="p-4 border-b bg-white"
+          pendingPhaseTransition={pendingPhaseTransition}
+          onConfirmTransition={onConfirmTransition}
           emptyState={
             <div className="flex flex-col items-center justify-center h-full text-center p-6 text-muted-foreground/80">
               {!isHighLevelDesignSubmitted && (

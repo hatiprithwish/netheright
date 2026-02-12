@@ -1,9 +1,8 @@
 "use client";
 
-import { Send, User, Bot } from "lucide-react";
+import { User, Bot, SendIcon, ChevronRightIcon } from "lucide-react";
 import { useRef, useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { UIMessage } from "ai";
 
 interface ChatInterfaceProps {
   messages: any[];
@@ -15,6 +14,8 @@ interface ChatInterfaceProps {
   emptyState?: React.ReactNode;
   isLoading?: boolean;
   headerClassName?: string;
+  pendingPhaseTransition?: number | null;
+  onConfirmTransition?: () => void;
 }
 
 export function ChatInterface({
@@ -27,8 +28,11 @@ export function ChatInterface({
   emptyState,
   isLoading = false,
   headerClassName = "p-4 border-b bg-white",
+  pendingPhaseTransition,
+  onConfirmTransition,
 }: ChatInterfaceProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [input, setInput] = useState("");
 
   // Auto-scroll on new messages
@@ -38,12 +42,27 @@ export function ChatInterface({
     }
   }, [messages]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  // Auto-resize textarea based on content
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [input]);
+
+  const handleSubmit = (e?: React.FormEvent) => {
+    e?.preventDefault();
     if (!input.trim() || isInputDisabled) return;
 
     onSendMessage(input);
     setInput("");
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit();
+    }
   };
 
   return (
@@ -221,25 +240,47 @@ export function ChatInterface({
         */}
       </div>
 
-      {/* Input Area */}
-      <div className="p-4 bg-white border-t">
-        <form onSubmit={handleSubmit} className="flex gap-2">
-          <input
-            className="flex-1 bg-slate-50 border rounded-md px-3 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed outline-none focus:ring-2 focus:ring-primary/20"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder={placeholder}
-            disabled={isInputDisabled}
-          />
-          <button
-            type="submit"
-            className="bg-primary text-primary-foreground px-3 py-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors"
-            disabled={isInputDisabled || !input.trim() || isLoading}
-          >
-            <Send className="w-4 h-4" />
-          </button>
-        </form>
-      </div>
+      {/* Continue Button for Phase Transition */}
+      {pendingPhaseTransition !== null &&
+        pendingPhaseTransition !== undefined &&
+        onConfirmTransition && (
+          <div className="px-4 py-3 bg-blue-50 border-t border-blue-200">
+            <button
+              onClick={onConfirmTransition}
+              className="w-full cursor-pointer bg-primary text-primary-foreground px-4 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+            >
+              <span>Continue to Next Phase</span>
+              <ChevronRightIcon className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
+      {/* Input Area - Hidden when pending phase transition */}
+      {!(
+        pendingPhaseTransition !== null && pendingPhaseTransition !== undefined
+      ) && (
+        <div className="p-4 bg-white border-t">
+          <form onSubmit={handleSubmit} className="flex gap-2 items-end">
+            <textarea
+              ref={textareaRef}
+              className="flex-1 bg-slate-50 border rounded-md px-3 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed outline-none focus:ring-2 focus:ring-primary/20 resize-none min-h-[40px] max-h-[200px] overflow-y-auto"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={placeholder}
+              disabled={isInputDisabled}
+              rows={1}
+            />
+            <button
+              type="submit"
+              className="bg-primary cursor-pointer text-primary-foreground px-3 py-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors"
+              disabled={isInputDisabled || !input.trim() || isLoading}
+            >
+              <SendIcon className="w-4 h-4" />
+            </button>
+          </form>
+        </div>
+      )}
     </div>
   );
 }

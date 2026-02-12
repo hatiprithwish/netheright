@@ -77,7 +77,12 @@ function InterviewChatWrapper({
   setPhase: (phase: Schemas.InterviewPhaseIntEnum) => void;
   maxReachedPhase: Schemas.InterviewPhaseIntEnum;
 }) {
-  const { messages, sendMessage } = useInterviewChat({
+  const {
+    messages,
+    sendMessage,
+    pendingPhaseTransitionFromUser,
+    confirmTransition,
+  } = useInterviewChat({
     sessionId,
     phase: phase,
     problemId: problemId,
@@ -140,20 +145,33 @@ function InterviewChatWrapper({
           /> */}
         </div>
 
-        <div className="w-24 hidden md:block">
-          {/* User menu placeholder */}
-        </div>
+        <AbandonInterviewButton />
       </header>
 
       <main className="flex-1 p-4 overflow-hidden relative">
         {phase === Schemas.InterviewPhaseIntEnum.RequirementsGathering && (
-          <RequirementsStep messages={messages} sendMessage={sendMessage} />
+          <RequirementsStep
+            messages={messages}
+            sendMessage={sendMessage}
+            pendingPhaseTransition={pendingPhaseTransitionFromUser}
+            onConfirmTransition={confirmTransition}
+          />
         )}
         {phase === Schemas.InterviewPhaseIntEnum.BotECalculation && (
-          <BotECalculationStep messages={messages} sendMessage={sendMessage} />
+          <BotECalculationStep
+            messages={messages}
+            sendMessage={sendMessage}
+            pendingPhaseTransition={pendingPhaseTransitionFromUser}
+            onConfirmTransition={confirmTransition}
+          />
         )}
         {phase === Schemas.InterviewPhaseIntEnum.HighLevelDesign && (
-          <HighLevelDesign messages={messages} sendMessage={sendMessage} />
+          <HighLevelDesign
+            messages={messages}
+            sendMessage={sendMessage}
+            pendingPhaseTransition={pendingPhaseTransitionFromUser}
+            onConfirmTransition={confirmTransition}
+          />
         )}
         {/* {phase === Schemas.InterviewPhaseIntEnum.ComponentDeepDive && (
           <ComponentsDeepDive />
@@ -180,7 +198,7 @@ function PhaseStep({
   onClick: () => void;
 }) {
   const isActive = current === step;
-  const isDisabled = step > maxReachedPhase;
+  const isDisabled = current !== step; // Disable all phases except current
 
   return (
     <button
@@ -189,12 +207,74 @@ function PhaseStep({
       className={`px-3 py-1.5 rounded-md transition-all whitespace-nowrap ${
         isActive
           ? "bg-white shadow text-primary font-medium"
-          : isDisabled
-            ? "text-slate-300 cursor-not-allowed"
-            : "text-muted-foreground hover:text-foreground hover:bg-slate-100"
+          : "text-slate-300 cursor-not-allowed"
       }`}
     >
       {label}
     </button>
+  );
+}
+
+function AbandonInterviewButton() {
+  const [showConfirm, setShowConfirm] = useState(false);
+  const resetInterview = useInterviewStore((state) => state.reset);
+
+  const handleAbandon = () => {
+    resetInterview();
+    window.location.href = "/";
+  };
+
+  return (
+    <>
+      <button
+        onClick={() => setShowConfirm(true)}
+        className="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors flex items-center gap-2"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+        Abandon Interview
+      </button>
+
+      {showConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-slate-900 mb-2">
+              Abandon Interview?
+            </h3>
+            <p className="text-sm text-slate-600 mb-6">
+              Are you sure you want to abandon this interview? Your progress
+              will be lost and you'll be redirected to the home page.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowConfirm(false)}
+                className="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-md transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAbandon}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors"
+              >
+                Yes, Abandon
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

@@ -1,6 +1,10 @@
 import * as Schemas from "@/schemas";
 
 class Constants {
+  static readonly AUTO_START_TRIGGER_MESSAGE = "Let's begin the interview.";
+  static readonly PHASE_TRANSITION_CONTINUE_BUTTON_TEXT =
+    "Continue to Next Phase";
+
   static systemPrompts = ({
     phase,
     systemName,
