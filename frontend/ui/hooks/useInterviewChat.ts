@@ -37,9 +37,9 @@ export function useInterviewChat({
     const fetchPreviousMessages = async () => {
       try {
         setIsLoadingMessages(true);
-        // Fetch messages for the current phase only
+        // Fetch messages for the current phase only (not all phases up to current)
         const response = await fetch(
-          `/api/interview/messages?sessionId=${sessionId}&upToPhase=${phase}`,
+          `/api/interview/messages?sessionId=${sessionId}&exactPhase=${phase}`,
         );
         if (response.ok) {
           const data = await response.json();
@@ -92,7 +92,10 @@ export function useInterviewChat({
       // The LLM will receive the full chat history from previous phases via the API
       sendMessage({ text: Constants.AUTO_START_TRIGGER_MESSAGE });
     }
-  }, [phase, isLoadingMessages, previousMessages, sendMessage]);
+    // Note: sendMessage is intentionally excluded from dependencies to avoid
+    // re-running this effect when the function reference changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, isLoadingMessages, previousMessages.length]);
 
   useEffect(() => {
     if (!messages || messages.length === 0) return;

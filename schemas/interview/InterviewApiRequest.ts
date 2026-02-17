@@ -18,7 +18,7 @@ export type CreateInterviewSessionRepoRequest = z.infer<
 };
 
 export const ZGetChatStreamRequest = z.object({
-  phase: z.enum(InterviewPhaseIntEnum),
+  phase: z.nativeEnum(InterviewPhaseIntEnum),
   sessionId: z.string(),
   problemId: z.number(),
   messages: z.array(ZAiMessage),

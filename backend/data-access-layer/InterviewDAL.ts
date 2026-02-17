@@ -151,6 +151,7 @@ class InterviewDAL {
   static async getMessagesBySession(
     sessionId: string,
     upToPhase?: Schemas.InterviewPhaseIntEnum,
+    exactPhase?: Schemas.InterviewPhaseIntEnum,
   ) {
     let query = db
       .select({
@@ -165,10 +166,16 @@ class InterviewDAL {
 
     const messages = await query.orderBy(aiChats.createdAt);
 
-    // Filter by phase if specified (include messages up to and including the specified phase)
-    const filteredMessages = upToPhase
-      ? messages.filter((msg) => msg.phase <= upToPhase)
-      : messages;
+    // Filter by phase if specified
+    let filteredMessages = messages;
+
+    if (exactPhase !== undefined) {
+      // Return only messages from the exact phase
+      filteredMessages = messages.filter((msg) => msg.phase === exactPhase);
+    } else if (upToPhase !== undefined) {
+      // Return messages up to and including the specified phase
+      filteredMessages = messages.filter((msg) => msg.phase <= upToPhase);
+    }
 
     return filteredMessages.map((msg) => ({
       id: msg.id.toString(),

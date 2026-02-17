@@ -12,6 +12,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const sessionId = searchParams.get("sessionId");
   const upToPhase = searchParams.get("upToPhase");
+  const exactPhase = searchParams.get("exactPhase");
 
   if (!sessionId) {
     return NextResponse.json(
@@ -25,6 +26,9 @@ export async function GET(req: NextRequest) {
       sessionId,
       upToPhase
         ? (parseInt(upToPhase) as Schemas.InterviewPhaseIntEnum)
+        : undefined,
+      exactPhase
+        ? (parseInt(exactPhase) as Schemas.InterviewPhaseIntEnum)
         : undefined,
     );
 

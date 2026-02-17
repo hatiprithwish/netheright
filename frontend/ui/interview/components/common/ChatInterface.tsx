@@ -120,7 +120,9 @@ export function ChatInterface({
                         key={index}
                         components={{
                           p: ({ children }) => (
-                            <p className="mb-2 last:mb-0">{children}</p>
+                            <p className="mb-2 last:mb-0 whitespace-pre-wrap">
+                              {children}
+                            </p>
                           ),
                           strong: ({ children }) => (
                             <strong
@@ -168,6 +170,7 @@ export function ChatInterface({
                               {children}
                             </pre>
                           ),
+                          br: () => <br />,
                         }}
                       >
                         {part.text}
@@ -180,7 +183,9 @@ export function ChatInterface({
                 <ReactMarkdown
                   components={{
                     p: ({ children }) => (
-                      <p className="mb-2 last:mb-0">{children}</p>
+                      <p className="mb-2 last:mb-0 whitespace-pre-wrap">
+                        {children}
+                      </p>
                     ),
                     strong: ({ children }) => (
                       <strong
@@ -226,6 +231,7 @@ export function ChatInterface({
                         {children}
                       </pre>
                     ),
+                    br: () => <br />,
                   }}
                 >
                   {m.content}
