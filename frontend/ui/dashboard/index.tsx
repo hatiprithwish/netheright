@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { InterviewHistoryList } from "@/frontend/ui/dashboard/components/InterviewHistoryList";
 import { useInterviewHistory } from "@/frontend/api/cachedQueries";
 import { BarChart3, Plus, User } from "lucide-react";
@@ -19,9 +20,11 @@ function Dashboard({ userName, userEmail, userImage }: DashboardContentProps) {
         <div className="mb-8 flex items-center justify-between">
           <div className="flex items-center gap-4">
             {userImage ? (
-              <img
+              <Image
                 src={userImage}
                 alt={userName}
+                width={64}
+                height={64}
                 className="h-16 w-16 rounded-full border-4 border-white shadow-md"
               />
             ) : (
