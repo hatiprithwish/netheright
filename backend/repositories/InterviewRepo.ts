@@ -207,6 +207,37 @@ class InterviewRepo {
     if (!session) throw new Error("Session not found");
     return session;
   }
+
+  static async getInterviewFeedbackDetails(
+    sessionId: string,
+    userId: string,
+  ): Promise<Schemas.GetInterviewFeedbackDetailsResponse> {
+    const response: Schemas.GetInterviewFeedbackDetailsResponse = {
+      isSuccess: false,
+      message: "Failed to fetch interview feedback details",
+      feedback: null,
+    };
+
+    try {
+      const feedback = await InterviewDAL.getInterviewFeedbackDetails(
+        sessionId,
+        userId,
+      );
+
+      if (!feedback) {
+        response.message = "Feedback not found or access denied";
+        return response;
+      }
+
+      response.feedback = feedback;
+      response.isSuccess = true;
+      response.message = "Feedback fetched successfully";
+      return response;
+    } catch (error) {
+      console.error("Error fetching feedback:", error);
+      return response;
+    }
+  }
 }
 
 export default InterviewRepo;

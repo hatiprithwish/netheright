@@ -1,5 +1,5 @@
 import { db } from "@/backend/db";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import {
   interviews,
   aiChats,
@@ -200,6 +200,32 @@ class InterviewDAL {
       })
       .returning();
     return scorecard;
+  }
+
+  static async getInterviewFeedbackDetails(sessionId: string, userId: string) {
+    const result = await db
+      .select({
+        overallGrade: sdiScorecards.overallGrade,
+        requirementsGathering: sdiScorecards.requirementsGathering,
+        dataModeling: sdiScorecards.dataModeling,
+        tradeOffAnalysis: sdiScorecards.tradeOffAnalysis,
+        scalability: sdiScorecards.scalability,
+        strengths: sdiScorecards.strengths,
+        growthAreas: sdiScorecards.growthAreas,
+        actionableFeedback: sdiScorecards.actionableFeedback,
+      })
+      .from(sdiScorecards)
+      .innerJoin(interviews, eq(sdiScorecards.sessionId, interviews.id))
+      .where(
+        sql`${sdiScorecards.sessionId} = ${sessionId} AND ${interviews.userId} = ${userId}`,
+      )
+      .limit(1);
+
+    if (result.length === 0) {
+      return null;
+    }
+
+    return result[0];
   }
 
   static async deleteInterviewSession(sessionId: string) {

@@ -1,6 +1,7 @@
 "use client";
 
 import { GradeBadge } from "./GradeBadge";
+import { FeedbackModal } from "./FeedbackModal";
 import { Calendar, CheckCircle2, Clock, XCircle, Trash2 } from "lucide-react";
 import * as Schemas from "@/schemas";
 import { deleteInterview } from "@/frontend/api/mutations";
@@ -13,6 +14,7 @@ interface InterviewCardProps {
 
 export function InterviewCard({ interview }: InterviewCardProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const formatDate = (dateString: string) => {
@@ -63,9 +65,17 @@ export function InterviewCard({ interview }: InterviewCardProps) {
     }
   };
 
+  const handleCardClick = () => {
+    if (interview.scorecard) {
+      setShowFeedbackModal(true);
+    }
+  };
+
   return (
     <>
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow p-6 space-y-4">
+      <div
+        className={`bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow p-6 space-y-4`}
+      >
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
@@ -90,7 +100,10 @@ export function InterviewCard({ interview }: InterviewCardProps) {
               </div>
             )}
             <button
-              onClick={() => setShowDeleteConfirm(true)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowDeleteConfirm(true);
+              }}
               className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
               title="Delete interview"
             >
@@ -136,7 +149,10 @@ export function InterviewCard({ interview }: InterviewCardProps) {
             <span>{interview.statusLabel}</span>
           </div>
           {interview.scorecard && (
-            <button className="text-sm font-medium text-primary hover:underline">
+            <button
+              onClick={() => setShowFeedbackModal(true)}
+              className="text-sm cursor-pointer font-medium text-primary hover:underline"
+            >
               View Details →
             </button>
           )}
@@ -179,6 +195,14 @@ export function InterviewCard({ interview }: InterviewCardProps) {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Feedback Modal */}
+      {showFeedbackModal && (
+        <FeedbackModal
+          sessionId={interview.sessionId}
+          onClose={() => setShowFeedbackModal(false)}
+        />
       )}
     </>
   );

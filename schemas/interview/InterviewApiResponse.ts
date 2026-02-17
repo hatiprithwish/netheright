@@ -30,3 +30,16 @@ export interface GetSdiProblemDetailsResponse extends ApiResponse {
 }
 
 export interface DeleteInterviewResponse extends ApiResponse {}
+
+export interface GetInterviewFeedbackDetailsResponse extends ApiResponse {
+  feedback: {
+    overallGrade: number;
+    requirementsGathering: number;
+    dataModeling: number;
+    tradeOffAnalysis: number;
+    scalability: number;
+    strengths: string[];
+    growthAreas: string[];
+    actionableFeedback: string;
+  } | null;
+}
