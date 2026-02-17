@@ -1,13 +1,31 @@
-import { auth } from "@/lib/next-auth";
-import { redirect } from "next/navigation";
-import { StartInterviewPage } from "@/frontend/ui/interview/components/StartInterviewPage";
+import {
+  Navigation,
+  HeroSection,
+  WhyNextJsSection,
+  ThreeLayerArchitectureSection,
+  DatabaseSchemaSection,
+  ProductionEngineeringSection,
+  TechStackSection,
+  CodeQualitySection,
+  MetricsSection,
+  CTASection,
+  Footer,
+} from "@/frontend/ui/home";
 
 export default async function Home() {
-  const session = await auth();
-
-  if (!session?.user) {
-    redirect("/api/auth/signin");
-  }
-
-  return <StartInterviewPage />;
+  return (
+    <main className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <Navigation />
+      <HeroSection />
+      <WhyNextJsSection />
+      <ThreeLayerArchitectureSection />
+      <DatabaseSchemaSection />
+      <ProductionEngineeringSection />
+      <TechStackSection />
+      <CodeQualitySection />
+      <MetricsSection />
+      <CTASection />
+      <Footer />
+    </main>
+  );
 }

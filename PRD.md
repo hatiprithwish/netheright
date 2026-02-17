@@ -1,91 +1,61 @@
-To implement a structured, multi-phase interview agent in Next.js using the Vercel AI SDK, you need a **State-Driven Orchestration** architecture. Relying on a single prompt to "remember" five phases is risky; instead, you should treat the AI as a stateless worker managed by a stateful backend.
+Since you're building this to land an **SDE II** role at a mid-to-large product company, your landing page needs to shift from "cool hobby project" to "engineered solution." Recruiters at that level look for scalability, system thinking, and a focus on user experience.
 
-### 1. State Machine Architecture
-
-You should not rely on the LLM to decide when a phase ends. Instead, use a **Phase Controller** in your Next.js API route to track the state in a database (like Supabase or Upstash Redis).
-
-#### **The Backend Logic (Next.js Route Handler)**
-
-When a message comes in:
-
-1. **Fetch State:** Retrieve the current phase and "Red Flag" log from the DB.
-2. **Select Prompt:** Load the specific system prompt for that phase.
-3. **Analyze for Transition:** Use a lightweight "Evaluator" call (or the same LLM) to check if phase exit criteria are met.
-4. **Append Context:** Send the relevant history to the LLM.
+Here is a breakdown of what your prototype landing page should feature to make it "resume-ready."
 
 ---
 
-### 2. Structuring the System Prompts
+## 1. The "Above the Fold" Hero Section
 
-You should use **Dynamic System Prompts**. Instead of one giant prompt, use a base template that changes based on the phase.
+Don’t just say "AI Interviewer." Be specific about the problem you are solving.
 
-**Base Template:**
+- **Headline:** "Master System Design Interviews with Real-Time AI Feedback."
+- **Sub-headline:** "Practice high-level architecture, database sharding, and load balancing scenarios with an LLM-powered mentor that understands trade-offs."
+- **Primary CTA:** "Start a Mock Session" or "View Demo Architecture."
 
-> "You are a Senior System Design Interviewer. Your current goal is [PHASE_GOAL]. Follow these constraints: [PHASE_CONSTRAINTS]. If the user exhibits [RED_FLAGS], silently log it by calling the `recordRedFlag` tool."
+## 2. Interactive "System Snapshot"
 
-**Phase-Specific Injections:**
+Since the project is about **System Design**, show that the AI actually understands diagrams or flowcharts.
 
-- **Phase 1 (Clarification):** "Be vague. If the user draws a database before asking about Read/Write ratio, call `recordRedFlag` with 'Jimmy Effect'."
-- **Phase 4 (Deep Dive):** "Identify the weakest link in their previous answer. Drill down into implementation details. Do not let them use 'Magical Boxes'."
+- **Feature:** A mini-window showing a sample conversation where a user suggests "Redis for caching" and the AI responds with a nuanced follow-up about **Cache Eviction Policies** or **Cache Aside patterns**.
+- **Why:** This proves your app isn't just a basic wrapper, but a tool designed for senior-level engineering concepts.
 
----
+## 3. The "Engineered Features" Grid
 
-### 3. Red Flag Detection via Tool Calling
+Instead of listing "Chat" or "Login," list features that highlight your technical depth:
 
-The most reliable way to track red flags for final scoring is through **AI SDK Tools**. This forces the model to categorize the behavior explicitly.
+- **Real-time Latency Estimation:** Does the AI calculate potential bottlenecks?
+- **Architecture Scoring:** A breakdown of the user's design based on Scalability, Availability, and Reliability.
+- **Diagram Integration:** Mention if users can "draw" or describe components that the AI then parses.
 
-```typescript
-const tools = {
-  recordRedFlag: {
-    description:
-      "Call this when the candidate exhibits poor interviewing behavior.",
-    parameters: z.object({
-      type: z.enum(["Jimmy Effect", "Magical Box", "Keyword Stuffing"]),
-      reason: z.string(),
-    }),
-    execute: async ({ type, reason }) => {
-      await saveRedFlagToDb(interviewId, { type, reason });
-      return { status: "logged" };
-    },
-  },
-  transitionToPhase: {
-    description: "Move the interview to the next phase.",
-    parameters: z.object({ nextPhase: z.number() }),
-    execute: async ({ nextPhase }) => {
-      await updateInterviewPhase(interviewId, nextPhase);
-      return { status: `Moved to phase ${nextPhase}` };
-    },
-  },
-};
-```
+## 4. The "Under the Hood" Section (Crucial for SDE II)
+
+This is the most important part for your resume. Include a **high-level architecture diagram** of the app itself on the landing page.
+
+- **Tech Stack Tags:** Next.js, FastAPI/Node.js, Pinecone (for RDB/Vector search), LangChain, and AWS/GCP icons.
+- **Design Trade-offs:** A 2-3 sentence blurb on why you chose a specific database or how you handled LLM token streaming to keep UI latency low.
+
+## 5. Social Proof / Metrics (Simulated)
+
+Even if it's a prototype, show you care about data:
+
+- "50+ Common System Design Scenarios (Uber, WhatsApp, TinyURL)."
+- "Average feedback latency < 200ms."
 
 ---
 
-### 4. Scoring Mechanism: The "Post-Game" Analysis
+### Suggested Page Structure
 
-For the final scoring, you have two options. Based on your need for accuracy, **Option B** is recommended:
-
-- **Option A (Summary-based):** After each phase, the LLM generates a 2-sentence summary of performance. At the end, a final prompt evaluates these 5 summaries.
-- **Option B (Full Transcript Analysis):** Once Phase 5 ends, trigger a background Cron job or an Edge Function that sends the **entire transcript + the database of Red Flags** to a high-reasoning model (like GPT-4o or Claude 3.5 Sonnet).
-
-**Scoring Prompt Structure:**
-
-> "Review this full transcript. Specifically look at the 'Red Flags' logged: [RED_FLAG_LIST]. Score the candidate 1-10 on: 1. Analytical Thinking, 2. Technical Depth, 3. Communication. Provide a breakdown of why they passed or failed."
+| Section          | Content Focus                                             |
+| ---------------- | --------------------------------------------------------- |
+| **Hero**         | Clear value prop + "Try it now" button.                   |
+| **The "How"**    | A 3-step visual: Select Scenario Design & Chat Get Score. |
+| **The "Tech"**   | A "System Design of this System Design App" diagram.      |
+| **Project Link** | Direct link to the GitHub Repo and your LinkedIn.         |
 
 ---
 
-### 5. Recommended Technical Stack
+### A "Pro" Tip for your Resume
 
-- **Framework:** Next.js (App Router).
-- **AI SDK:** `vercel-ai-sdk` (utilizing `generateText` for evaluation and `streamText` for the chat).
-- **Database:** **PostgreSQL (Prisma/Drizzle)** to store `messages`, `red_flags`, and `current_phase`.
-- **State Management:** Use a `useChat` hook on the frontend, but intercept the `onFinish` callback to check if the backend has triggered a phase transition.
+Since you are targeting a **12 LPA+** role, ensure the landing page is **responsive**. If a hiring manager opens it on their phone and the layout breaks, it sends the wrong signal about your attention to "Production Grade" quality.
 
-### Summary of Flow
-
-1. **User sends message.**
-2. **Next.js Route** identifies Phase (e.g., Phase 2).
-3. **LLM** processes message using Phase 2 System Prompt.
-4. **LLM** calls `recordRedFlag` if the user fails the math check.
-5. **LLM** calls `transitionToPhase` when math is complete.
-6. **Final Phase** triggers a "Final Report" generation using the stored DB data.
+**Would you like me to help you draft the "System Design of the App" diagram or explain how to handle the state management for the chat interface?**
