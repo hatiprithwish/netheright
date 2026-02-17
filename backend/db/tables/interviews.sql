@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS sdi_sessions (
+CREATE TABLE IF NOT EXISTS interviews (
   id                      TEXT PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id                 TEXT NOT NULL, -- REFERENCES users(id)
   problem_id              INTEGER NOT NULL,

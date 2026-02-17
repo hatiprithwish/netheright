@@ -1,7 +1,7 @@
 import { db } from "@/backend/db";
 import { eq } from "drizzle-orm";
 import {
-  sdiSessions,
+  interviews,
   aiChats,
   redFlags,
   sdiProblems,
@@ -58,7 +58,7 @@ class InterviewDAL {
     };
     try {
       const [session] = await db
-        .insert(sdiSessions)
+        .insert(interviews)
         .values({
           userId: params.userId,
           problemId: params.problemId,
@@ -93,8 +93,8 @@ class InterviewDAL {
   }
 
   static async getSession(sessionId: string) {
-    return await db.query.sdiSessions.findFirst({
-      where: eq(sdiSessions.id, sessionId),
+    return await db.query.interviews.findFirst({
+      where: eq(interviews.id, sessionId),
     });
   }
 
@@ -103,21 +103,21 @@ class InterviewDAL {
     phase: Schemas.InterviewPhaseIntEnum,
   ) {
     const [updated] = await db
-      .update(sdiSessions)
+      .update(interviews)
       .set({ currentPhase: phase })
-      .where(eq(sdiSessions.id, sessionId))
+      .where(eq(interviews.id, sessionId))
       .returning();
     return updated;
   }
 
   static async endInterviewSession(sessionId: string) {
     const [ended] = await db
-      .update(sdiSessions)
+      .update(interviews)
       .set({
         status: Schemas.InterviewSessionStatusIntEnum.Completed,
         endTime: new Date(),
       })
-      .where(eq(sdiSessions.id, sessionId))
+      .where(eq(interviews.id, sessionId))
       .returning();
     return ended;
   }
@@ -200,6 +200,17 @@ class InterviewDAL {
       })
       .returning();
     return scorecard;
+  }
+
+  static async deleteInterviewSession(sessionId: string) {
+    const [deleted] = await db
+      .update(interviews)
+      .set({
+        status: Schemas.InterviewSessionStatusIntEnum.Deleted,
+      })
+      .where(eq(interviews.id, sessionId))
+      .returning();
+    return deleted;
   }
 }
 

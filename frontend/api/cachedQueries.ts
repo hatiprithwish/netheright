@@ -5,7 +5,7 @@ import * as Schemas from "@/schemas";
 export const useInterviewSession = (sessionId: string | null) => {
   const { data, error, isLoading, mutate } =
     useSWR<Schemas.GetInterviewSessionResponse>(
-      sessionId ? `/api/interview/session/${sessionId}` : null,
+      sessionId ? `/api/interview/${sessionId}` : null,
       fetcher,
     );
 
@@ -14,5 +14,19 @@ export const useInterviewSession = (sessionId: string | null) => {
     isLoading,
     isError: error,
     mutate,
+  };
+};
+
+export const useInterviewHistory = () => {
+  const { data, error, isLoading } =
+    useSWR<Schemas.GetInterviewHistoryResponse>(
+      "/api/dashboard/interviews",
+      fetcher,
+    );
+
+  return {
+    interviews: data?.interviews ?? [],
+    isLoading,
+    error: error?.message ?? null,
   };
 };

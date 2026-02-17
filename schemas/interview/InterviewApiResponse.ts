@@ -28,3 +28,5 @@ export type ScorecardSchema = z.infer<typeof ZScorecardSchema>;
 export interface GetSdiProblemDetailsResponse extends ApiResponse {
   problem: SdiProblem | null;
 }
+
+export interface DeleteInterviewResponse extends ApiResponse {}

@@ -1,6 +1,6 @@
 import { auth } from "@/lib/next-auth";
 import { redirect } from "next/navigation";
-import { DashboardContent } from "@/frontend/ui/dashboard/components/DashboardContent";
+import Dashboard from "@/frontend/ui/dashboard";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -10,10 +10,10 @@ export default async function DashboardPage() {
   }
 
   return (
-    <DashboardContent
+    <Dashboard
       userName={session.user.name || "User"}
       userEmail={session.user.email || ""}
-      userImage={session.user.image || undefined}
+      userImage={session.user.image}
     />
   );
 }

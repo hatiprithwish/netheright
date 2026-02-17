@@ -1,19 +1,19 @@
 import { db } from "@/backend/db";
-import { eq, desc } from "drizzle-orm";
-import { sdiSessions, sdiProblems, sdiScorecards } from "@/backend/db/models";
+import { eq, desc, ne, and } from "drizzle-orm";
+import { interviews, sdiProblems, sdiScorecards } from "@/backend/db/models";
 import * as Schemas from "@/schemas";
 
 class DashboardDAL {
   static async getUserInterviewsWithScorecards(userId: string) {
     const results = await db
       .select({
-        sessionId: sdiSessions.id,
-        problemId: sdiSessions.problemId,
+        sessionId: interviews.id,
+        problemId: interviews.problemId,
         problemTitle: sdiProblems.title,
-        status: sdiSessions.status,
-        currentPhase: sdiSessions.currentPhase,
-        startTime: sdiSessions.startTime,
-        endTime: sdiSessions.endTime,
+        status: interviews.status,
+        currentPhase: interviews.currentPhase,
+        startTime: interviews.startTime,
+        endTime: interviews.endTime,
         // Scorecard fields
         overallGrade: sdiScorecards.overallGrade,
         requirementsGathering: sdiScorecards.requirementsGathering,
@@ -24,11 +24,16 @@ class DashboardDAL {
         growthAreas: sdiScorecards.growthAreas,
         actionableFeedback: sdiScorecards.actionableFeedback,
       })
-      .from(sdiSessions)
-      .leftJoin(sdiProblems, eq(sdiSessions.problemId, sdiProblems.id))
-      .leftJoin(sdiScorecards, eq(sdiSessions.id, sdiScorecards.sessionId))
-      .where(eq(sdiSessions.userId, userId))
-      .orderBy(desc(sdiSessions.createdAt));
+      .from(interviews)
+      .leftJoin(sdiProblems, eq(interviews.problemId, sdiProblems.id))
+      .leftJoin(sdiScorecards, eq(interviews.id, sdiScorecards.sessionId))
+      .where(
+        and(
+          eq(interviews.userId, userId),
+          ne(interviews.status, Schemas.InterviewSessionStatusIntEnum.Deleted),
+        ),
+      )
+      .orderBy(desc(interviews.createdAt));
 
     return results.map((row) => ({
       sessionId: row.sessionId,

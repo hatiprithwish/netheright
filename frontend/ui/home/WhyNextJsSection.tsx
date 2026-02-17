@@ -10,7 +10,8 @@ export function WhyNextJsSection() {
       <div className="mx-auto max-w-6xl">
         <div className="mb-12 text-center">
           <h2 className="mb-4 text-3xl font-bold sm:text-4xl">
-            Why Next.js Over React + Express?
+            Architecting the Architect: A look at the event-driven, RAG-enhanced
+            pipeline powering this interviewer.
           </h2>
           <p className="text-lg text-muted-foreground">
             Strategic architectural decision optimizing for velocity and

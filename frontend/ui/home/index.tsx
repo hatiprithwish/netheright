@@ -6,6 +6,7 @@ export { DatabaseSchemaSection } from "./DatabaseSchemaSection";
 export { ProductionEngineeringSection } from "./ProductionEngineeringSection";
 export { TechStackSection } from "./TechStackSection";
 export { CodeQualitySection } from "./CodeQualitySection";
+export { UpcomingReleasesSection } from "./UpcomingReleasesSection";
 export { MetricsSection } from "./MetricsSection";
 export { CTASection } from "./CTASection";
 export { Footer } from "./Footer";

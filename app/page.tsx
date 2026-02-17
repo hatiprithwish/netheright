@@ -7,6 +7,7 @@ import {
   ProductionEngineeringSection,
   TechStackSection,
   CodeQualitySection,
+  UpcomingReleasesSection,
   MetricsSection,
   CTASection,
   Footer,
@@ -23,6 +24,7 @@ export default async function Home() {
       <ProductionEngineeringSection />
       <TechStackSection />
       <CodeQualitySection />
+      <UpcomingReleasesSection />
       <MetricsSection />
       <CTASection />
       <Footer />

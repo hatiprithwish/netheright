@@ -60,7 +60,7 @@ export const sdiProblems = pgTable("sdi_problems", {
   updatedAt: timestamp("updated_at", { mode: "date" }),
 });
 
-export const sdiSessions = pgTable("sdi_sessions", {
+export const interviews = pgTable("interviews", {
   id: text("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),

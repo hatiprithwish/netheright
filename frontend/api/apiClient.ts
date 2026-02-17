@@ -44,8 +44,10 @@ export const apiClient = {
       body: JSON.stringify(body),
     }).then((res) => handleResponse(res)) as Promise<T>,
 
-  delete: <T>(url: string) =>
-    fetch(url, { method: "DELETE" }).then((res) =>
-      handleResponse(res),
-    ) as Promise<T>,
+  delete: <T>(url: string, body?: unknown) =>
+    fetch(url, {
+      method: "DELETE",
+      headers: body ? { "Content-Type": "application/json" } : {},
+      body: body ? JSON.stringify(body) : undefined,
+    }).then((res) => handleResponse(res)) as Promise<T>,
 };

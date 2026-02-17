@@ -9,11 +9,17 @@ export const createInterviewSession = async (
   params: Schemas.CreateInterviewSessionRequest,
 ) => {
   return apiClient.post<Schemas.CreateInterviewSessionResponse>(
-    "/api/interview/session",
+    "/api/interview",
     params,
   );
 };
 
 export const endInterviewSession = async (sessionId: string) => {
-  return apiClient.post(`/api/interview/session/${sessionId}/end`, {});
+  return apiClient.post(`/api/interview/${sessionId}/end`, {});
+};
+
+export const deleteInterview = async (sessionId: string) => {
+  return apiClient.delete<Schemas.DeleteInterviewResponse>(
+    `/api/interview/${sessionId}`,
+  );
 };

@@ -1,34 +1,33 @@
 "use client";
 
 import { InterviewHistoryList } from "@/frontend/ui/dashboard/components/InterviewHistoryList";
-import { useInterviewHistory } from "@/frontend/ui/hooks/useInterviewHistory";
-import { BarChart3, Plus } from "lucide-react";
+import { useInterviewHistory } from "@/frontend/api/cachedQueries";
+import { BarChart3, Plus, User } from "lucide-react";
 
 interface DashboardContentProps {
   userName: string;
   userEmail: string;
-  userImage?: string;
+  userImage?: string | null;
 }
 
-export function DashboardContent({
-  userName,
-  userEmail,
-  userImage,
-}: DashboardContentProps) {
+function Dashboard({ userName, userEmail, userImage }: DashboardContentProps) {
   const { interviews, isLoading } = useInterviewHistory();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <div className="mx-auto max-w-7xl px-6 py-8">
-        {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            {userImage && (
+            {userImage ? (
               <img
                 src={userImage}
                 alt={userName}
                 className="h-16 w-16 rounded-full border-4 border-white shadow-md"
               />
+            ) : (
+              <div className="flex h-16 w-16 items-center justify-center rounded-full border-4 border-white bg-gradient-to-br from-primary to-primary/80 shadow-md">
+                <User className="h-8 w-8 text-white" />
+              </div>
             )}
             <div>
               <h1 className="text-3xl font-bold text-slate-900">
@@ -47,7 +46,7 @@ export function DashboardContent({
         </div>
 
         {/* Stats Summary */}
-        <div className="grid gap-6 md:grid-cols-3 mb-8">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
             <div className="flex items-center gap-3 mb-2">
               <div className="rounded-full bg-blue-100 p-2">
@@ -89,6 +88,20 @@ export function DashboardContent({
               {interviews.filter((i) => i.status === 1).length}
             </p>
           </div>
+
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="rounded-full bg-red-100 p-2">
+                <BarChart3 className="w-5 h-5 text-red-600" />
+              </div>
+              <span className="text-sm font-medium text-slate-600">
+                Abandoned
+              </span>
+            </div>
+            <p className="text-3xl font-bold text-slate-900">
+              {interviews.filter((i) => i.status === 3).length}
+            </p>
+          </div>
         </div>
 
         {/* Interview History */}
@@ -102,3 +115,5 @@ export function DashboardContent({
     </div>
   );
 }
+
+export default Dashboard;

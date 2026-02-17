@@ -76,12 +76,14 @@ export enum InterviewSessionStatusIntEnum {
   Active = 1,
   Completed = 2,
   Abandoned = 3,
+  Deleted = 4,
 }
 
 export enum InterviewSessionStatusLabelEnum {
   Active = "Active",
   Completed = "Completed",
   Abandoned = "Abandoned",
+  Deleted = "Deleted",
 }
 
 export const interviewSessionStatusLabelToInt: Record<
@@ -94,6 +96,8 @@ export const interviewSessionStatusLabelToInt: Record<
     InterviewSessionStatusIntEnum.Completed,
   [InterviewSessionStatusLabelEnum.Abandoned]:
     InterviewSessionStatusIntEnum.Abandoned,
+  [InterviewSessionStatusLabelEnum.Deleted]:
+    InterviewSessionStatusIntEnum.Deleted,
 };
 
 export const interviewSessionStatusIntToLabel: Record<
@@ -106,6 +110,8 @@ export const interviewSessionStatusIntToLabel: Record<
     InterviewSessionStatusLabelEnum.Completed,
   [InterviewSessionStatusIntEnum.Abandoned]:
     InterviewSessionStatusLabelEnum.Abandoned,
+  [InterviewSessionStatusIntEnum.Deleted]:
+    InterviewSessionStatusLabelEnum.Deleted,
 };
 
 export enum RedFlagTypeEnum {

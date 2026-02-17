@@ -26,3 +26,9 @@ export const ZGetChatStreamRequest = z.object({
 });
 
 export type GetChatStreamRequest = z.infer<typeof ZGetChatStreamRequest>;
+
+export const ZDeleteInterviewRequest = z.object({
+  sessionId: z.string(),
+});
+
+export type DeleteInterviewRequest = z.infer<typeof ZDeleteInterviewRequest>;
