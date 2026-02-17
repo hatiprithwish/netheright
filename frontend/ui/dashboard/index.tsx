@@ -40,7 +40,7 @@ function Dashboard({ userName, userEmail, userImage }: DashboardContentProps) {
             </div>
           </div>
           <a
-            href="/interview"
+            href="/problems"
             className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors shadow-md hover:shadow-lg"
           >
             <Plus className="w-5 h-5" />

@@ -238,6 +238,13 @@ class InterviewRepo {
       return response;
     }
   }
+
+  static async updateInterviewSessionStatus(
+    sessionId: string,
+    status: Schemas.InterviewSessionStatusIntEnum,
+  ): Promise<Schemas.ApiResponse> {
+    return await InterviewDAL.updateInterviewSessionStatus(sessionId, status);
+  }
 }
 
 export default InterviewRepo;

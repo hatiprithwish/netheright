@@ -3,20 +3,25 @@
 import { useState, useEffect } from "react";
 import { useInterviewStore } from "./zustand";
 import { MobileBlocker } from "./components/MobileBlocker";
-import { InterviewStart } from "./components/InterviewStart";
 import { InterviewCompletionScreen } from "./components/InterviewCompletionScreen";
 import { RequirementsStep } from "./components/phases/requirements-gathering";
 import { BotECalculationStep } from "./components/phases/bote-calculations";
 import { HighLevelDesign } from "./components/phases/high-level-design";
-import { ComponentsDeepDive } from "./components/phases/components-deep-dive";
-import { BottlenecksDiscussion } from "./components/phases/bottlenecks-discussion";
 import { useInterviewChat } from "../hooks/useInterviewChat";
-import Utilities from "@/utils";
 import * as Schemas from "@/schemas";
+import { useRouter } from "next/navigation";
+import { updateInterviewSessionStatus } from "@/frontend/api/mutations";
+import { toast } from "sonner";
 
-export default function InterviewPage({ problemId }: { problemId: number }) {
+export default function InterviewPage({
+  problemId,
+  sessionId: sessionIdFromUrl,
+}: {
+  problemId: number;
+  sessionId?: string;
+}) {
   const sessionId = useInterviewStore((state) => state.sessionId);
-  const [hasStarted, setHasStarted] = useState(false);
+  const setSessionId = useInterviewStore((state) => state.setSessionId);
   const problemIdInZustand = useInterviewStore((state) => state.problemId);
   const setProblemId = useInterviewStore((state) => state.setProblemId);
 
@@ -24,11 +29,13 @@ export default function InterviewPage({ problemId }: { problemId: number }) {
     if (problemIdInZustand !== problemId) {
       setProblemId(Number(problemId));
     }
-  }, [problemId, problemIdInZustand]);
+  }, [problemId, problemIdInZustand, setProblemId]);
 
-  if (!sessionId && !hasStarted) {
-    return <InterviewStart onSessionCreated={() => setHasStarted(true)} />;
-  }
+  useEffect(() => {
+    if (sessionIdFromUrl && sessionId !== sessionIdFromUrl) {
+      setSessionId(sessionIdFromUrl);
+    }
+  }, [sessionIdFromUrl, sessionId, setSessionId]);
 
   return sessionId ? (
     <InterviewSessionView sessionId={sessionId} problemId={problemId} />
@@ -92,7 +99,7 @@ function InterviewChatWrapper({
     <div className="h-screen w-full bg-slate-100 flex flex-col font-sans">
       <MobileBlocker />
 
-      <header className="h-14 bg-white border-b flex items-center px-6 justify-between shrink-0 shadow-sm z-10 overflow-x-auto">
+      <header className="h-14 bg-white border-b flex items-center px-6 justify-center shrink-0 shadow-sm z-10 overflow-x-auto relative">
         <div className="flex items-center gap-1 text-sm bg-slate-50 p-1 rounded-lg border min-w-fit">
           <PhaseStep
             current={phase}
@@ -145,7 +152,9 @@ function InterviewChatWrapper({
           /> */}
         </div>
 
-        <AbandonInterviewButton />
+        <div className="absolute right-6">
+          <AbandonInterviewButton />
+        </div>
       </header>
 
       <main className="flex-1 p-4 overflow-hidden relative">
@@ -218,10 +227,27 @@ function PhaseStep({
 function AbandonInterviewButton() {
   const [showConfirm, setShowConfirm] = useState(false);
   const resetInterview = useInterviewStore((state) => state.reset);
+  const sessionId = useInterviewStore((state) => state.sessionId);
+  const router = useRouter();
 
-  const handleAbandon = () => {
-    resetInterview();
-    window.location.href = "/";
+  const handleAbandon = async () => {
+    try {
+      if (!sessionId) {
+        return;
+      }
+      const response = await updateInterviewSessionStatus(
+        sessionId,
+        Schemas.InterviewSessionStatusIntEnum.Abandoned,
+      );
+      if (response.isSuccess) {
+        toast.success("Interview abandoned successfully");
+      }
+    } catch (error) {
+      toast.error("Failed to abandon interview");
+    } finally {
+      resetInterview();
+      router.push("/dashboard");
+    }
   };
 
   return (

@@ -30,3 +30,16 @@ export const useInterviewHistory = () => {
     error: error?.message ?? null,
   };
 };
+
+export const useProblems = () => {
+  const { data, error, isLoading } = useSWR<Schemas.GetProblemsResponse>(
+    "/api/problems",
+    fetcher,
+  );
+
+  return {
+    problems: data?.problems ?? [],
+    isLoading,
+    error: error?.message ?? null,
+  };
+};

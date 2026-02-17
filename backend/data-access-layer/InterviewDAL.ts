@@ -228,15 +228,30 @@ class InterviewDAL {
     return result[0];
   }
 
-  static async deleteInterviewSession(sessionId: string) {
-    const [deleted] = await db
+  static async updateInterviewSessionStatus(
+    sessionId: string,
+    status: Schemas.InterviewSessionStatusIntEnum,
+  ) {
+    const [updated] = await db
       .update(interviews)
       .set({
-        status: Schemas.InterviewSessionStatusIntEnum.Deleted,
+        status,
+        endTime: new Date(),
       })
       .where(eq(interviews.id, sessionId))
       .returning();
-    return deleted;
+
+    if (!updated) {
+      return {
+        isSuccess: false,
+        message: "Interview session not found",
+      };
+    }
+
+    return {
+      isSuccess: true,
+      message: "Interview session status updated successfully",
+    };
   }
 }
 

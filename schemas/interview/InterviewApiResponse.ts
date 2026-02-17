@@ -43,3 +43,17 @@ export interface GetInterviewFeedbackDetailsResponse extends ApiResponse {
     actionableFeedback: string;
   } | null;
 }
+
+export const ZGetProblemsResponse = z.object({
+  isSuccess: z.boolean(),
+  message: z.string(),
+  problems: z.array(
+    z.object({
+      id: z.number(),
+      title: z.string(),
+      description: z.string(),
+    }),
+  ),
+});
+
+export type GetProblemsResponse = z.infer<typeof ZGetProblemsResponse>;

@@ -1,5 +1,4 @@
 import { validateRequest } from "@/backend/middlewares/ApiRequestValidator";
-import InterviewDAL from "@/backend/data-access-layer/InterviewDAL";
 import InterviewRepo from "@/backend/repositories/InterviewRepo";
 import * as Schemas from "@/schemas";
 import { NextResponse } from "next/server";
@@ -11,21 +10,25 @@ const getHandler = async (
   context: { params: Promise<{ id: string }> },
 ) => {
   const { id } = await context.params;
+  const response = await InterviewRepo.getSession(id);
+  return NextResponse.json(response);
+};
 
-  try {
-    const response = await InterviewRepo.getSession(id);
-    return NextResponse.json(response);
-  } catch (error) {
-    console.error("Error fetching interview session:", error);
-    return NextResponse.json(
-      {
-        isSuccess: false,
-        message: "Failed to fetch interview session",
-        session: null,
-      },
-      { status: 500 },
-    );
-  }
+const patchHandler = async (
+  req: Request,
+  data: any,
+  logger: any,
+  context: { params: Promise<{ id: string }> },
+) => {
+  const { id } = await context.params;
+  const body = await req.json();
+
+  const result = await InterviewRepo.updateInterviewSessionStatus(
+    id,
+    body.status,
+  );
+
+  return NextResponse.json(result, { status: result.isSuccess ? 200 : 400 });
 };
 
 const deleteHandler = async (
@@ -35,27 +38,30 @@ const deleteHandler = async (
   context: { params: Promise<{ id: string }> },
 ) => {
   const { id } = await context.params;
+  const deleted = await InterviewRepo.updateInterviewSessionStatus(
+    id,
+    Schemas.InterviewSessionStatusIntEnum.Deleted,
+  );
 
-  const response: Schemas.DeleteInterviewResponse = {
-    isSuccess: false,
-    message: "Failed to delete interview",
-  };
-
-  try {
-    const deleted = await InterviewDAL.deleteInterviewSession(id);
-
-    if (!deleted) {
-      return NextResponse.json(response, { status: 404 });
-    }
-
-    response.isSuccess = true;
-    response.message = "Interview deleted successfully";
-    return NextResponse.json(response, { status: 200 });
-  } catch (error) {
-    console.error("Error deleting interview:", error);
-    return NextResponse.json(response, { status: 500 });
+  if (!deleted) {
+    return NextResponse.json(
+      {
+        isSuccess: false,
+        message: "Failed to delete interview",
+      },
+      { status: 404 },
+    );
   }
+
+  return NextResponse.json(
+    {
+      isSuccess: true,
+      message: "Interview deleted successfully",
+    },
+    { status: 200 },
+  );
 };
 
 export const GET = validateRequest({ requiresAuth: true }, getHandler);
+export const PATCH = validateRequest({ requiresAuth: true }, patchHandler);
 export const DELETE = validateRequest({ requiresAuth: true }, deleteHandler);

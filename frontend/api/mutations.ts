@@ -23,3 +23,12 @@ export const deleteInterview = async (sessionId: string) => {
     `/api/interview/${sessionId}`,
   );
 };
+
+export const updateInterviewSessionStatus = async (
+  sessionId: string,
+  status: Schemas.InterviewSessionStatusIntEnum,
+) => {
+  return apiClient.patch<Schemas.ApiResponse>(`/api/interview/${sessionId}`, {
+    status,
+  });
+};

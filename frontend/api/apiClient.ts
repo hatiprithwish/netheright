@@ -44,6 +44,13 @@ export const apiClient = {
       body: JSON.stringify(body),
     }).then((res) => handleResponse(res)) as Promise<T>,
 
+  patch: <T>(url: string, body: unknown) =>
+    fetch(url, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }).then((res) => handleResponse(res)) as Promise<T>,
+
   delete: <T>(url: string, body?: unknown) =>
     fetch(url, {
       method: "DELETE",
