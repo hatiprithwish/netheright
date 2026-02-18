@@ -11,7 +11,11 @@ const handler = async (
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json(
-      { isSuccess: false, message: "Failed to authorize user", session: null },
+      {
+        isSuccess: false,
+        message: "Failed to authorize user",
+        interview: null,
+      },
       { status: 401 },
     );
   }
