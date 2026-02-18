@@ -6,6 +6,7 @@ description: UI component and styling guidelines using Shadcn UI, Radix UI, and 
 # UI Components and Styling
 
 ## UI Framework
+
 - Use Shadcn UI and Tailwind for components and styling
 - Implement responsive design with Tailwind CSS using a mobile-first approach
 - Use `next/image` package for images
@@ -22,18 +23,8 @@ Example:
 pnpm dlx shadcn@latest add progress
 ```
 
-## Data Fetching with SWR
-For API get requests to server use the `swr` package:
-
-```typescript
-const searchParams = useSearchParams();
-const page = searchParams.get("page") || "1";
-const { data, isLoading, error } = useSWR<PlanHistoryResponse>(
-  `/api/user/planned/history?page=${page}`
-);
-```
-
 ## Loading Components
+
 Use the `LoadingContent` component to handle loading states:
 
 ```tsx
@@ -45,7 +36,9 @@ Use the `LoadingContent` component to handle loading states:
 ```
 
 ## Form Components
+
 ### Text Inputs
+
 ```tsx
 <Input
   type="email"
@@ -57,6 +50,7 @@ Use the `LoadingContent` component to handle loading states:
 ```
 
 ### Text Area
+
 ```tsx
 <Input
   type="text"
