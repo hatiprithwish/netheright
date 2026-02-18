@@ -3,6 +3,22 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com", // Google OAuth
+      },
+      {
+        protocol: "https",
+        hostname: "avatars.githubusercontent.com", // GitHub OAuth
+      },
+      {
+        protocol: "https",
+        hostname: "*.googleusercontent.com", // Google OAuth (wildcard)
+      },
+    ],
+  },
 };
 
 export default withSentryConfig(nextConfig, {
@@ -40,5 +56,5 @@ export default withSentryConfig(nextConfig, {
       // Automatically tree-shake Sentry logger statements to reduce bundle size
       removeDebugLogging: true,
     },
-  }
+  },
 });

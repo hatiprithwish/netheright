@@ -1,112 +1,61 @@
-The application is a **single-page application (SPA) experience** that guides the user through 4 locked phases.
+Since you're building this to land an **SDE II** role at a mid-to-large product company, your landing page needs to shift from "cool hobby project" to "engineered solution." Recruiters at that level look for scalability, system thinking, and a focus on user experience.
 
-### **Phase 1: Scope & Capacity Planning**
+Here is a breakdown of what your prototype landing page should feature to make it "resume-ready."
 
-- **Interface:** Chat Only.
-- **Goal:** User defines Functional & Non-Functional Requirements.
-- **Interaction:**
-    - User types requirements (e.g., "Users can order food").
-    - AI (acting as PM) pushes back on missing edge cases (e.g., "What about driver tracking?").
-    - **Gate:** AI explicitly validates requirements are sufficient before unlocking Phase 2.
+---
 
-### **Phase 2: High-Level Design (The "Architect's Defense")**
+## 1. The "Above the Fold" Hero Section
 
-- **Interface:** Split Screen (Chat Left | Canvas Right).
-- **Goal:** Draw the core architecture and defend trade-offs.
-- **Interaction:**
-    - **The Canvas:** User drags nodes (Service, SQL DB, NoSQL DB, Queue, LB) to build the graph.
-    - **The Trigger:** User clicks "Analyze Design."
-    - **The Critique:** AI analyzes the **Graph JSON** (not image). It identifies **1 critical flaw** (e.g., "Why SQL for high-velocity logs?") and enters "Defense Mode."
-    - **Success:** User justifies the choice or corrects the diagram.
+Don’t just say "AI Interviewer." Be specific about the problem you are solving.
 
-### **Phase 3: Deep Dives**
+- **Headline:** "Master System Design Interviews with Real-Time AI Feedback."
+- **Sub-headline:** "Practice high-level architecture, database sharding, and load balancing scenarios with an LLM-powered mentor that understands trade-offs."
+- **Primary CTA:** "Start a Mock Session" or "View Demo Architecture."
 
-- **Interface:** Chat + Canvas Highlight.
-- **Goal:** Solve specific SDE II complexity problems.
-- **Interaction:**
-    - AI picks 2 specific scenarios based on the "Food Delivery" config (e.g., *Geo-Spatial Indexing* or *Order State Machine*).
-    - User explains the algorithm or updates the diagram to show specific components (e.g., adding a QuadTree Service).
+## 2. Interactive "System Snapshot"
 
-### **Phase 4: The Scorecard**
+Since the project is about **System Design**, show that the AI actually understands diagrams or flowcharts.
 
-- **Interface:** Dashboard View.
-- **Goal:** Feedback and Growth Tracking.
-- **Interaction:**
-    - Session ends.
-    - System saves the **Transcript**, **Final Diagram**, and **Scores** to the Database.
-    - User sees a graded report (Requirements, Data Modeling, Trade-offs) with actionable feedback.
+- **Feature:** A mini-window showing a sample conversation where a user suggests "Redis for caching" and the AI responds with a nuanced follow-up about **Cache Eviction Policies** or **Cache Aside patterns**.
+- **Why:** This proves your app isn't just a basic wrapper, but a tool designed for senior-level engineering concepts.
 
-# Vercel AI SDK
-To build your multi-phase system design tutor application in Next.js, you can combine several powerful tools from the Vercel AI SDK. Here is a recommended combination of tools for each phase of your use case:
+## 3. The "Engineered Features" Grid
 
-### 1. Phase-Based State Management (`useChat`)
+Instead of listing "Chat" or "Login," list features that highlight your technical depth:
 
-The **`useChat`** hook is the ideal foundation for your single-page application (SPA) experience. It manages the conversational state, streams responses, and handles message history automatically.
+- **Real-time Latency Estimation:** Does the AI calculate potential bottlenecks?
+- **Architecture Scoring:** A breakdown of the user's design based on Scalability, Availability, and Reliability.
+- **Diagram Integration:** Mention if users can "draw" or describe components that the AI then parses.
 
-* **Locked Phases**: You can control the progression by maintaining a "phase" state in your Next.js component. The UI can conditionally render different interfaces (Chat Only vs. Split Screen) based on this state.
+## 4. The "Under the Hood" Section (Crucial for SDE II)
 
+This is the most important part for your resume. Include a **high-level architecture diagram** of the app itself on the landing page.
 
-* 
-**Gatekeeping**: Use the `onFinish` callback in `useChat` to have the AI evaluate if the requirements are sufficient before updating the phase state to unlock Phase 2.
+- **Tech Stack Tags:** Next.js, FastAPI/Node.js, Pinecone (for RDB/Vector search), LangChain, and AWS/GCP icons.
+- **Design Trade-offs:** A 2-3 sentence blurb on why you chose a specific database or how you handled LLM token streaming to keep UI latency low.
 
+## 5. Social Proof / Metrics (Simulated)
 
+Even if it's a prototype, show you care about data:
 
-### 2. Validating Requirements & Graph Analysis (`generateObject`)
+- "50+ Common System Design Scenarios (Uber, WhatsApp, TinyURL)."
+- "Average feedback latency < 200ms."
 
-For both the gatekeeping in Phase 1 and the "Architect's Defense" in Phase 2, you need structured analysis rather than just plain text.
+---
 
-* 
-**`generateObject`**: This tool allows you to constrain the AI's output to a specific **Zod schema**.
+### Suggested Page Structure
 
+| Section          | Content Focus                                             |
+| ---------------- | --------------------------------------------------------- |
+| **Hero**         | Clear value prop + "Try it now" button.                   |
+| **The "How"**    | A 3-step visual: Select Scenario Design & Chat Get Score. |
+| **The "Tech"**   | A "System Design of this System Design App" diagram.      |
+| **Project Link** | Direct link to the GitHub Repo and your LinkedIn.         |
 
-* 
-**Phase 1 Gate**: Use it to check a "ready" boolean and list missing requirements.
+---
 
+### A "Pro" Tip for your Resume
 
-* 
-**Phase 2 Critique**: Pass the Canvas Graph JSON to `generateObject` with a schema that requires the AI to identify exactly one critical flaw.
+Since you are targeting a **12 LPA+** role, ensure the landing page is **responsive**. If a hiring manager opens it on their phone and the layout breaks, it sends the wrong signal about your attention to "Production Grade" quality.
 
-
-
-
-
-### 3. "Defense Mode" & Deep Dives (`stopWhen` & `tool`)
-
-To create an interactive agent that can pick scenarios or push back on trade-offs, use **Tool Calling**.
-
-* 
-**`tool`**: Define tools like `analyzeDesign` or `pickDeepDiveScenario` that the model can call to interact with your application's logic or database.
-
-
-* 
-**`stopWhen` with `stepCountIs**`: This feature enables **multi-step agentic flows**. It allows the model to call a tool, receive the results (like your "Defense Mode" critique), and immediately generate a follow-up response without user intervention.
-
-
-
-### 4. Interactive UI & Canvas Integration (`useChat` parts)
-
-* 
-**Canvas Synchronization**: Use the **`parts`** array within `useChat` to detect tool calls in real-time. When the model calls a tool to "Highlight" a canvas component in Phase 3, your frontend can react to that specific message part to trigger animations or visual changes on the right side of the split screen.
-
-
-
-### 5. Final Scorecard (`generateObject`)
-
-At the end of the session (Phase 4), use `generateObject` one last time to process the entire `messages` transcript and the final `graphJSON`. You can define a detailed schema for the "graded report" including numeric scores and an array of actionable feedback strings.
-
-### Summary of Tool Combinations
-
-| Requirement | Vercel AI SDK Tool |
-| --- | --- |
-| Core Chat & Streaming | <br>`useChat` 
-
- |
-| Structured Logic (Grades, Validation) | <br>`generateObject` 
-
- |
-| Agentic Behavior (Picking scenarios) | <br>`tool` + `stopWhen` 
-
- |
-| Multi-Modal/UI Interaction | <br>`parts` array in `useChat` 
-
- |
+**Would you like me to help you draft the "System Design of the App" diagram or explain how to handle the state management for the chat interface?**
