@@ -4,13 +4,13 @@ import * as Schemas from "@/schemas";
 
 export const useInterviewSession = (sessionId: string | null) => {
   const { data, error, isLoading, mutate } =
-    useSWR<Schemas.GetInterviewSessionResponse>(
+    useSWR<Schemas.GetInterviewResponse>(
       sessionId ? `/api/interview/${sessionId}` : null,
       fetcher,
     );
 
   return {
-    session: data,
+    session: data?.session ?? null,
     isLoading,
     isError: error,
     mutate,

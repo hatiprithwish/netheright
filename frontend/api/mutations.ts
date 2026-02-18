@@ -8,7 +8,7 @@ export const analyzeDesign = async (sessionId: string, graph: any) => {
 export const createInterviewSession = async (
   params: Schemas.CreateInterviewSessionRequest,
 ) => {
-  return apiClient.post<Schemas.CreateInterviewSessionResponse>(
+  return apiClient.post<Schemas.CreateInterviewResponse>(
     "/api/interview",
     params,
   );
@@ -19,14 +19,12 @@ export const endInterviewSession = async (sessionId: string) => {
 };
 
 export const deleteInterview = async (sessionId: string) => {
-  return apiClient.delete<Schemas.DeleteInterviewResponse>(
-    `/api/interview/${sessionId}`,
-  );
+  return apiClient.delete<Schemas.ApiResponse>(`/api/interview/${sessionId}`);
 };
 
 export const updateInterviewSessionStatus = async (
   sessionId: string,
-  status: Schemas.InterviewSessionStatusIntEnum,
+  status: Schemas.InterviewStatusIntEnum,
 ) => {
   return apiClient.patch<Schemas.ApiResponse>(`/api/interview/${sessionId}`, {
     status,

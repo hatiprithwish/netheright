@@ -1,13 +1,13 @@
 import { ApiResponse } from "../common";
-import { InterviewSession, SdiProblem } from "./InterviewCommon";
+import { Interview } from "./InterviewCommon";
 import { z } from "zod";
 
-export interface CreateInterviewSessionResponse extends ApiResponse {
-  session: InterviewSession | null;
+export interface CreateInterviewResponse extends ApiResponse {
+  session: Interview | null;
 }
 
-export interface GetInterviewSessionResponse extends ApiResponse {
-  session: InterviewSession | null;
+export interface GetInterviewResponse extends ApiResponse {
+  session: Interview | null;
 }
 
 export const ZScorecardSchema = z.object({
@@ -25,12 +25,6 @@ export const ZScorecardSchema = z.object({
 
 export type ScorecardSchema = z.infer<typeof ZScorecardSchema>;
 
-export interface GetSdiProblemDetailsResponse extends ApiResponse {
-  problem: SdiProblem | null;
-}
-
-export interface DeleteInterviewResponse extends ApiResponse {}
-
 export interface GetInterviewFeedbackDetailsResponse extends ApiResponse {
   feedback: {
     overallGrade: number;
@@ -43,17 +37,3 @@ export interface GetInterviewFeedbackDetailsResponse extends ApiResponse {
     actionableFeedback: string;
   } | null;
 }
-
-export const ZGetProblemsResponse = z.object({
-  isSuccess: z.boolean(),
-  message: z.string(),
-  problems: z.array(
-    z.object({
-      id: z.number(),
-      title: z.string(),
-      description: z.string(),
-    }),
-  ),
-});
-
-export type GetProblemsResponse = z.infer<typeof ZGetProblemsResponse>;

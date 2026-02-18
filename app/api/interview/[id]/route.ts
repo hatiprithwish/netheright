@@ -40,7 +40,7 @@ const deleteHandler = async (
   const { id } = await context.params;
   const deleted = await InterviewRepo.updateInterviewSessionStatus(
     id,
-    Schemas.InterviewSessionStatusIntEnum.Deleted,
+    Schemas.InterviewStatusIntEnum.Deleted,
   );
 
   if (!deleted) {

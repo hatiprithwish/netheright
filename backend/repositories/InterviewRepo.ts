@@ -1,4 +1,5 @@
 import InterviewDAL from "@/backend/data-access-layer/InterviewDAL";
+import ProblemsDAL from "@/backend/data-access-layer/ProblemsDAL";
 import * as Schemas from "../../schemas";
 import gemini from "@/lib/gemini";
 import { streamText, convertToModelMessages, UIMessage, tool } from "ai";
@@ -36,7 +37,7 @@ class InterviewRepo {
     }));
 
     // 4. Get sdi problem details -- TODO: Add problems to redis
-    const sdiProblemDetails = await InterviewDAL.getSdiProblemDetails(
+    const sdiProblemDetails = await ProblemsDAL.getProblemDetails(
       params.problemId,
     );
     if (!sdiProblemDetails.problem) {
@@ -199,11 +200,11 @@ class InterviewRepo {
   static async createInterviewSession(
     params: Schemas.CreateInterviewSessionRepoRequest,
   ) {
-    return await InterviewDAL.createInterviewSession(params);
+    return await InterviewDAL.createInterview(params);
   }
 
   static async getSession(sessionId: string) {
-    const session = await InterviewDAL.getSession(sessionId);
+    const session = await InterviewDAL.getInterview(sessionId);
     if (!session) throw new Error("Session not found");
     return session;
   }
@@ -241,7 +242,7 @@ class InterviewRepo {
 
   static async updateInterviewSessionStatus(
     sessionId: string,
-    status: Schemas.InterviewSessionStatusIntEnum,
+    status: Schemas.InterviewStatusIntEnum,
   ): Promise<Schemas.ApiResponse> {
     return await InterviewDAL.updateInterviewSessionStatus(sessionId, status);
   }

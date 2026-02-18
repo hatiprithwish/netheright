@@ -7,7 +7,7 @@ import { NextResponse } from "next/server";
 const handler = async (
   _req: Request,
   validatedBody: Schemas.CreateInterviewSessionRequest,
-): Promise<NextResponse<Schemas.CreateInterviewSessionResponse>> => {
+): Promise<NextResponse<Schemas.CreateInterviewResponse>> => {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json(

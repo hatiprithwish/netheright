@@ -30,7 +30,7 @@ class DashboardDAL {
       .where(
         and(
           eq(interviews.userId, userId),
-          ne(interviews.status, Schemas.InterviewSessionStatusIntEnum.Deleted),
+          ne(interviews.status, Schemas.InterviewStatusIntEnum.Deleted),
         ),
       )
       .orderBy(desc(interviews.createdAt));
@@ -41,8 +41,8 @@ class DashboardDAL {
       problemTitle: row.problemTitle ?? "Unknown Problem",
       status: row.status,
       statusLabel:
-        Schemas.interviewSessionStatusIntToLabel[
-          row.status as Schemas.InterviewSessionStatusIntEnum
+        Schemas.interviewStatusIntToLabel[
+          row.status as Schemas.InterviewStatusIntEnum
         ],
       currentPhase: row.currentPhase,
       currentPhaseLabel:

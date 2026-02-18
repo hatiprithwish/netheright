@@ -72,46 +72,38 @@ export enum InterviewGrade {
   S = 5,
 }
 
-export enum InterviewSessionStatusIntEnum {
+export enum InterviewStatusIntEnum {
   Active = 1,
   Completed = 2,
   Abandoned = 3,
   Deleted = 4,
 }
 
-export enum InterviewSessionStatusLabelEnum {
+export enum InterviewStatusLabelEnum {
   Active = "Active",
   Completed = "Completed",
   Abandoned = "Abandoned",
   Deleted = "Deleted",
 }
 
-export const interviewSessionStatusLabelToInt: Record<
-  InterviewSessionStatusLabelEnum,
-  InterviewSessionStatusIntEnum
+export const interviewStatusLabelToInt: Record<
+  InterviewStatusLabelEnum,
+  InterviewStatusIntEnum
 > = {
-  [InterviewSessionStatusLabelEnum.Active]:
-    InterviewSessionStatusIntEnum.Active,
-  [InterviewSessionStatusLabelEnum.Completed]:
-    InterviewSessionStatusIntEnum.Completed,
-  [InterviewSessionStatusLabelEnum.Abandoned]:
-    InterviewSessionStatusIntEnum.Abandoned,
-  [InterviewSessionStatusLabelEnum.Deleted]:
-    InterviewSessionStatusIntEnum.Deleted,
+  [InterviewStatusLabelEnum.Active]: InterviewStatusIntEnum.Active,
+  [InterviewStatusLabelEnum.Completed]: InterviewStatusIntEnum.Completed,
+  [InterviewStatusLabelEnum.Abandoned]: InterviewStatusIntEnum.Abandoned,
+  [InterviewStatusLabelEnum.Deleted]: InterviewStatusIntEnum.Deleted,
 };
 
-export const interviewSessionStatusIntToLabel: Record<
-  InterviewSessionStatusIntEnum,
-  InterviewSessionStatusLabelEnum
+export const interviewStatusIntToLabel: Record<
+  InterviewStatusIntEnum,
+  InterviewStatusLabelEnum
 > = {
-  [InterviewSessionStatusIntEnum.Active]:
-    InterviewSessionStatusLabelEnum.Active,
-  [InterviewSessionStatusIntEnum.Completed]:
-    InterviewSessionStatusLabelEnum.Completed,
-  [InterviewSessionStatusIntEnum.Abandoned]:
-    InterviewSessionStatusLabelEnum.Abandoned,
-  [InterviewSessionStatusIntEnum.Deleted]:
-    InterviewSessionStatusLabelEnum.Deleted,
+  [InterviewStatusIntEnum.Active]: InterviewStatusLabelEnum.Active,
+  [InterviewStatusIntEnum.Completed]: InterviewStatusLabelEnum.Completed,
+  [InterviewStatusIntEnum.Abandoned]: InterviewStatusLabelEnum.Abandoned,
+  [InterviewStatusIntEnum.Deleted]: InterviewStatusLabelEnum.Deleted,
 };
 
 export enum RedFlagTypeEnum {

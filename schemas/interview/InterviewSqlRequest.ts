@@ -7,7 +7,7 @@ export interface CreateMessageSqlRequest {
   phase: InterviewPhaseIntEnum;
 }
 
-export interface CreateInterviewSessionSqlRequest {
+export interface CreateInterviewSqlRequest {
   userId: string;
   problemId: number;
 }

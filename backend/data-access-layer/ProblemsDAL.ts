@@ -1,8 +1,47 @@
 import { db } from "@/backend/db";
 import { sdiProblems } from "@/backend/db/models";
 import * as Schemas from "@/schemas";
+import { eq } from "drizzle-orm";
 
 class ProblemsDAL {
+  static async getProblemDetails(problemId: number) {
+    let response: Schemas.GetProblemDetailsResponse = {
+      isSuccess: false,
+      message: "Failed to get sdi problem details",
+      problem: null,
+    };
+
+    try {
+      const [dbResult] = await db
+        .select({
+          id: sdiProblems.id,
+          title: sdiProblems.title,
+          description: sdiProblems.description,
+          functionalRequirements: sdiProblems.functionalRequirements,
+          nonFunctionalRequirements: sdiProblems.nonFunctionalRequirements,
+          boteFactors: sdiProblems.boteFactors,
+        })
+        .from(sdiProblems)
+        .where(eq(sdiProblems.id, BigInt(problemId)))
+        .limit(1);
+
+      response.problem = {
+        ...dbResult,
+        id: Number(dbResult.id),
+        functionalRequirements: dbResult.functionalRequirements.join("\n"),
+        nonFunctionalRequirements:
+          dbResult.nonFunctionalRequirements.join("\n"),
+        boteFactors: dbResult.boteFactors.join("\n"),
+      };
+
+      response.isSuccess = true;
+      response.message = "Sdi problem details fetched successfully";
+      return response;
+    } catch (error) {
+      return response;
+    }
+  }
+
   static async getProblems() {
     const response: Schemas.GetProblemsResponse = {
       isSuccess: false,

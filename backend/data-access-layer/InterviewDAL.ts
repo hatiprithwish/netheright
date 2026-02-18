@@ -10,50 +10,10 @@ import {
 import * as Schemas from "@/schemas";
 
 class InterviewDAL {
-  static async getSdiProblemDetails(problemId: number) {
-    let response: Schemas.GetSdiProblemDetailsResponse = {
+  static async createInterview(params: Schemas.CreateInterviewSqlRequest) {
+    const response: Schemas.CreateInterviewResponse = {
       isSuccess: false,
-      message: "Failed to get sdi problem details",
-      problem: null,
-    };
-
-    try {
-      const [dbResult] = await db
-        .select({
-          id: sdiProblems.id,
-          title: sdiProblems.title,
-          description: sdiProblems.description,
-          functionalRequirements: sdiProblems.functionalRequirements,
-          nonFunctionalRequirements: sdiProblems.nonFunctionalRequirements,
-          boteFactors: sdiProblems.boteFactors,
-        })
-        .from(sdiProblems)
-        .where(eq(sdiProblems.id, BigInt(problemId)))
-        .limit(1);
-
-      response.problem = {
-        ...dbResult,
-        id: Number(dbResult.id),
-        functionalRequirements: dbResult.functionalRequirements.join("\n"),
-        nonFunctionalRequirements:
-          dbResult.nonFunctionalRequirements.join("\n"),
-        boteFactors: dbResult.boteFactors.join("\n"),
-      };
-
-      response.isSuccess = true;
-      response.message = "Sdi problem details fetched successfully";
-      return response;
-    } catch (error) {
-      return response;
-    }
-  }
-
-  static async createInterviewSession(
-    params: Schemas.CreateInterviewSessionSqlRequest,
-  ) {
-    const response: Schemas.CreateInterviewSessionResponse = {
-      isSuccess: false,
-      message: "Failed to create interview session",
+      message: "Failed to create interview",
       session: null,
     };
     try {
@@ -62,7 +22,7 @@ class InterviewDAL {
         .values({
           userId: params.userId,
           problemId: params.problemId,
-          status: Schemas.InterviewSessionStatusIntEnum.Active,
+          status: Schemas.InterviewStatusIntEnum.Active,
           currentPhase: Schemas.InterviewPhaseIntEnum.RequirementsGathering,
         })
         .returning();
@@ -73,8 +33,8 @@ class InterviewDAL {
         problemId: session.problemId,
         status: session.status,
         statusLabel:
-          Schemas.interviewSessionStatusIntToLabel[
-            session.status as Schemas.InterviewSessionStatusIntEnum
+          Schemas.interviewStatusIntToLabel[
+            session.status as Schemas.InterviewStatusIntEnum
           ],
         currentPhase: session.currentPhase,
         currentPhaseLabel:
@@ -92,10 +52,49 @@ class InterviewDAL {
     return response;
   }
 
-  static async getSession(sessionId: string) {
-    return await db.query.interviews.findFirst({
-      where: eq(interviews.id, sessionId),
-    });
+  static async getInterview(sessionId: string) {
+    const response: Schemas.GetInterviewResponse = {
+      isSuccess: true,
+      message: "",
+      session: null,
+    };
+    try {
+      const [session] = await db
+        .select({
+          id: interviews.id,
+          userId: interviews.userId,
+          problemId: interviews.problemId,
+          status: interviews.status,
+          statusLabel: sql<Schemas.InterviewStatusLabelEnum>`CASE
+            WHEN ${interviews.status} = ${Schemas.InterviewStatusIntEnum.Completed} THEN ${Schemas.InterviewStatusLabelEnum.Completed}
+            WHEN ${interviews.status} = ${Schemas.InterviewStatusIntEnum.Abandoned} THEN ${Schemas.InterviewStatusLabelEnum.Abandoned}
+            WHEN ${interviews.status} = ${Schemas.InterviewStatusIntEnum.Deleted} THEN ${Schemas.InterviewStatusLabelEnum.Deleted}
+            ELSE ${Schemas.InterviewStatusLabelEnum.Active}
+            END`,
+          currentPhase: interviews.currentPhase,
+          currentPhaseLabel: sql<Schemas.InterviewPhaseLabelEnum>`CASE
+            WHEN ${interviews.currentPhase} = ${Schemas.InterviewPhaseIntEnum.BotECalculation} THEN ${Schemas.InterviewPhaseLabelEnum.BotECalculation}
+            WHEN ${interviews.currentPhase} = ${Schemas.InterviewPhaseIntEnum.HighLevelDesign} THEN ${Schemas.InterviewPhaseLabelEnum.HighLevelDesign}
+            WHEN ${interviews.currentPhase} = ${Schemas.InterviewPhaseIntEnum.ComponentDeepDive} THEN ${Schemas.InterviewPhaseLabelEnum.ComponentDeepDive}
+            WHEN ${interviews.currentPhase} = ${Schemas.InterviewPhaseIntEnum.BottlenecksDiscussion} THEN ${Schemas.InterviewPhaseLabelEnum.BottlenecksDiscussion}
+            ELSE ${Schemas.InterviewPhaseLabelEnum.RequirementsGathering}
+            END`,
+          createdAt: interviews.createdAt,
+        })
+        .from(interviews)
+        .where(eq(interviews.id, sessionId));
+
+      response.session = {
+        ...session,
+        createdAt: session.createdAt.toISOString(),
+      };
+
+      response.message = "Interview session fetched successfully";
+    } catch (error) {
+      response.isSuccess = false;
+      response.message = "Failed to fetch interview session";
+    }
+    return response;
   }
 
   static async updateInterviewPhase(
@@ -114,7 +113,7 @@ class InterviewDAL {
     const [ended] = await db
       .update(interviews)
       .set({
-        status: Schemas.InterviewSessionStatusIntEnum.Completed,
+        status: Schemas.InterviewStatusIntEnum.Completed,
         endTime: new Date(),
       })
       .where(eq(interviews.id, sessionId))
@@ -230,7 +229,7 @@ class InterviewDAL {
 
   static async updateInterviewSessionStatus(
     sessionId: string,
-    status: Schemas.InterviewSessionStatusIntEnum,
+    status: Schemas.InterviewStatusIntEnum,
   ) {
     const [updated] = await db
       .update(interviews)

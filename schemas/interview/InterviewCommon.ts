@@ -3,8 +3,8 @@ import {
   ChatRoleLabelEnum,
   InterviewPhaseIntEnum,
   InterviewPhaseLabelEnum,
-  InterviewSessionStatusIntEnum,
-  InterviewSessionStatusLabelEnum,
+  InterviewStatusIntEnum,
+  InterviewStatusLabelEnum,
   RedFlagTypeEnum,
 } from "./InterviewEnum";
 import { z } from "zod";
@@ -17,12 +17,12 @@ export type SaveDiagramParams = {
   userId: string;
 };
 
-export interface InterviewSession {
+export interface Interview {
   id: string;
   userId: string;
   problemId: number;
-  status: InterviewSessionStatusIntEnum;
-  statusLabel: InterviewSessionStatusLabelEnum;
+  status: InterviewStatusIntEnum;
+  statusLabel: InterviewStatusLabelEnum;
   currentPhase: InterviewPhaseIntEnum;
   currentPhaseLabel: InterviewPhaseLabelEnum;
   createdAt: string;
@@ -55,12 +55,3 @@ export const ZTransitionToPhaseParams = z.object({
 });
 
 export type TransitionToPhaseParams = z.infer<typeof ZTransitionToPhaseParams>;
-
-export interface SdiProblem {
-  id: number;
-  title: string;
-  description: string;
-  functionalRequirements: string;
-  nonFunctionalRequirements: string;
-  boteFactors: string;
-}

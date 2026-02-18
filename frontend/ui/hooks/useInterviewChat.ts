@@ -3,22 +3,28 @@ import { DefaultChatTransport } from "ai";
 import * as Schemas from "@/schemas";
 import { UIMessage } from "ai";
 import { useEffect, useState, useRef } from "react";
-import { useInterviewStore } from "../interview/zustand";
 import Constants from "@/constants";
 
 interface UseInterviewChatProps {
   sessionId: string;
   phase: Schemas.InterviewPhaseIntEnum;
   problemId: number;
+  onPhaseTransition?: (newPhase: number) => void;
+  onCompleted?: () => void;
 }
 
 export function useInterviewChat({
   sessionId,
   phase,
   problemId,
+  onPhaseTransition,
+  onCompleted,
 }: UseInterviewChatProps) {
   const [previousMessages, setPreviousMessages] = useState<UIMessage[]>([]);
   const [isLoadingMessages, setIsLoadingMessages] = useState(true);
+  const [pendingPhaseTransition, setPendingPhaseTransition] = useState<
+    number | null
+  >(null);
   const hasAutoStartedRef = useRef(false);
 
   const body: Omit<Schemas.GetChatStreamRequest, "messages"> = {
@@ -64,18 +70,6 @@ export function useInterviewChat({
     experimental_throttle: 50,
   });
 
-  const currentPhase = useInterviewStore((state) => state.phase);
-  const setPendingPhaseTransition = useInterviewStore(
-    (state) => state.setPendingPhaseTransition,
-  );
-  const confirmPhaseTransition = useInterviewStore(
-    (state) => state.confirmPhaseTransition,
-  );
-  const pendingPhaseTransitionFromUser = useInterviewStore(
-    (state) => state.pendingPhaseTransitionFromUser,
-  );
-  const setCompleted = useInterviewStore((state) => state.setCompleted);
-
   // Auto-start conversation for all phases when they have no messages
   useEffect(() => {
     // Only auto-start if:
@@ -108,8 +102,8 @@ export function useInterviewChat({
       if (part.type === "tool-transitionToPhase" && part.output) {
         const result = part.output as { newPhase: number; status: string };
 
-        if (result.newPhase && result.newPhase !== currentPhase) {
-          // Set pending phase transition instead of auto-transitioning
+        if (result.newPhase && result.newPhase !== phase) {
+          // Set pending phase transition
           setPendingPhaseTransition(result.newPhase);
         }
       }
@@ -118,17 +112,24 @@ export function useInterviewChat({
       if (part.type === "tool-endInterview" && part.output) {
         const result = part.output as { status: string };
         if (result.status === "interview_completed") {
-          setCompleted(true);
+          onCompleted?.();
         }
       }
     });
-  }, [messages, currentPhase, setPendingPhaseTransition, setCompleted]);
+  }, [messages, phase, onCompleted]);
+
+  const confirmTransition = () => {
+    if (pendingPhaseTransition !== null) {
+      onPhaseTransition?.(pendingPhaseTransition);
+      setPendingPhaseTransition(null);
+    }
+  };
 
   return {
     messages,
     sendMessage,
     isLoadingMessages,
-    pendingPhaseTransitionFromUser,
-    confirmTransition: confirmPhaseTransition,
+    pendingPhaseTransitionFromUser: pendingPhaseTransition,
+    confirmTransition,
   };
 }

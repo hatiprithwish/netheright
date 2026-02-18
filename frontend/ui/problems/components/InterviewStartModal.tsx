@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useInterviewStore } from "@/frontend/ui/interview/zustand";
 import { createInterviewSession } from "@/frontend/api/mutations";
 import {
   Loader2,
@@ -12,8 +11,8 @@ import {
   Network,
   ArrowRight,
   Clock,
-  Wifi,
 } from "lucide-react";
+import { toast } from "sonner";
 
 interface InterviewStartModalProps {
   problemId: number;
@@ -28,31 +27,18 @@ export function InterviewStartModal({
 }: InterviewStartModalProps) {
   const router = useRouter();
   const [isCreating, setIsCreating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const setSessionId = useInterviewStore((state) => state.setSessionId);
-  const setProblemId = useInterviewStore((state) => state.setProblemId);
-  const resetInterview = useInterviewStore((state) => state.reset);
 
   const handleStartInterview = async () => {
-    setIsCreating(true);
-    setError(null);
-
     try {
-      // Reset all previous interview state (including nodes and edges)
-      resetInterview();
-
-      // Set the problem ID
-      setProblemId(problemId);
-
+      setIsCreating(true);
       const response = await createInterviewSession({ problemId });
-      if (!response?.session) {
-        throw new Error("Failed to create session");
+      if (response?.session) {
+        router.push(`/interview/${problemId}/${response.session.id}`);
       }
-      setSessionId(response.session.id);
-      router.push(`/interview/${problemId}/${response.session.id}`);
     } catch (err) {
-      console.error("Failed to create session:", err);
-      setError("Failed to start interview. Please try again.");
+      toast.error("Failed to start interview. Please try again.", {
+        duration: 5000,
+      });
     } finally {
       setIsCreating(false);
     }
@@ -158,20 +144,7 @@ export function InterviewStartModal({
                 </div>
               </div>
             </div>
-
-            {/* Progress Note */}
-            <div className="mt-4 pt-4 border-t border-slate-200">
-              <p className="text-xs text-slate-500 text-center">
-                Your progress will be automatically saved throughout the session
-              </p>
-            </div>
           </div>
-
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-red-700 text-sm">{error}</p>
-            </div>
-          )}
 
           <button
             onClick={handleStartInterview}
