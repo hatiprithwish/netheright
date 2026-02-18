@@ -129,7 +129,10 @@ class InterviewRepo {
           inputSchema: z.object({}),
           execute: async () => {
             console.log("Ending interview session");
-            await InterviewDAL.endInterviewSession(params.sessionId);
+            await InterviewDAL.updateInterviewStatus(
+              params.sessionId,
+              Schemas.InterviewStatusIntEnum.Completed,
+            );
 
             // Generate scorecard by sending entire chat history to LLM
             const allMessages = await InterviewDAL.getMessagesBySession(
@@ -244,7 +247,7 @@ class InterviewRepo {
     sessionId: string,
     status: Schemas.InterviewStatusIntEnum,
   ): Promise<Schemas.ApiResponse> {
-    return await InterviewDAL.updateInterviewSessionStatus(sessionId, status);
+    return await InterviewDAL.updateInterviewStatus(sessionId, status);
   }
 }
 

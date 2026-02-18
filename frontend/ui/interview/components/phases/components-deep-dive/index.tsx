@@ -2,7 +2,7 @@
 
 import { useChat } from "@ai-sdk/react";
 import { useInterviewStore } from "../../../zustand";
-import { ArchitectureCanvas } from "../high-level-design/ArchitectureCanvas";
+import { HLDCanvas } from "../high-level-design/HLDCanvas";
 import { useState } from "react";
 import { DefaultChatTransport } from "ai";
 import * as Schemas from "@/schemas";
@@ -47,7 +47,7 @@ export function ComponentsDeepDive() {
       </div>
 
       <div className="flex-1 relative">
-        <ArchitectureCanvas />
+        <HLDCanvas />
       </div>
     </div>
   );

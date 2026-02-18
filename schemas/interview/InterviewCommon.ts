@@ -21,6 +21,7 @@ export interface Interview {
   id: string;
   userId: string;
   problemId: number;
+  problemTitle: string;
   status: InterviewStatusIntEnum;
   statusLabel: InterviewStatusLabelEnum;
   currentPhase: InterviewPhaseIntEnum;

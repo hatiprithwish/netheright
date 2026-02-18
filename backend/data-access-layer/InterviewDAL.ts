@@ -14,10 +14,10 @@ class InterviewDAL {
     const response: Schemas.CreateInterviewResponse = {
       isSuccess: false,
       message: "Failed to create interview",
-      session: null,
+      interview: null,
     };
     try {
-      const [session] = await db
+      const [interview] = await db
         .insert(interviews)
         .values({
           userId: params.userId,
@@ -27,23 +27,9 @@ class InterviewDAL {
         })
         .returning();
 
-      response.session = {
-        id: session.id,
-        userId: session.userId,
-        problemId: session.problemId,
-        status: session.status,
-        statusLabel:
-          Schemas.interviewStatusIntToLabel[
-            session.status as Schemas.InterviewStatusIntEnum
-          ],
-        currentPhase: session.currentPhase,
-        currentPhaseLabel:
-          Schemas.interviewPhaseIntToLabel[
-            session.currentPhase as Schemas.InterviewPhaseIntEnum
-          ],
-        createdAt: session.createdAt.toISOString(),
-      };
+      const interviewDetails = await this.getInterview(interview.id);
 
+      response.interview = interviewDetails.interview;
       response.isSuccess = true;
       response.message = "Interview session created successfully";
     } catch (error) {
@@ -56,7 +42,7 @@ class InterviewDAL {
     const response: Schemas.GetInterviewResponse = {
       isSuccess: true,
       message: "",
-      session: null,
+      interview: null,
     };
     try {
       const [session] = await db
@@ -64,6 +50,7 @@ class InterviewDAL {
           id: interviews.id,
           userId: interviews.userId,
           problemId: interviews.problemId,
+          problemTitle: sdiProblems.title,
           status: interviews.status,
           statusLabel: sql<Schemas.InterviewStatusLabelEnum>`CASE
             WHEN ${interviews.status} = ${Schemas.InterviewStatusIntEnum.Completed} THEN ${Schemas.InterviewStatusLabelEnum.Completed}
@@ -82,10 +69,12 @@ class InterviewDAL {
           createdAt: interviews.createdAt,
         })
         .from(interviews)
+        .leftJoin(sdiProblems, eq(interviews.problemId, sdiProblems.id))
         .where(eq(interviews.id, sessionId));
 
-      response.session = {
+      response.interview = {
         ...session,
+        problemTitle: session.problemTitle ?? "Unknown Problem",
         createdAt: session.createdAt.toISOString(),
       };
 
@@ -107,18 +96,6 @@ class InterviewDAL {
       .where(eq(interviews.id, sessionId))
       .returning();
     return updated;
-  }
-
-  static async endInterviewSession(sessionId: string) {
-    const [ended] = await db
-      .update(interviews)
-      .set({
-        status: Schemas.InterviewStatusIntEnum.Completed,
-        endTime: new Date(),
-      })
-      .where(eq(interviews.id, sessionId))
-      .returning();
-    return ended;
   }
 
   static async createMessageInAiChats(params: Schemas.CreateMessageSqlRequest) {
@@ -227,30 +204,32 @@ class InterviewDAL {
     return result[0];
   }
 
-  static async updateInterviewSessionStatus(
+  static async updateInterviewStatus(
     sessionId: string,
     status: Schemas.InterviewStatusIntEnum,
   ) {
-    const [updated] = await db
-      .update(interviews)
-      .set({
-        status,
-        endTime: new Date(),
-      })
-      .where(eq(interviews.id, sessionId))
-      .returning();
-
-    if (!updated) {
-      return {
-        isSuccess: false,
-        message: "Interview session not found",
-      };
-    }
-
-    return {
-      isSuccess: true,
-      message: "Interview session status updated successfully",
+    const response: Schemas.ApiResponse = {
+      isSuccess: false,
+      message: "Failed to update interview status",
     };
+    try {
+      const [updated] = await db
+        .update(interviews)
+        .set({
+          status,
+          endTime: new Date(),
+        })
+        .where(eq(interviews.id, sessionId))
+        .returning();
+
+      response.isSuccess = updated ? true : false;
+      response.message = updated
+        ? "Interview status updated successfully"
+        : "Interview not found";
+    } catch (error) {
+      console.log(error);
+    }
+    return response;
   }
 }
 

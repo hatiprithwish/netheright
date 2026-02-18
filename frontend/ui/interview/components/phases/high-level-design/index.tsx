@@ -1,7 +1,7 @@
 "use client";
 
 import { useInterviewStore } from "../../../zustand";
-import { ArchitectureCanvas } from "./ArchitectureCanvas";
+import { HLDCanvas } from "./HLDCanvas";
 import Utilities from "@/utils";
 import { useState } from "react";
 import { Bot, Loader2, Wand2 } from "lucide-react";
@@ -87,7 +87,7 @@ export function HighLevelDesign({
 
       {/* Right: Canvas */}
       <div className="flex-1 relative">
-        <ArchitectureCanvas />
+        <HLDCanvas />
         <button
           onClick={handleAnalyze}
           disabled={isAnalyzing || nodes.length === 0}

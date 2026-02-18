@@ -18,15 +18,19 @@ import { useInterviewChat } from "../../hooks/useInterviewChat";
 export function InterviewInterface({
   sessionId,
   problemId,
+  problemTitle,
   phase,
   onPhaseChange,
   maxReachedPhase,
+  onSessionRefresh,
 }: {
   sessionId: string;
   problemId: number;
+  problemTitle: string;
   phase: Schemas.InterviewPhaseIntEnum;
   onPhaseChange: (phase: number) => void;
   maxReachedPhase: Schemas.InterviewPhaseIntEnum;
+  onSessionRefresh: () => void;
 }) {
   const router = useRouter();
   const [showAbandonConfirm, setShowAbandonConfirm] = useState(false);
@@ -64,6 +68,8 @@ export function InterviewInterface({
     problemId: problemId,
     onPhaseTransition: onPhaseChange,
     onCompleted: () => {
+      // Force refresh session to see updated status
+      onSessionRefresh();
       // Redirect to completion screen by navigating to the session URL
       router.push(`/interview/${problemId}?session=${sessionId}`);
     },
@@ -73,8 +79,9 @@ export function InterviewInterface({
     <div className="h-screen w-full bg-slate-100 flex flex-col font-sans">
       <MobileBlocker />
 
-      <header className="h-14 bg-white border-b flex items-center px-6 justify-center shrink-0 shadow-sm z-10 overflow-x-auto relative">
-        <div className="flex items-center gap-1 text-sm bg-slate-50 p-1 rounded-lg border min-w-fit">
+      <header className="h-14 bg-white border-b flex items-center px-6 justify-between shrink-0 shadow-sm z-10 overflow-x-auto relative">
+        <div className="font-semibold text-slate-700">{problemTitle}</div>
+        <div className="flex items-center gap-1 text-sm bg-slate-50 p-1 rounded-lg border min-w-fit absolute left-1/2 -translate-x-1/2">
           <PhaseStep
             current={phase}
             step={Schemas.InterviewPhaseIntEnum.RequirementsGathering}
@@ -126,7 +133,7 @@ export function InterviewInterface({
           /> */}
         </div>
 
-        <div className="absolute right-6">
+        <div className="">
           <Button
             variant="ghost"
             onClick={() => setShowAbandonConfirm(true)}

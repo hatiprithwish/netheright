@@ -10,7 +10,7 @@ export const useInterviewSession = (sessionId: string | null) => {
     );
 
   return {
-    session: data?.session ?? null,
+    session: data?.interview ?? null,
     isLoading,
     isError: error,
     mutate,

@@ -32,8 +32,8 @@ export function InterviewStartModal({
     try {
       setIsCreating(true);
       const response = await createInterviewSession({ problemId });
-      if (response?.session) {
-        router.push(`/interview/${problemId}/${response.session.id}`);
+      if (response?.interview) {
+        router.push(`/interview/${problemId}/${response.interview.id}`);
       }
     } catch (err) {
       toast.error("Failed to start interview. Please try again.", {

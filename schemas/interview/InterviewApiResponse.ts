@@ -3,11 +3,11 @@ import { Interview } from "./InterviewCommon";
 import { z } from "zod";
 
 export interface CreateInterviewResponse extends ApiResponse {
-  session: Interview | null;
+  interview: Interview | null;
 }
 
 export interface GetInterviewResponse extends ApiResponse {
-  session: Interview | null;
+  interview: Interview | null;
 }
 
 export const ZScorecardSchema = z.object({

@@ -14,9 +14,10 @@ import {
 import "@xyflow/react/dist/style.css";
 import { useInterviewStore } from "../../../zustand";
 import { Plus, Trash2 } from "lucide-react";
-import { SystemNode } from "./SystemNode";
+import { CustomNode } from "./CustomNode";
+import { CustomEdge } from "./CustomEdge";
 
-export function ArchitectureCanvas() {
+export function HLDCanvas() {
   const nodes = useInterviewStore((state) => state.nodes);
   const edges = useInterviewStore((state) => state.edges);
   const onNodesChange = useInterviewStore((state) => state.onNodesChange);
@@ -26,38 +27,20 @@ export function ArchitectureCanvas() {
   const setNodes = useInterviewStore((state) => state.setNodes);
   const updateNodeData = useInterviewStore((state) => state.updateNodeData);
 
-  const nodeTypes = useMemo(() => ({ systemNode: SystemNode }), []);
+  const nodeTypes = useMemo(() => ({ systemNode: CustomNode }), []);
+  const edgeTypes = useMemo(() => ({ customEdge: CustomEdge }), []);
 
   const onConnect = useCallback(
     (params: Connection) => {
-      let label = prompt("Enter a label for this connection (optional):");
       const newEdge = {
         ...params,
-        type: "default",
+        type: "customEdge",
         markerEnd: {
           type: MarkerType.ArrowClosed,
         },
-        label: label || undefined,
         style: { strokeWidth: 2 },
       };
       setEdges(addEdge(newEdge, edges));
-    },
-    [edges, setEdges],
-  );
-
-  const onEdgeClick = useCallback(
-    (event: React.MouseEvent, edge: Edge) => {
-      const newLabel = prompt(
-        "Update connection label:",
-        (edge.label as string) || "",
-      );
-      if (newLabel !== null) {
-        setEdges(
-          edges.map((e) =>
-            e.id === edge.id ? { ...e, label: newLabel || undefined } : e,
-          ),
-        );
-      }
     },
     [edges, setEdges],
   );
@@ -88,11 +71,11 @@ export function ArchitectureCanvas() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
-        onEdgeClick={onEdgeClick}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         fitView
         defaultEdgeOptions={{
-          type: "default",
+          type: "customEdge",
           markerEnd: { type: MarkerType.ArrowClosed },
         }}
       >

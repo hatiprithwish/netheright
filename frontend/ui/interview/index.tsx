@@ -3,6 +3,7 @@
 import { useInterviewSession } from "@/frontend/api/cachedQueries";
 import * as Schemas from "@/schemas";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 import { InterviewCompletionScreen } from "./components/InterviewCompletionScreen";
 import { InterviewInterface } from "./components/InterviewInterface";
 
@@ -16,17 +17,27 @@ export default function InterviewPage({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const { session, isLoading } = useInterviewSession(sessionId ?? null);
+  const { session, isLoading, mutate } = useInterviewSession(sessionId ?? null);
 
-  const currentPhase =
-    session?.currentPhase ??
-    Schemas.InterviewPhaseIntEnum.RequirementsGathering;
+  const currentPhaseParam = searchParams.get("phase");
+  const currentPhase = currentPhaseParam
+    ? parseInt(currentPhaseParam)
+    : (session?.currentPhase ??
+      Schemas.InterviewPhaseIntEnum.RequirementsGathering);
 
   const handlePhaseChange = (newPhase: number) => {
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams.toString());
     params.set("phase", String(newPhase));
     router.push(`?${params.toString()}`);
+    mutate();
   };
+
+  // Sync URL with phase if missing
+  useEffect(() => {
+    if (!currentPhaseParam && !isLoading && session?.currentPhase) {
+      handlePhaseChange(currentPhase);
+    }
+  }, [currentPhaseParam, isLoading, session?.currentPhase, currentPhase]);
 
   if (isLoading) {
     return (
@@ -53,9 +64,11 @@ export default function InterviewPage({
       key={currentPhase}
       sessionId={session.id}
       problemId={problemId}
+      problemTitle={session.problemTitle}
       phase={currentPhase}
       onPhaseChange={handlePhaseChange}
       maxReachedPhase={session.currentPhase}
+      onSessionRefresh={mutate}
     />
   );
 }
