@@ -3,7 +3,7 @@ import { z } from "zod";
 const envSchema = z.object({
   // Auth
   AUTH_SECRET: z.string().min(1, "AUTH_SECRET is required"),
-  NEXTAUTH_URL: z.string().url("NEXTAUTH_URL must be a valid URL"),
+  NEXTAUTH_URL: z.url("NEXTAUTH_URL must be a valid URL"),
 
   // OAuth Providers
   GOOGLE_CLIENT_ID: z.string().min(1, "GOOGLE_CLIENT_ID is required"),
@@ -12,11 +12,11 @@ const envSchema = z.object({
   GITHUB_CLIENT_SECRET: z.string().min(1, "GITHUB_CLIENT_SECRET is required"),
 
   // Database
-  DATABASE_URL: z.string().url("DATABASE_URL must be a valid URL"),
+  DATABASE_URL: z.url("DATABASE_URL must be a valid URL"),
 
   // Sentry
   SENTRY_AUTH_TOKEN: z.string().optional(),
-  SENTRY_DSN: z.string().url().optional(),
+  SENTRY_DSN: z.url().optional(),
 
   // AI
   GOOGLE_GENERATIVE_AI_API_KEY: z
@@ -24,7 +24,9 @@ const envSchema = z.object({
     .min(1, "GOOGLE_GENERATIVE_AI_API_KEY is required"),
 
   // Misc
-  AUTH_TRUST_HOST: z.string().optional(),
+  AUTH_TRUST_HOST: z
+    .string("AUTH_TRUST_HOST is required")
+    .transform((val) => val === "true"),
 });
 
 type EnvSchema = z.infer<typeof envSchema>;

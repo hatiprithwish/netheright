@@ -1,13 +1,12 @@
 import { auth } from "@/lib/next-auth";
 
 export default auth((req) => {
-  if (!req.auth && req.nextUrl.pathname !== "/api/auth/signin") {
-    const newUrl = new URL("/api/auth/signin", req.nextUrl.origin);
-    newUrl.searchParams.set("callbackUrl", req.nextUrl.href);
+  if (!req.auth && req.nextUrl.pathname !== "/auth") {
+    const newUrl = new URL("/auth", req.nextUrl.origin);
     return Response.redirect(newUrl);
   }
 });
 
 export const config = {
-  matcher: ["/interview/:path*"],
+  matcher: ["/dashboard/:path*", "/interview/:path*"],
 };

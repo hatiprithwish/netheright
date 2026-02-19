@@ -33,6 +33,17 @@ CREATE TABLE "hld_diagrams" (
 	"updated_by" text NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "interviews" (
+	"id" text PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" text NOT NULL,
+	"problem_id" integer NOT NULL,
+	"status" integer DEFAULT 1 NOT NULL,
+	"current_phase" integer DEFAULT 1 NOT NULL,
+	"start_time" timestamp DEFAULT now() NOT NULL,
+	"end_time" timestamp,
+	"created_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "red_flags" (
 	"id" bigserial PRIMARY KEY NOT NULL,
 	"session_id" text NOT NULL,
@@ -48,7 +59,7 @@ CREATE TABLE "sdi_problems" (
 	"description" text NOT NULL,
 	"functional_requirements" text[] NOT NULL,
 	"non_functional_requirements" text[] NOT NULL,
-	"bote_factores" jsonb NOT NULL,
+	"bote_factors" text[] NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp
 );
@@ -66,17 +77,6 @@ CREATE TABLE "sdi_scorecards" (
 	"actionable_feedback" text NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE "sdi_sessions" (
-	"id" text PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"user_id" text NOT NULL,
-	"problem_id" integer NOT NULL,
-	"status" integer DEFAULT 1 NOT NULL,
-	"current_phase" integer DEFAULT 1 NOT NULL,
-	"start_time" timestamp DEFAULT now() NOT NULL,
-	"end_time" timestamp,
-	"created_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "user_sessions" (
