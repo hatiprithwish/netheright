@@ -55,13 +55,13 @@ export function InterviewCard({ interview }: InterviewCardProps) {
   const getStatusColor = () => {
     switch (interview.status) {
       case 2: // Completed
-        return "text-green-700 bg-green-50";
+        return "text-emerald-700 bg-emerald-50";
       case 1: // Active
         return "text-blue-700 bg-blue-50";
       case 3: // Abandoned
-        return "text-red-700 bg-red-50";
+        return "text-amber-700 bg-amber-50";
       default:
-        return "text-slate-700 bg-slate-50";
+        return "text-gray-700 bg-gray-50";
     }
   };
 
@@ -74,15 +74,16 @@ export function InterviewCard({ interview }: InterviewCardProps) {
   return (
     <>
       <div
-        className={`bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow p-6 space-y-4`}
+        className={`bg-white rounded-xl border border-gray-200 shadow-soft hover:shadow-lg hover:-translate-y-0.5 transition-all p-6 space-y-4 cursor-pointer group`}
+        onClick={handleCardClick}
       >
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-slate-900 mb-1">
+            <h3 className="text-lg font-bold text-text-main mb-1 group-hover:text-brand-primary transition-colors">
               {interview.problemTitle}
             </h3>
-            <div className="flex items-center gap-2 text-sm text-slate-600">
+            <div className="flex items-center gap-2 text-sm text-text-muted">
               <Calendar className="w-4 h-4" />
               <span>{formatDate(interview.startTime)}</span>
             </div>
@@ -90,8 +91,8 @@ export function InterviewCard({ interview }: InterviewCardProps) {
           <div className="flex items-center gap-2">
             {interview.scorecard && (
               <div className="flex flex-col items-end gap-1">
-                <span className="text-xs font-medium text-slate-500">
-                  Overall Grade
+                <span className="text-xs font-medium text-text-muted uppercase tracking-wider">
+                  Grade
                 </span>
                 <GradeBadge
                   grade={interview.scorecard.overallGrade}
@@ -104,7 +105,7 @@ export function InterviewCard({ interview }: InterviewCardProps) {
                 e.stopPropagation();
                 setShowDeleteConfirm(true);
               }}
-              className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+              className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
               title="Delete interview"
             >
               <Trash2 className="w-4 h-4" />
@@ -114,47 +115,44 @@ export function InterviewCard({ interview }: InterviewCardProps) {
 
         {/* Scorecard Details */}
         {interview.scorecard && (
-          <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-100">
+          <div className="grid grid-cols-2 gap-3 pt-3 border-t border-gray-100">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-slate-600">Requirements</span>
+              <span className="text-sm text-text-muted">Requirements</span>
               <GradeBadge
                 grade={interview.scorecard.requirementsGathering}
                 size="sm"
               />
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-slate-600">Data Modeling</span>
+              <span className="text-sm text-text-muted">Data Modeling</span>
               <GradeBadge grade={interview.scorecard.dataModeling} size="sm" />
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-slate-600">Trade-offs</span>
+              <span className="text-sm text-text-muted">Trade-offs</span>
               <GradeBadge
                 grade={interview.scorecard.tradeOffAnalysis}
                 size="sm"
               />
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-slate-600">Scalability</span>
+              <span className="text-sm text-text-muted">Scalability</span>
               <GradeBadge grade={interview.scorecard.scalability} size="sm" />
             </div>
           </div>
         )}
 
         {/* Footer */}
-        <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
           <div
-            className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${getStatusColor()}`}
+            className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${getStatusColor()}`}
           >
             {getStatusIcon()}
             <span>{interview.statusLabel}</span>
           </div>
           {interview.scorecard && (
-            <button
-              onClick={() => setShowFeedbackModal(true)}
-              className="text-sm cursor-pointer font-medium text-primary hover:underline"
-            >
+            <span className="text-sm font-medium text-brand-primary group-hover:underline">
               View Details →
-            </button>
+            </span>
           )}
         </div>
       </div>

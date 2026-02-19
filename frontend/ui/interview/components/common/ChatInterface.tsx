@@ -93,10 +93,10 @@ export function ChatInterface({
             }`}
           >
             <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+              className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-sm ${
                 m.role === "user"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted"
+                  ? "bg-brand-primary text-white"
+                  : "bg-white border border-gray-200 text-brand-primary"
               }`}
             >
               {m.role === "user" ? (
@@ -106,10 +106,10 @@ export function ChatInterface({
               )}
             </div>
             <div
-              className={`p-3 rounded-lg max-w-[85%] text-sm ${
+              className={`p-4 rounded-2xl max-w-[85%] text-sm leading-relaxed shadow-sm ${
                 m.role === "user"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-white border shadow-sm"
+                  ? "bg-brand-primary text-white rounded-tr-sm"
+                  : "bg-white border border-gray-100 text-text-main rounded-tl-sm"
               }`}
             >
               {m.parts ? (
@@ -126,10 +126,10 @@ export function ChatInterface({
                           ),
                           strong: ({ children }) => (
                             <strong
-                              className={`font-semibold ${
+                              className={`font-bold ${
                                 m.role === "user"
-                                  ? "text-primary-foreground"
-                                  : "text-slate-900"
+                                  ? "text-white"
+                                  : "text-text-main"
                               }`}
                             >
                               {children}
@@ -152,8 +152,8 @@ export function ChatInterface({
                             <code
                               className={`${
                                 m.role === "user"
-                                  ? "bg-primary-foreground/20"
-                                  : "bg-slate-100"
+                                  ? "bg-white/20 text-white"
+                                  : "bg-gray-100 text-text-main"
                               } px-1.5 py-0.5 rounded text-xs font-mono`}
                             >
                               {children}
@@ -163,8 +163,8 @@ export function ChatInterface({
                             <pre
                               className={`${
                                 m.role === "user"
-                                  ? "bg-primary-foreground/20"
-                                  : "bg-slate-100"
+                                  ? "bg-black/20 text-white"
+                                  : "bg-gray-50 text-text-main border border-gray-200"
                               } p-3 rounded-md overflow-x-auto mb-2`}
                             >
                               {children}
@@ -180,66 +180,26 @@ export function ChatInterface({
                   return null;
                 })
               ) : (
-                <ReactMarkdown
-                  components={{
-                    p: ({ children }) => (
-                      <p className="mb-2 last:mb-0 whitespace-pre-wrap">
-                        {children}
-                      </p>
-                    ),
-                    strong: ({ children }) => (
-                      <strong
-                        className={`font-semibold ${
-                          m.role === "user"
-                            ? "text-primary-foreground"
-                            : "text-slate-900"
-                        }`}
-                      >
-                        {children}
-                      </strong>
-                    ),
-                    ul: ({ children }) => (
-                      <ul className="list-disc list-inside mb-2 space-y-1">
-                        {children}
-                      </ul>
-                    ),
-                    ol: ({ children }) => (
-                      <ol className="list-decimal list-inside mb-2 space-y-1">
-                        {children}
-                      </ol>
-                    ),
-                    li: ({ children }) => <li className="ml-2">{children}</li>,
-                    code: ({ children }) => (
-                      <code
-                        className={`${
-                          m.role === "user"
-                            ? "bg-primary-foreground/20"
-                            : "bg-slate-100"
-                        } px-1.5 py-0.5 rounded text-xs font-mono`}
-                      >
-                        {children}
-                      </code>
-                    ),
-                    pre: ({ children }) => (
-                      <pre
-                        className={`${
-                          m.role === "user"
-                            ? "bg-primary-foreground/20"
-                            : "bg-slate-100"
-                        } p-3 rounded-md overflow-x-auto mb-2`}
-                      >
-                        {children}
-                      </pre>
-                    ),
-                    br: () => <br />,
-                  }}
-                >
-                  {m.content}
-                </ReactMarkdown>
+                // Fallback for string content
+                <p className="whitespace-pre-wrap">{m.content}</p>
               )}
             </div>
           </div>
         ))}
+
+        {/* Typing Indicator */}
+        {isLoading && (
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-white border border-gray-200 text-brand-primary shadow-sm">
+              <Bot className="w-4 h-4" />
+            </div>
+            <div className="bg-white border border-gray-100 px-4 py-3 rounded-2xl rounded-tl-sm shadow-sm flex items-center gap-1">
+              <span className="w-1.5 h-1.5 bg-brand-primary/40 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+              <span className="w-1.5 h-1.5 bg-brand-primary/40 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+              <span className="w-1.5 h-1.5 bg-brand-primary/40 rounded-full animate-bounce"></span>
+            </div>
+          </div>
+        )}
         {/* Render "Typing..." indicator if loading and last message is user? 
             Visual consistency with current app doesn't seem to have valid 'typing' state exposed 
             explicitly in UI but 'isLoading' prop exists. We can add if needed. 

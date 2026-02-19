@@ -80,8 +80,8 @@ export function InterviewInterface({
       <MobileBlocker />
 
       <header className="h-14 bg-white border-b flex items-center px-6 justify-between shrink-0 shadow-sm z-10 overflow-x-auto relative">
-        <div className="font-semibold text-slate-700">{problemTitle}</div>
-        <div className="flex items-center gap-1 text-sm bg-slate-50 p-1 rounded-lg border min-w-fit absolute left-1/2 -translate-x-1/2">
+        <div className="font-bold text-lg text-text-main">{problemTitle}</div>
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2 p-1 rounded-full bg-white/50 backdrop-blur-sm border border-gray-200/50 shadow-sm">
           <PhaseStep
             current={phase}
             step={Schemas.InterviewPhaseIntEnum.RequirementsGathering}
@@ -91,7 +91,7 @@ export function InterviewInterface({
               onPhaseChange(Schemas.InterviewPhaseIntEnum.RequirementsGathering)
             }
           />
-          <span className="text-slate-300">›</span>
+          <div className="w-4 h-px bg-gray-200"></div>
           <PhaseStep
             current={phase}
             step={Schemas.InterviewPhaseIntEnum.BotECalculation}
@@ -101,7 +101,7 @@ export function InterviewInterface({
               onPhaseChange(Schemas.InterviewPhaseIntEnum.BotECalculation)
             }
           />
-          <span className="text-slate-300">›</span>
+          <div className="w-4 h-px bg-gray-200"></div>
           <PhaseStep
             current={phase}
             step={Schemas.InterviewPhaseIntEnum.HighLevelDesign}
@@ -111,26 +111,6 @@ export function InterviewInterface({
               onPhaseChange(Schemas.InterviewPhaseIntEnum.HighLevelDesign)
             }
           />
-          {/* <span className="text-slate-300">›</span>
-          <PhaseStep
-            current={phase}
-            step={Schemas.InterviewPhaseIntEnum.ComponentDeepDive}
-            label={`4. ${Schemas.InterviewPhaseLabelEnum.ComponentDeepDive}`}
-            maxReachedPhase={maxReachedPhase}
-            onClick={() =>
-              setPhase(Schemas.InterviewPhaseIntEnum.ComponentDeepDive)
-            }
-          />
-          <span className="text-slate-300">›</span>
-          <PhaseStep
-            current={phase}
-            step={Schemas.InterviewPhaseIntEnum.BottlenecksDiscussion}
-            label={`5. ${Schemas.InterviewPhaseLabelEnum.BottlenecksDiscussion}`}
-            maxReachedPhase={maxReachedPhase}
-            onClick={() =>
-              setPhase(Schemas.InterviewPhaseIntEnum.BottlenecksDiscussion)
-            }
-          /> */}
         </div>
 
         <div className="">

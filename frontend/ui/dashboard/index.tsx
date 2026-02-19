@@ -21,7 +21,7 @@ function Dashboard({ userName, userEmail, userImage }: DashboardContentProps) {
     redirect("/");
   };
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-brand-bg">
       <div className="mx-auto max-w-7xl px-6 py-8">
         <div className="mb-8 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -65,58 +65,58 @@ function Dashboard({ userName, userEmail, userImage }: DashboardContentProps) {
 
         {/* Stats Summary */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-soft p-6">
             <div className="flex items-center gap-3 mb-2">
-              <div className="rounded-full bg-blue-100 p-2">
+              <div className="rounded-full bg-blue-50 p-2">
                 <BarChart3 className="w-5 h-5 text-blue-600" />
               </div>
-              <span className="text-sm font-medium text-slate-600">
+              <span className="text-sm font-medium text-text-muted">
                 Total Interviews
               </span>
             </div>
-            <p className="text-3xl font-bold text-slate-900">
+            <p className="text-3xl font-bold text-text-main">
               {interviews.length}
             </p>
           </div>
 
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-soft p-6">
             <div className="flex items-center gap-3 mb-2">
-              <div className="rounded-full bg-green-100 p-2">
-                <BarChart3 className="w-5 h-5 text-green-600" />
+              <div className="rounded-full bg-emerald-50 p-2">
+                <BarChart3 className="w-5 h-5 text-emerald-600" />
               </div>
-              <span className="text-sm font-medium text-slate-600">
+              <span className="text-sm font-medium text-text-muted">
                 Completed
               </span>
             </div>
-            <p className="text-3xl font-bold text-slate-900">
+            <p className="text-3xl font-bold text-text-main">
               {interviews.filter((i) => i.status === 2).length}
             </p>
           </div>
 
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-soft p-6">
             <div className="flex items-center gap-3 mb-2">
-              <div className="rounded-full bg-yellow-100 p-2">
-                <BarChart3 className="w-5 h-5 text-yellow-600" />
+              <div className="rounded-full bg-amber-50 p-2">
+                <BarChart3 className="w-5 h-5 text-amber-600" />
               </div>
-              <span className="text-sm font-medium text-slate-600">
+              <span className="text-sm font-medium text-text-muted">
                 In Progress
               </span>
             </div>
-            <p className="text-3xl font-bold text-slate-900">
+            <p className="text-3xl font-bold text-text-main">
               {interviews.filter((i) => i.status === 1).length}
             </p>
           </div>
 
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-soft p-6">
             <div className="flex items-center gap-3 mb-2">
-              <div className="rounded-full bg-red-100 p-2">
+              <div className="rounded-full bg-red-50 p-2">
                 <BarChart3 className="w-5 h-5 text-red-600" />
               </div>
-              <span className="text-sm font-medium text-slate-600">
+              <span className="text-sm font-medium text-text-muted">
                 Abandoned
               </span>
             </div>
-            <p className="text-3xl font-bold text-slate-900">
+            <p className="text-3xl font-bold text-text-main">
               {interviews.filter((i) => i.status === 3).length}
             </p>
           </div>
