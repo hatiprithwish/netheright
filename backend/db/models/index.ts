@@ -4,9 +4,7 @@ import {
   timestamp,
   integer,
   bigserial,
-  bigint,
   jsonb,
-  primaryKey,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import type { AdapterAccountType } from "next-auth/adapters";
