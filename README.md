@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Netheright (Prototype)
 
-## Getting Started
+> **Note:** This is a functional prototype built to explore how LLMs can provide real-time feedback on system architecture. It prioritizes the core feedback loop over a polished production UI.
 
-First, run the development server:
+## 🧠 The Goal
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Most system design prep is passive. I built this to be a "Flight Simulator" where engineers can practice the **active** part of an interview—drawing and defending a design—without the pressure of a real interviewer.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🏗️ How it Works
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 1. Phase-Based Interview Logic
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Instead of a single open-ended prompt, I split the session into three stages: **Requirements Gathering**, **Back-of-the-Envelop Calculations**, and **High-Level Design**.
 
-## Learn More
+* The AI uses a custom tool (`transitionToPhase`) to move the user forward.
+* **Why?** This prevents the AI from "hallucinating" a solution too early and forces the user to actually gather requirements first.
 
-To learn more about Next.js, take a look at the following resources:
+### 2. Diagram-to-Text Bridge
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Since LLMs can't natively "see" a React Flow canvas, I wrote a serialization helper.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+* It takes the canvas state (nodes and edges) and converts it into a structured string (e.g., `User -> [Load Balancer] -> [API Server]`).
+* This string is injected into the prompt context, allowing the AI to "critique" what the user is actually drawing.
 
-## Deploy on Vercel
+### 3. Automated Feedback (The Scorecard)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+When the session ends, the app triggers a final LLM pass using a strict **Zod schema**.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+* It analyzes the chat history to generate a structured JSON object.
+* This produces a scorecard with 1–5 ratings on trade-offs and scalability, which is then saved to Postgres (NeonDB).
+
+## 🛠️ Tech Stack & Trade-offs
+
+* **Gemini 2.5 Flash:** Chosen for speed. In a "gamified" prep tool, low-latency feedback is more important than the deep reasoning of a larger model.
+* **React Flow + Zustand:** Handles the drawing logic. I used Zustand for state management to keep the canvas responsive during complex updates.
+* **Vercel AI SDK:** Streamlines the streaming chat and tool-calling implementation.
+
+## 🧪 Current Limitations (Prototype Reality)
+
+* **Stateless Canvas:** If the page refreshes, the diagram resets, though the AI retains the history in the database.
+* **Simple Components:** Currently uses generic nodes; I’m planning to add specific cloud icons (S3, Kafka, etc.) in a future iteration.
+
+## 📈 What's Next 
+* **RAG-Powered Hints**: Integrate LangChain with a vector database to index system design patterns and best practices, enabling the AI to surface relevant, evidence-backed hints when a candidate gets stuck — grounded in real architectural literature rather than generic LLM knowledge.
+
+## 🚀 Setup
+
+1. `pnpm install`
+2. Create `.env.local` with `DATABASE_URL`, `AUTH_SECRET`, and `GOOGLE_GENERATIVE_AI_API_KEY`.
+3. `pnpm dev`
