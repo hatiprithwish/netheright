@@ -1,9 +1,14 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { Code2, Github } from "lucide-react";
+import { Code2, Github, AlertCircle } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-export default function SignInPage() {
+function SignInContent() {
+  const searchParams = useSearchParams();
+  const error = searchParams?.get("error");
+
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
       {/* Left Side - Hero/Brand */}
@@ -40,6 +45,19 @@ export default function SignInPage() {
               Sign in to your account to continue practicing
             </p>
           </div>
+
+          {error === "OAuthAccountNotLinked" && (
+            <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3 text-sm text-red-800">
+              <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold">Account already exists</p>
+                <p className="mt-1">
+                  You have already signed up with another provider for this
+                  email. Please sign in with that provider to continue.
+                </p>
+              </div>
+            </div>
+          )}
 
           <div className="grid gap-4 mt-8">
             <button
@@ -90,5 +108,13 @@ export default function SignInPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense>
+      <SignInContent />
+    </Suspense>
   );
 }
