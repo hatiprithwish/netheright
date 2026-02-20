@@ -30,7 +30,7 @@ function SignInContent() {
 
         <div className="relative z-10 p-12">
           <div className="flex items-center gap-3 text-2xl font-bold text-white">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-primary text-white shadow-lg shadow-brand-primary/20">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
               <Code2 className="h-6 w-6" />
             </div>
             Netheright
@@ -54,20 +54,20 @@ function SignInContent() {
       </div>
 
       {/* Right Side - Auth Form */}
-      <div className="flex items-center justify-center p-8 bg-gray-50 dark:bg-zinc-950">
+      <div className="flex items-center justify-center p-8 bg-background">
         <div className="w-full max-w-md">
-          <div className="bg-white p-8 rounded-2xl shadow-soft dark:bg-zinc-900 dark:border dark:border-zinc-800">
+          <div className="bg-card p-8 rounded-2xl shadow-soft border border-border">
             <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold tracking-tight text-text-main">
+              <h2 className="text-2xl font-bold tracking-tight text-foreground">
                 Welcome back
               </h2>
-              <p className="mt-2 text-sm text-text-muted">
+              <p className="mt-2 text-sm text-muted-foreground">
                 Sign in to your account to continue practicing
               </p>
             </div>
 
             {error === "OAuthAccountNotLinked" && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3 text-sm text-red-800">
+              <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-xl flex items-start gap-3 text-sm text-destructive">
                 <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
                 <div>
                   <p className="font-semibold">Account already exists</p>
@@ -82,7 +82,7 @@ function SignInContent() {
             <div className="grid gap-4">
               <button
                 onClick={() => signIn("github", { callbackUrl: "/dashboard" })}
-                className="flex items-center justify-center gap-3 px-4 py-3 bg-[#24292F] text-white rounded-xl font-medium hover:bg-[#24292F]/90 transition-all shadow-sm hover:shadow hover:-translate-y-0.5 cursor-pointer"
+                className="flex items-center justify-center gap-3 px-4 py-3 bg-[#24292F] text-white rounded-xl font-medium hover:bg-[#24292F]/90 transition-all shadow-sm hover:shadow hover:-translate-y-0.5 cursor-pointer dark:bg-zinc-800 dark:hover:bg-zinc-700"
               >
                 <Github className="h-5 w-5" />
                 Continue with GitHub
@@ -90,7 +90,7 @@ function SignInContent() {
 
               <button
                 onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
-                className="flex items-center justify-center gap-3 px-4 py-3 bg-white text-zinc-700 border border-zinc-200 rounded-xl font-medium hover:bg-gray-50 hover:border-zinc-300 transition-all shadow-sm hover:shadow hover:-translate-y-0.5 cursor-pointer dark:bg-zinc-800 dark:text-white dark:border-zinc-700 dark:hover:bg-zinc-700"
+                className="flex items-center justify-center gap-3 px-4 py-3 bg-card text-foreground border border-border rounded-xl font-medium hover:bg-muted/50 transition-all shadow-sm hover:shadow hover:-translate-y-0.5 cursor-pointer"
               >
                 <svg className="h-5 w-5" viewBox="0 0 24 24">
                   <path
@@ -114,7 +114,7 @@ function SignInContent() {
               </button>
             </div>
 
-            <p className="mt-8 text-center text-xs text-text-muted">
+            <p className="mt-8 text-center text-xs text-muted-foreground">
               By signing in, you agree to our Terms and Privacy Policy.
             </p>
           </div>

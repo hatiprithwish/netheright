@@ -27,7 +27,7 @@ export function ChatInterface({
   isInputDisabled = false,
   emptyState,
   isLoading = false,
-  headerClassName = "p-4 border-b bg-white",
+  headerClassName = "p-4 border-b border-border bg-card",
   pendingPhaseTransition,
   onConfirmTransition,
 }: ChatInterfaceProps) {
@@ -66,10 +66,10 @@ export function ChatInterface({
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 border rounded-xl overflow-hidden shadow-sm">
+    <div className="flex flex-col h-full bg-muted/30 border border-border rounded-xl overflow-hidden shadow-sm">
       {/* Header */}
       <div className={headerClassName}>
-        <h2 className="font-semibold text-lg">{title}</h2>
+        <h2 className="font-semibold text-lg text-foreground">{title}</h2>
         {subtitle && (
           <p className="text-sm text-muted-foreground">{subtitle}</p>
         )}
@@ -95,8 +95,8 @@ export function ChatInterface({
             <div
               className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-sm ${
                 m.role === "user"
-                  ? "bg-brand-primary text-white"
-                  : "bg-white border border-gray-200 text-brand-primary"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-card border border-border text-primary"
               }`}
             >
               {m.role === "user" ? (
@@ -108,8 +108,8 @@ export function ChatInterface({
             <div
               className={`p-4 rounded-2xl max-w-[85%] text-sm leading-relaxed shadow-sm ${
                 m.role === "user"
-                  ? "bg-brand-primary text-white rounded-tr-sm"
-                  : "bg-white border border-gray-100 text-text-main rounded-tl-sm"
+                  ? "bg-primary text-primary-foreground rounded-tr-sm"
+                  : "bg-card border border-border text-foreground rounded-tl-sm"
               }`}
             >
               {m.parts ? (
@@ -128,8 +128,8 @@ export function ChatInterface({
                             <strong
                               className={`font-bold ${
                                 m.role === "user"
-                                  ? "text-white"
-                                  : "text-text-main"
+                                  ? "text-primary-foreground"
+                                  : "text-foreground"
                               }`}
                             >
                               {children}
@@ -153,7 +153,7 @@ export function ChatInterface({
                               className={`${
                                 m.role === "user"
                                   ? "bg-white/20 text-white"
-                                  : "bg-gray-100 text-text-main"
+                                  : "bg-muted text-foreground"
                               } px-1.5 py-0.5 rounded text-xs font-mono`}
                             >
                               {children}
@@ -164,7 +164,7 @@ export function ChatInterface({
                               className={`${
                                 m.role === "user"
                                   ? "bg-black/20 text-white"
-                                  : "bg-gray-50 text-text-main border border-gray-200"
+                                  : "bg-muted/50 text-foreground border border-border"
                               } p-3 rounded-md overflow-x-auto mb-2`}
                             >
                               {children}
@@ -190,27 +190,23 @@ export function ChatInterface({
         {/* Typing Indicator */}
         {isLoading && (
           <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-white border border-gray-200 text-brand-primary shadow-sm">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-card border border-border text-primary shadow-sm">
               <Bot className="w-4 h-4" />
             </div>
-            <div className="bg-white border border-gray-100 px-4 py-3 rounded-2xl rounded-tl-sm shadow-sm flex items-center gap-1">
-              <span className="w-1.5 h-1.5 bg-brand-primary/40 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-              <span className="w-1.5 h-1.5 bg-brand-primary/40 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-              <span className="w-1.5 h-1.5 bg-brand-primary/40 rounded-full animate-bounce"></span>
+            <div className="bg-card border border-border px-4 py-3 rounded-2xl rounded-tl-sm shadow-sm flex items-center gap-1">
+              <span className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+              <span className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+              <span className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce"></span>
             </div>
           </div>
         )}
-        {/* Render "Typing..." indicator if loading and last message is user? 
-            Visual consistency with current app doesn't seem to have valid 'typing' state exposed 
-            explicitly in UI but 'isLoading' prop exists. We can add if needed. 
-        */}
       </div>
 
       {/* Continue Button for Phase Transition */}
       {pendingPhaseTransition !== null &&
         pendingPhaseTransition !== undefined &&
         onConfirmTransition && (
-          <div className="px-4 py-3 bg-blue-50 border-t border-blue-200">
+          <div className="px-4 py-3 bg-blue-50 dark:bg-blue-950/20 border-t border-blue-200 dark:border-blue-900/50">
             <button
               onClick={onConfirmTransition}
               className="w-full cursor-pointer bg-primary text-primary-foreground px-4 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
@@ -225,11 +221,11 @@ export function ChatInterface({
       {!(
         pendingPhaseTransition !== null && pendingPhaseTransition !== undefined
       ) && (
-        <div className="p-4 bg-white border-t">
+        <div className="p-4 bg-card border-t border-border">
           <form onSubmit={handleSubmit} className="flex gap-2 items-end">
             <textarea
               ref={textareaRef}
-              className="flex-1 bg-slate-50 border rounded-md px-3 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed outline-none focus:ring-2 focus:ring-primary/20 resize-none min-h-[40px] max-h-[200px] overflow-y-auto"
+              className="flex-1 bg-muted/50 border border-border rounded-md px-3 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed outline-none focus:ring-2 focus:ring-primary/20 resize-none min-h-[40px] max-h-[200px] overflow-y-auto text-foreground placeholder:text-muted-foreground"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}

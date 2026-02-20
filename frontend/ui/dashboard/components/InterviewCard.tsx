@@ -55,13 +55,13 @@ export function InterviewCard({ interview }: InterviewCardProps) {
   const getStatusColor = () => {
     switch (interview.status) {
       case 2: // Completed
-        return "text-emerald-700 bg-emerald-50";
+        return "text-emerald-700 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-950/30";
       case 1: // Active
-        return "text-blue-700 bg-blue-50";
+        return "text-blue-700 bg-blue-50 dark:text-blue-400 dark:bg-blue-950/30";
       case 3: // Abandoned
-        return "text-amber-700 bg-amber-50";
+        return "text-amber-700 bg-amber-50 dark:text-amber-400 dark:bg-amber-950/30";
       default:
-        return "text-gray-700 bg-gray-50";
+        return "text-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800";
     }
   };
 
@@ -74,7 +74,7 @@ export function InterviewCard({ interview }: InterviewCardProps) {
   return (
     <>
       <div
-        className={`bg-white rounded-xl border border-gray-200 shadow-soft hover:shadow-lg hover:-translate-y-0.5 transition-all p-6 space-y-4 cursor-pointer group`}
+        className={`bg-card text-card-foreground rounded-xl border border-border shadow-soft hover:shadow-lg hover:-translate-y-0.5 transition-all p-6 space-y-4 cursor-pointer group`}
         onClick={handleCardClick}
       >
         {/* Header */}
@@ -142,7 +142,7 @@ export function InterviewCard({ interview }: InterviewCardProps) {
         )}
 
         {/* Footer */}
-        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+        <div className="flex items-center justify-between pt-3 border-t border-border">
           <div
             className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${getStatusColor()}`}
           >
@@ -160,11 +160,9 @@ export function InterviewCard({ interview }: InterviewCardProps) {
       {/* Delete Confirmation Dialog */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">
-              Delete Interview?
-            </h3>
-            <p className="text-slate-600 mb-6">
+          <div className="bg-card text-card-foreground rounded-xl shadow-xl p-6 max-w-md w-full mx-4 border border-border">
+            <h3 className="text-lg font-semibold mb-2">Delete Interview?</h3>
+            <p className="text-muted-foreground mb-6">
               Are you sure you want to delete this interview? This action cannot
               be undone.
             </p>
@@ -172,7 +170,7 @@ export function InterviewCard({ interview }: InterviewCardProps) {
               <button
                 onClick={() => setShowDeleteConfirm(false)}
                 disabled={isDeleting}
-                className="px-4 py-2 text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium transition-colors disabled:opacity-50"
+                className="px-4 py-2 text-secondary-foreground bg-secondary hover:bg-secondary/80 rounded-lg font-medium transition-colors cursor-pointer disabled:opacity-50"
               >
                 Cancel
               </button>

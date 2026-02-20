@@ -5,6 +5,7 @@ import { Code2, LogOut, User } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { ModeToggle } from "@/frontend/ui/common/components/mode-toggle";
 
 export default function Header() {
   const { data: session } = useSession();
@@ -50,6 +51,10 @@ export default function Header() {
           >
             Problems
           </Link>
+
+          <div className="flex items-center">
+            <ModeToggle />
+          </div>
 
           {session?.user ? (
             <div className="flex items-center gap-4 border-l border-border/40 pl-6">

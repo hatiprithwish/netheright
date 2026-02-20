@@ -76,12 +76,12 @@ export function InterviewInterface({
   });
 
   return (
-    <div className="h-screen w-full bg-slate-100 flex flex-col font-sans">
+    <div className="h-screen w-full bg-brand-bg flex flex-col font-sans">
       <MobileBlocker />
 
-      <header className="h-14 bg-white border-b flex items-center px-6 justify-between shrink-0 shadow-sm z-10 overflow-x-auto relative">
-        <div className="font-bold text-lg text-text-main">{problemTitle}</div>
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2 p-1 rounded-full bg-white/50 backdrop-blur-sm border border-gray-200/50 shadow-sm">
+      <header className="h-14 bg-card border-border border-b flex items-center px-6 justify-between shrink-0 shadow-sm z-10 overflow-x-auto relative">
+        <div className="font-bold text-lg text-foreground">{problemTitle}</div>
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2 p-1 rounded-full bg-card/50 backdrop-blur-sm border border-border/50 shadow-sm">
           <PhaseStep
             current={phase}
             step={Schemas.InterviewPhaseIntEnum.RequirementsGathering}
@@ -91,7 +91,7 @@ export function InterviewInterface({
               onPhaseChange(Schemas.InterviewPhaseIntEnum.RequirementsGathering)
             }
           />
-          <div className="w-4 h-px bg-gray-200"></div>
+          <div className="w-4 h-px bg-border"></div>
           <PhaseStep
             current={phase}
             step={Schemas.InterviewPhaseIntEnum.BotECalculation}
@@ -101,7 +101,7 @@ export function InterviewInterface({
               onPhaseChange(Schemas.InterviewPhaseIntEnum.BotECalculation)
             }
           />
-          <div className="w-4 h-px bg-gray-200"></div>
+          <div className="w-4 h-px bg-border"></div>
           <PhaseStep
             current={phase}
             step={Schemas.InterviewPhaseIntEnum.HighLevelDesign}

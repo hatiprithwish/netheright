@@ -50,24 +50,24 @@ export function InterviewStartModal({
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+        className="bg-card text-card-foreground rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-border"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 rounded-t-2xl">
+        <div className="sticky top-0 bg-card border-b border-border px-6 py-4 rounded-t-2xl z-10">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
-              <h2 className="text-2xl font-bold text-slate-900 mb-1">
+              <h2 className="text-2xl font-bold text-foreground mb-1">
                 Start Interview: {problemTitle}
               </h2>
-              <div className="flex items-center gap-2 text-sm text-slate-600">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Clock className="w-4 h-4" />
                 <span className="font-medium">Estimated time: ~45 mins</span>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors flex-shrink-0"
+              className="p-2 text-muted-foreground hover:text-foreground hover:bg-secondary rounded-lg transition-colors flex-shrink-0 cursor-pointer"
               aria-label="Close modal"
             >
               <X className="w-5 h-5" />
@@ -77,69 +77,77 @@ export function InterviewStartModal({
 
         {/* Content */}
         <div className="p-6 space-y-6">
-          <div className="bg-slate-50 rounded-lg p-6 border border-slate-200">
-            <h3 className="font-semibold text-slate-900 mb-4">
+          <div className="bg-secondary/30 rounded-lg p-6 border border-border">
+            <h3 className="font-semibold text-foreground mb-4">
               What to expect:
             </h3>
             <div className="space-y-4">
               {/* Phase 1 */}
               <div className="flex items-start gap-3">
-                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                  <Search className="w-5 h-5 text-blue-600" />
+                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                  <Search className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div className="flex-1 pt-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                       Phase 1
                     </span>
                   </div>
-                  <p className="text-sm text-slate-700">
-                    <strong className="text-slate-900">
+                  <p className="text-sm text-foreground/80">
+                    <strong className="text-foreground">
                       Requirements Gathering:
                     </strong>{" "}
-                    Clarify <strong>functional</strong> and{" "}
-                    <strong>non-functional</strong> requirements
+                    Clarify{" "}
+                    <strong className="text-foreground">functional</strong> and{" "}
+                    <strong className="text-foreground">non-functional</strong>{" "}
+                    requirements
                   </p>
                 </div>
               </div>
 
               {/* Phase 2 */}
               <div className="flex items-start gap-3">
-                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
-                  <Calculator className="w-5 h-5 text-purple-600" />
+                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                  <Calculator className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                 </div>
                 <div className="flex-1 pt-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                       Phase 2
                     </span>
                   </div>
-                  <p className="text-sm text-slate-700">
-                    <strong className="text-slate-900">
+                  <p className="text-sm text-foreground/80">
+                    <strong className="text-foreground">
                       Back-of-the-Envelope:
                     </strong>{" "}
-                    Estimate <strong>system scale</strong> and{" "}
-                    <strong>resource needs</strong>
+                    Estimate{" "}
+                    <strong className="text-foreground">system scale</strong>{" "}
+                    and{" "}
+                    <strong className="text-foreground">resource needs</strong>
                   </p>
                 </div>
               </div>
 
               {/* Phase 3 */}
               <div className="flex items-start gap-3">
-                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
-                  <Network className="w-5 h-5 text-green-600" />
+                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                  <Network className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                 </div>
                 <div className="flex-1 pt-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                       Phase 3
                     </span>
                   </div>
-                  <p className="text-sm text-slate-700">
-                    <strong className="text-slate-900">
+                  <p className="text-sm text-foreground/80">
+                    <strong className="text-foreground">
                       High-Level Design:
                     </strong>{" "}
-                    Create your <strong>system architecture</strong> diagram
+                    Create your{" "}
+                    <strong className="text-foreground">
+                      system architecture
+                    </strong>{" "}
+                    diagram
                   </p>
                 </div>
               </div>
