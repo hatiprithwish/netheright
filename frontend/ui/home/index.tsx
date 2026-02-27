@@ -10,3 +10,4 @@ export { UpcomingReleasesSection } from "./UpcomingReleasesSection";
 export { MetricsSection } from "./MetricsSection";
 export { CTASection } from "./CTASection";
 export { Footer } from "./Footer";
+export { ArchitecturalTradeoffsSection } from "./ArchitecturalTradeoffsSection";

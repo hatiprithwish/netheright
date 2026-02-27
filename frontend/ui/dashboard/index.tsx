@@ -1,20 +1,65 @@
 "use client";
 
-import { signOut } from "next-auth/react";
 import Image from "next/image";
-import { InterviewHistoryList } from "@/frontend/ui/dashboard/components/InterviewHistoryList";
-import { useInterviewHistory } from "@/frontend/api/cachedQueries";
-import { BarChart3, LogOut, Plus, User } from "lucide-react";
-import { redirect } from "next/navigation";
+import { InterviewHistoryTable } from "@/frontend/ui/dashboard/components/InterviewHistoryTable";
+import {
+  useGetInterviewsByUser,
+  useGetInterviewsByUserCount,
+} from "@/frontend/api/cachedQueries";
+import { BarChart3, Plus, User } from "lucide-react";
+import { useState } from "react";
+import * as Schemas from "@/schemas";
 
 interface DashboardContentProps {
+  userId: string;
   userName: string;
   userEmail: string;
   userImage?: string | null;
 }
 
-function Dashboard({ userName, userEmail, userImage }: DashboardContentProps) {
-  const { interviews, isLoading } = useInterviewHistory();
+function Dashboard({
+  userId,
+  userName,
+  userEmail,
+  userImage,
+}: DashboardContentProps) {
+  const [pageNo, setPageNo] = useState(1);
+  const [sortBy, setSortBy] = useState<Schemas.InterviewSortColumn>(
+    Schemas.InterviewSortColumn.Date,
+  );
+  const [sortOrder, setSortOrder] = useState<Schemas.SortDirection>(
+    Schemas.SortDirection.Desc,
+  );
+  const pageSize = 10;
+
+  const {
+    data,
+    isLoading,
+    handleRefresh: mutate,
+  } = useGetInterviewsByUser({
+    userId,
+    pageNo,
+    pageSize,
+    sortColumn: sortBy,
+    sortDirection: sortOrder,
+  });
+  const interviews = data?.interviews ?? [];
+
+  const {
+    total,
+    completed,
+    inProgress,
+    abandoned,
+    isLoading: isCountLoading,
+  } = useGetInterviewsByUserCount(userId);
+
+  const handleSort = (
+    newSortBy: Schemas.InterviewSortColumn,
+    newSortOrder: Schemas.SortDirection,
+  ) => {
+    setSortBy(newSortBy);
+    setSortOrder(newSortOrder);
+  };
 
   return (
     <div className="min-h-screen bg-brand-bg text-foreground">
@@ -64,7 +109,7 @@ function Dashboard({ userName, userEmail, userImage }: DashboardContentProps) {
               </span>
             </div>
             <p className="text-3xl font-bold text-foreground">
-              {interviews.length}
+              {isCountLoading ? "—" : total}
             </p>
           </div>
 
@@ -78,7 +123,7 @@ function Dashboard({ userName, userEmail, userImage }: DashboardContentProps) {
               </span>
             </div>
             <p className="text-3xl font-bold text-foreground">
-              {interviews.filter((i) => i.status === 2).length}
+              {isCountLoading ? "—" : completed}
             </p>
           </div>
 
@@ -92,7 +137,7 @@ function Dashboard({ userName, userEmail, userImage }: DashboardContentProps) {
               </span>
             </div>
             <p className="text-3xl font-bold text-foreground">
-              {interviews.filter((i) => i.status === 1).length}
+              {isCountLoading ? "—" : inProgress}
             </p>
           </div>
 
@@ -106,7 +151,7 @@ function Dashboard({ userName, userEmail, userImage }: DashboardContentProps) {
               </span>
             </div>
             <p className="text-3xl font-bold text-foreground">
-              {interviews.filter((i) => i.status === 3).length}
+              {isCountLoading ? "—" : abandoned}
             </p>
           </div>
         </div>
@@ -116,7 +161,16 @@ function Dashboard({ userName, userEmail, userImage }: DashboardContentProps) {
           <h2 className="text-2xl font-bold text-foreground mb-6">
             Interview History
           </h2>
-          <InterviewHistoryList interviews={interviews} isLoading={isLoading} />
+          <InterviewHistoryTable
+            interviews={interviews}
+            isLoading={isLoading}
+            page={pageNo}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onPageChange={setPageNo}
+            onSort={handleSort}
+            onDeleteSuccess={() => mutate()}
+          />
         </div>
       </div>
     </div>

@@ -9,6 +9,7 @@ import {
   UpcomingReleasesSection,
   MetricsSection,
   CTASection,
+  ArchitecturalTradeoffsSection,
 } from "@/frontend/ui/home";
 
 export default async function Home() {
@@ -22,6 +23,7 @@ export default async function Home() {
       <TechStackSection />
       <CodeQualitySection />
       <UpcomingReleasesSection />
+      <ArchitecturalTradeoffsSection />
       <MetricsSection />
       <CTASection />
     </main>

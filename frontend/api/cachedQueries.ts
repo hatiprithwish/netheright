@@ -1,6 +1,7 @@
 import useSWR from "swr";
-import { fetcher } from "./apiClient";
+import { fetcher, apiClient } from "./apiClient";
 import * as Schemas from "@/schemas";
+import { useAuth } from "../ui/hooks/useAuth";
 
 export const useInterviewSession = (sessionId: string | null) => {
   const { data, error, isLoading, mutate } =
@@ -17,15 +18,44 @@ export const useInterviewSession = (sessionId: string | null) => {
   };
 };
 
-export const useInterviewHistory = () => {
-  const { data, error, isLoading } =
-    useSWR<Schemas.GetInterviewHistoryResponse>(
-      "/api/dashboard/interviews",
-      fetcher,
-    );
+export const useGetInterviewsByUser = (
+  body: Schemas.GetInterviewsByUserRequest,
+) => {
+  const { currentUser } = useAuth();
+  const isDisabled = !currentUser;
+  const cachedKey = !isDisabled
+    ? [`/api/query/${currentUser?.id}/interviews`, body]
+    : null;
+
+  const {
+    data,
+    error,
+    mutate: handleRefresh,
+  } = useSWR<Schemas.GetInterviewHistoryResponse>(
+    cachedKey,
+    ([url, reqBody]: [string, Schemas.GetInterviewsByUserRequest]) =>
+      apiClient.post<Schemas.GetInterviewHistoryResponse>(url, reqBody),
+  );
 
   return {
-    interviews: data?.interviews ?? [],
+    data,
+    error,
+    isLoading: !isDisabled && !error && !data,
+    handleRefresh,
+  };
+};
+
+export const useGetInterviewsByUserCount = (userId: string | null) => {
+  const { data, error, isLoading } = useSWR<Schemas.GetInterviewCountResponse>(
+    userId ? `/api/${userId}/interviews/count` : null,
+    fetcher,
+  );
+
+  return {
+    total: data?.total ?? 0,
+    completed: data?.completed ?? 0,
+    inProgress: data?.inProgress ?? 0,
+    abandoned: data?.abandoned ?? 0,
     isLoading,
     error: error?.message ?? null,
   };

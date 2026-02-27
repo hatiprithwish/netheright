@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Code2, LogOut, User } from "lucide-react";
-import { useSession, signOut } from "next-auth/react";
+import { useAuth } from "@/frontend/ui/hooks/useAuth";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ModeToggle } from "@/frontend/ui/common/components/mode-toggle";
@@ -17,7 +17,7 @@ import {
 import packageJson from "@/package.json";
 
 export default function Header() {
-  const { data: session } = useSession();
+  const { currentUser, signOut } = useAuth();
   const pathname = usePathname();
   const isHomePage = pathname === "/";
 
@@ -65,14 +65,14 @@ export default function Header() {
             <ModeToggle />
           </div>
 
-          {session?.user ? (
+          {currentUser ? (
             <div className="flex items-center gap-4 border-l border-border/40">
               <DropdownMenu>
                 <DropdownMenuTrigger className="flex items-center gap-2 outline-none rounded-full ring-offset-background transition-colors focus-visible:outline-none cursor-pointer">
-                  {session.user.image ? (
+                  {currentUser.image ? (
                     <Image
-                      src={session.user.image}
-                      alt={session.user.name || "User"}
+                      src={currentUser.image}
+                      alt={currentUser.name || "User"}
                       width={32}
                       height={32}
                       className="h-8 w-8 rounded-full border border-border"
@@ -83,15 +83,15 @@ export default function Header() {
                     </div>
                   )}
                   <span className="hidden text-sm font-medium text-foreground sm:inline-block">
-                    {session.user.name?.split(" ")[0]}
+                    {currentUser.name?.split(" ")[0]}
                   </span>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-64">
                   <DropdownMenuLabel className="font-normal p-3 flex items-center gap-3">
-                    {session.user.image ? (
+                    {currentUser.image ? (
                       <Image
-                        src={session.user.image}
-                        alt={session.user.name || "User"}
+                        src={currentUser.image}
+                        alt={currentUser.name || "User"}
                         width={36}
                         height={36}
                         className="h-9 w-9 rounded-full border border-border object-cover"
@@ -103,10 +103,10 @@ export default function Header() {
                     )}
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium leading-none">
-                        {session.user.name}
+                        {currentUser.name}
                       </p>
                       <p className="text-xs leading-none text-muted-foreground w-40 truncate">
-                        {session.user.email}
+                        {currentUser.email}
                       </p>
                     </div>
                   </DropdownMenuLabel>

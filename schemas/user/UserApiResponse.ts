@@ -30,3 +30,10 @@ export type InterviewHistoryItem = z.infer<typeof ZInterviewHistoryItem>;
 export interface GetInterviewHistoryResponse extends ApiResponse {
   interviews: InterviewHistoryItem[];
 }
+
+export interface GetInterviewCountResponse extends ApiResponse {
+  total: number;
+  completed: number;
+  inProgress: number;
+  abandoned: number;
+}
