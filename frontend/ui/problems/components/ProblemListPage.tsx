@@ -5,21 +5,6 @@ import { useProblems } from "@/frontend/api/cachedQueries";
 import { InterviewStartModal } from "./InterviewStartModal";
 import { Loader2, FileText } from "lucide-react";
 
-const PROBLEM_METADATA: Record<
-  number,
-  { difficulty: "Easy" | "Medium" | "Hard"; topics: string[] }
-> = {
-  1: {
-    difficulty: "Medium",
-    topics: ["System Design", "Scalability", "Databases"],
-  },
-  2: {
-    difficulty: "Hard",
-    topics: ["Distributed Systems", "Consistency", "Sharding"],
-  },
-  3: { difficulty: "Easy", topics: ["API Design", "Rest", "Load Balancing"] },
-};
-
 const getDifficultyColor = (difficulty: string) => {
   switch (difficulty) {
     case "Easy":
@@ -90,10 +75,6 @@ export function ProblemListPage() {
         {/* Problem Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {problems.map((problem) => {
-            const meta = PROBLEM_METADATA[problem.id] || {
-              difficulty: "Medium",
-              topics: ["System Design"],
-            };
             return (
               <button
                 key={problem.id}
@@ -115,16 +96,16 @@ export function ProblemListPage() {
                     </p>
                     <div className="flex items-center gap-2 mt-3 flex-wrap">
                       <span
-                        className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full border ${getDifficultyColor(meta.difficulty)}`}
+                        className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full border ${getDifficultyColor(problem.difficulty)}`}
                       >
-                        {meta.difficulty}
+                        {problem.difficulty}
                       </span>
-                      {meta.topics.map((topic) => (
+                      {problem.tags?.map((tag) => (
                         <span
-                          key={topic}
+                          key={tag}
                           className="text-[10px] uppercase tracking-wider font-medium text-text-muted bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full border border-gray-100"
                         >
-                          {topic}
+                          {tag}
                         </span>
                       ))}
                     </div>

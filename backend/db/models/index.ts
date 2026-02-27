@@ -54,6 +54,8 @@ export const sdiProblems = pgTable("sdi_problems", {
     .array()
     .notNull(),
   boteFactors: text("bote_factors").array().notNull(),
+  difficulty: text("difficulty").notNull(),
+  tags: text("tags").array(),
   createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { mode: "date" }),
 });

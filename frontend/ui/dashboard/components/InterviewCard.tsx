@@ -59,7 +59,7 @@ export function InterviewCard({ interview }: InterviewCardProps) {
       case 1: // Active
         return "text-blue-700 bg-blue-50 dark:text-blue-400 dark:bg-blue-950/30";
       case 3: // Abandoned
-        return "text-amber-700 bg-amber-50 dark:text-amber-400 dark:bg-amber-950/30";
+        return "text-red-700 bg-red-50 dark:text-red-400 dark:bg-red-950/30";
       default:
         return "text-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800";
     }

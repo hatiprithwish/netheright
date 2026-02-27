@@ -5,6 +5,8 @@ CREATE TABLE IF NOT EXISTS sdi_problems (
     functional_requirements                 TEXT[] NOT NULL,
     non_functional_requirements             TEXT[] NOT NULL,
     bote_factors                            TEXT[] NOT NULL,
+    difficulty                              VARCHAR(20) NOT NULL,
+    tags                                    TEXT[],
     created_at                              TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at                              TIMESTAMP NULL
 );

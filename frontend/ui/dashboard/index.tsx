@@ -16,10 +16,6 @@ interface DashboardContentProps {
 function Dashboard({ userName, userEmail, userImage }: DashboardContentProps) {
   const { interviews, isLoading } = useInterviewHistory();
 
-  const handleSignOut = () => {
-    signOut();
-    redirect("/");
-  };
   return (
     <div className="min-h-screen bg-brand-bg text-foreground">
       <div className="mx-auto max-w-7xl px-6 py-8">
@@ -46,13 +42,6 @@ function Dashboard({ userName, userEmail, userImage }: DashboardContentProps) {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <button
-              onClick={handleSignOut}
-              className="flex items-center gap-2 px-4 py-2 bg-card text-card-foreground border border-border rounded-lg font-medium hover:bg-secondary hover:text-secondary-foreground transition-colors cursor-pointer shadow-sm hover:shadow"
-            >
-              <LogOut className="w-4 h-4" />
-              Sign Out
-            </button>
             <a
               href="/problems"
               className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors shadow-md hover:shadow-lg"
