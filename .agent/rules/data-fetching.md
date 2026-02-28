@@ -11,51 +11,57 @@ All client-side data fetching uses SWR, defined in `frontend/api/cachedQueries.t
 
 1. **Always define hooks in `cachedQueries.ts`** — never call `useSWR` directly in components.
 2. **Use `fetcher` for GET requests** and **`apiClient.post` for POST-based queries** (e.g. filtered/paginated endpoints).
-3. **Disable the hook when required data is missing** by passing `null` as the SWR key (e.g. when `userId` is not yet available, or the user is not authenticated).
-4. **Alias `mutate` to a descriptive name** like `handleRefresh` in the return value.
-5. **Derive `isLoading`** manually when using `apiClient.post`, since SWR's built-in `isLoading` does not account for disabled state.
+3. **Calculate `isDisabled`** based on the required parameters (e.g., `!sessionId`, `!currentUser`, or `false` if always enabled).
+4. **Define `cachedKey`** conditionally: `!isDisabled ? '/api/path' : null`. For POST queries with a body, use an array: `!isDisabled ? ['/api/path', body] : null`.
+5. **Alias `mutate` to a descriptive name** like `handleRefresh` when returning from the hook.
+6. **Derive `isLoading`** manually for ALL hooks (both GET and POST) using `!isDisabled && !error && !data`.
 
-## Pattern 1: Simple GET (authenticated resource optional)
+## Pattern 1: Simple GET (e.g. by ID)
 
 ```typescript
-// ✅ GOOD: null key disables the hook when sessionId is absent
+// ✅ GOOD: Conditionally disable the hook and manually derive isLoading
 export const useInterviewSession = (sessionId: string | null) => {
-  const { data, error, isLoading, mutate } =
-    useSWR<Schemas.GetInterviewResponse>(
-      sessionId ? `/api/interview/${sessionId}` : null,
-      fetcher,
-    );
+  const isDisabled = !sessionId;
+  const cachedKey = !isDisabled ? `/api/interview/${sessionId}` : null;
+
+  const {
+    data,
+    error,
+    mutate: handleRefresh,
+  } = useSWR<Schemas.GetInterviewResponse>(cachedKey, fetcher);
 
   return {
-    session: data?.interview ?? null,
-    isLoading,
-    isError: error,
-    mutate,
+    data,
+    error,
+    isLoading: !isDisabled && !error && !data,
+    handleRefresh,
   };
 };
 ```
 
 ## Pattern 2: POST-based query (auth-gated, with body)
 
-Use this pattern when the endpoint requires a request body (e.g. filters, pagination, sorting). Auth-gate by checking `currentUser` and computing `isLoading` manually.
+Use this pattern when the endpoint requires a request body (e.g. filters, pagination, sorting).
 
 ```typescript
-// ✅ GOOD: POST query with auth-gating and manual isLoading
+// ✅ GOOD: POST query with body in cachedKey and specific fetcher function
 export const useGetInterviewsByUser = (
   body: Schemas.GetInterviewsByUserRequest,
 ) => {
   const { currentUser } = useAuth();
   const isDisabled = !currentUser;
-  const cachedKey = `/api/query/${currentUser?.id}/interviews`;
+  const cachedKey = !isDisabled
+    ? [`/api/query/${currentUser?.id}/interviews`, body]
+    : null;
 
   const {
     data,
     error,
     mutate: handleRefresh,
   } = useSWR<Schemas.GetInterviewHistoryResponse>(
-    isDisabled ? null : cachedKey,
-    ([url]: [string]) =>
-      apiClient.post<Schemas.GetInterviewHistoryResponse>(url, body),
+    cachedKey,
+    ([url, reqBody]: [string, Schemas.GetInterviewsByUserRequest]) =>
+      apiClient.post<Schemas.GetInterviewHistoryResponse>(url, reqBody),
   );
 
   return {
@@ -76,9 +82,9 @@ export default function Dashboard() {
 
 ## Return Value Conventions
 
-| Field       | Convention                                                          |
-| ----------- | ------------------------------------------------------------------- |
-| `isLoading` | Use SWR's built-in for GET, derive manually for POST                |
-| `error`     | Return raw SWR error, or `error?.message ?? null` for scalar        |
-| `mutate`    | Alias to `handleRefresh` when exposed for external refresh          |
-| Nested data | Flatten with `data?.field ?? defaultValue` (e.g. `[]`, `0`, `null`) |
+| Field           | Convention                                            |
+| --------------- | ----------------------------------------------------- |
+| `data`          | Return the raw data object or strongly typed response |
+| `error`         | Return raw SWR error                                  |
+| `isLoading`     | Derive manually: `!isDisabled && !error && !data`     |
+| `handleRefresh` | Alias of `mutate`                                     |

@@ -45,13 +45,13 @@ function Dashboard({
   });
   const interviews = data?.interviews ?? [];
 
-  const {
-    total,
-    completed,
-    inProgress,
-    abandoned,
-    isLoading: isCountLoading,
-  } = useGetInterviewsByUserCount(userId);
+  const { data: countData, isLoading: isCountLoading } =
+    useGetInterviewsByUserCount(userId);
+
+  const total = countData?.total ?? 0;
+  const completed = countData?.completed ?? 0;
+  const inProgress = countData?.inProgress ?? 0;
+  const abandoned = countData?.abandoned ?? 0;
 
   const handleSort = (
     newSortBy: Schemas.InterviewSortColumn,

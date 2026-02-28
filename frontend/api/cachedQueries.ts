@@ -4,17 +4,20 @@ import * as Schemas from "@/schemas";
 import { useAuth } from "../ui/hooks/useAuth";
 
 export const useInterviewSession = (sessionId: string | null) => {
-  const { data, error, isLoading, mutate } =
-    useSWR<Schemas.GetInterviewResponse>(
-      sessionId ? `/api/interview/${sessionId}` : null,
-      fetcher,
-    );
+  const isDisabled = !sessionId;
+  const cachedKey = !isDisabled ? `/api/interview/${sessionId}` : null;
+
+  const {
+    data,
+    error,
+    mutate: handleRefresh,
+  } = useSWR<Schemas.GetInterviewResponse>(cachedKey, fetcher);
 
   return {
-    session: data?.interview ?? null,
-    isLoading,
-    isError: error,
-    mutate,
+    data,
+    error,
+    isLoading: !isDisabled && !error && !data,
+    handleRefresh,
   };
 };
 
@@ -46,30 +49,37 @@ export const useGetInterviewsByUser = (
 };
 
 export const useGetInterviewsByUserCount = (userId: string | null) => {
-  const { data, error, isLoading } = useSWR<Schemas.GetInterviewCountResponse>(
-    userId ? `/api/${userId}/interviews/count` : null,
-    fetcher,
-  );
+  const isDisabled = !userId;
+  const cachedKey = !isDisabled ? `/api/${userId}/interviews/count` : null;
+
+  const {
+    data,
+    error,
+    mutate: handleRefresh,
+  } = useSWR<Schemas.GetInterviewCountResponse>(cachedKey, fetcher);
 
   return {
-    total: data?.total ?? 0,
-    completed: data?.completed ?? 0,
-    inProgress: data?.inProgress ?? 0,
-    abandoned: data?.abandoned ?? 0,
-    isLoading,
-    error: error?.message ?? null,
+    data,
+    error,
+    isLoading: !isDisabled && !error && !data,
+    handleRefresh,
   };
 };
 
+// Public API
 export const useProblems = () => {
-  const { data, error, isLoading } = useSWR<Schemas.GetProblemsResponse>(
-    "/api/problems",
-    fetcher,
-  );
+  const cachedKey = "/api/problems";
+
+  const {
+    data,
+    error,
+    mutate: handleRefresh,
+  } = useSWR<Schemas.GetProblemsResponse>(cachedKey, fetcher);
 
   return {
-    problems: data?.problems ?? [],
-    isLoading,
-    error: error?.message ?? null,
+    data,
+    error,
+    isLoading: !error && !data,
+    handleRefresh,
   };
 };

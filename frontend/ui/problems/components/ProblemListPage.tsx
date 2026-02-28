@@ -19,7 +19,9 @@ const getDifficultyColor = (difficulty: string) => {
 };
 
 export function ProblemListPage() {
-  const { problems, isLoading, error } = useProblems();
+  const { data, isLoading, error: swrError } = useProblems();
+  const problems = data?.problems ?? [];
+  const error = swrError?.message ?? null;
   const [selectedProblem, setSelectedProblem] = useState<{
     id: number;
     title: string;
