@@ -17,18 +17,18 @@ export const CustomNode = memo(({ id, data, isConnectable }: NodeProps) => {
   };
 
   return (
-    <div className="bg-white border-2 border-slate-200 rounded-lg shadow-sm min-w-[200px] overflow-hidden relative group">
+    <div className="bg-card text-card-foreground border-2 border-border rounded-lg shadow-sm min-w-[200px] overflow-hidden relative group">
       {/* Target Handle (Input) */}
       <Handle
         type="target"
         position={Position.Top}
         isConnectable={isConnectable}
-        className="w-3 h-3 !bg-slate-400"
+        className="w-3 h-3 !bg-muted-foreground"
       />
 
       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
         <button
-          className="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-red-500 transition-colors"
+          className="p-1 hover:bg-muted rounded text-muted-foreground hover:text-red-500 transition-colors cursor-pointer"
           onClick={handleDelete}
         >
           <Trash2 className="w-4 h-4" />
@@ -39,14 +39,14 @@ export const CustomNode = memo(({ id, data, isConnectable }: NodeProps) => {
         <div>
           <label
             htmlFor={`name-${id}`}
-            className="block text-xs font-medium text-slate-700 mb-1"
+            className="block text-xs font-medium text-foreground mb-1"
           >
             Name <span className="text-red-500">*</span>
           </label>
           <input
             id={`name-${id}`}
             type="text"
-            className="w-full text-sm border-slate-200 rounded-md px-2 py-1 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-slate-300 nodrag"
+            className="w-full text-sm bg-muted/50 border border-border rounded-md px-2 py-1 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-muted-foreground nodrag"
             placeholder="e.g. Load Balancer"
             value={(data.name as string) || ""}
             onChange={(e) => handleChange("name", e.target.value)}
@@ -56,13 +56,13 @@ export const CustomNode = memo(({ id, data, isConnectable }: NodeProps) => {
         <div>
           <label
             htmlFor={`notes-${id}`}
-            className="block text-xs font-medium text-slate-700 mb-1"
+            className="block text-xs font-medium text-foreground mb-1"
           >
             Notes
           </label>
           <textarea
             id={`notes-${id}`}
-            className="w-full text-xs border-slate-200 rounded-md px-2 py-1 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-slate-300 resize-none nodrag"
+            className="w-full text-xs bg-muted/50 border border-border rounded-md px-2 py-1 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-muted-foreground resize-none nodrag"
             rows={2}
             placeholder="Optional details..."
             value={(data.notes as string) || ""}
@@ -76,7 +76,7 @@ export const CustomNode = memo(({ id, data, isConnectable }: NodeProps) => {
         type="source"
         position={Position.Bottom}
         isConnectable={isConnectable}
-        className="w-3 h-3 !bg-slate-400"
+        className="w-3 h-3 !bg-muted-foreground"
       />
     </div>
   );

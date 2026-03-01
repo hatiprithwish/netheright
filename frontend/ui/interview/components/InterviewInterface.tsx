@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import * as Schemas from "@/schemas";
 import { toast } from "sonner";
 import { useState } from "react";
+import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MobileBlocker } from "./MobileBlocker";
 import { PhaseStep } from "./PhaseStep";
@@ -14,6 +15,7 @@ import { RequirementsStep } from "./phases/requirements-gathering";
 import { BotECalculationStep } from "./phases/bote-calculations";
 import { HighLevelDesign } from "./phases/high-level-design";
 import { useInterviewChat } from "../../hooks/useInterviewChat";
+import { useAuth } from "@/frontend/ui/hooks/useAuth";
 
 export function InterviewInterface({
   sessionId,
@@ -36,6 +38,7 @@ export function InterviewInterface({
   const [showAbandonConfirm, setShowAbandonConfirm] = useState(false);
   const [isAbandoning, setIsAbandoning] = useState(false);
   const resetGraph = useInterviewStore((state) => state.reset);
+  const { currentUser } = useAuth();
 
   const handleAbandon = async () => {
     try {
@@ -62,6 +65,7 @@ export function InterviewInterface({
     sendMessage,
     pendingPhaseTransitionFromUser,
     confirmTransition,
+    skipPhase,
   } = useInterviewChat({
     sessionId,
     phase: phase,
@@ -71,13 +75,19 @@ export function InterviewInterface({
       // Force refresh session to see updated status
       onSessionRefresh();
       // Redirect to completion screen by navigating to the session URL
-      router.push(`/interview/${problemId}?session=${sessionId}`);
+      router.push(`/interview/${problemId}/${sessionId}`);
     },
   });
 
   return (
     <div className="h-screen w-full bg-brand-bg flex flex-col font-sans">
       <MobileBlocker />
+
+      {currentUser?.roleName === "TESTER" && (
+        <div className="bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 px-4 py-1.5 text-center text-sm font-medium border-b border-orange-200 dark:border-orange-800/50 flex items-center justify-center z-20 shadow-sm relative shrink-0">
+          You're in test mode
+        </div>
+      )}
 
       <header className="h-14 bg-card border-border border-b flex items-center px-6 justify-between shrink-0 shadow-sm z-10 overflow-x-auto relative">
         <div className="font-bold text-lg text-foreground">{problemTitle}</div>
@@ -117,24 +127,9 @@ export function InterviewInterface({
           <Button
             variant="ghost"
             onClick={() => setShowAbandonConfirm(true)}
-            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+            className="text-red-600 hover:text-red-700 hover:bg-red-50 cursor-pointer"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="mr-2"
-            >
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-              <polyline points="16 17 21 12 16 7"></polyline>
-              <line x1="21" y1="12" x2="9" y2="12"></line>
-            </svg>
+            <LogOut className="h-4 w-4" />
             Abandon Interview
           </Button>
         </div>
@@ -158,6 +153,7 @@ export function InterviewInterface({
             sendMessage={sendMessage}
             pendingPhaseTransition={pendingPhaseTransitionFromUser}
             onConfirmTransition={confirmTransition}
+            onSkipPhase={skipPhase}
           />
         )}
         {phase === Schemas.InterviewPhaseIntEnum.BotECalculation && (
@@ -166,6 +162,7 @@ export function InterviewInterface({
             sendMessage={sendMessage}
             pendingPhaseTransition={pendingPhaseTransitionFromUser}
             onConfirmTransition={confirmTransition}
+            onSkipPhase={skipPhase}
           />
         )}
         {phase === Schemas.InterviewPhaseIntEnum.HighLevelDesign && (
@@ -174,14 +171,9 @@ export function InterviewInterface({
             sendMessage={sendMessage}
             pendingPhaseTransition={pendingPhaseTransitionFromUser}
             onConfirmTransition={confirmTransition}
+            onSkipPhase={skipPhase}
           />
         )}
-        {/* {phase === Schemas.InterviewPhaseIntEnum.ComponentDeepDive && (
-          <ComponentsDeepDive />
-        )}
-        {phase === Schemas.InterviewPhaseIntEnum.BottlenecksDiscussion && (
-          <BottlenecksDiscussion />
-        )} */}
       </main>
     </div>
   );

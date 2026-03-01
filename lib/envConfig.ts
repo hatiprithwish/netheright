@@ -23,10 +23,10 @@ const envSchema = z.object({
     .string()
     .min(1, "GOOGLE_GENERATIVE_AI_API_KEY is required"),
 
-  // Misc
   AUTH_TRUST_HOST: z
     .string("AUTH_TRUST_HOST is required")
     .transform((val) => val === "true"),
+  NODE_ENV: z.string().min(1, "NODE_ENV is required"),
 });
 
 type EnvSchema = z.infer<typeof envSchema>;
@@ -88,6 +88,9 @@ export class EnvConfig {
   }
   public get AUTH_TRUST_HOST() {
     return this.env.AUTH_TRUST_HOST;
+  }
+  public get NODE_ENV() {
+    return this.env.NODE_ENV;
   }
 }
 

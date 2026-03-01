@@ -14,6 +14,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { SwitchRoleModal } from "@/frontend/ui/common/components/SwitchRoleModal";
+import { UserCog } from "lucide-react";
 import packageJson from "@/package.json";
 
 export default function Header() {
@@ -105,12 +107,21 @@ export default function Header() {
                       <p className="text-sm font-medium leading-none">
                         {currentUser.name}
                       </p>
-                      <p className="text-xs leading-none text-muted-foreground w-40 truncate">
-                        {currentUser.email}
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {currentUser.roleName}
                       </p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  <SwitchRoleModal>
+                    <DropdownMenuItem
+                      onSelect={(e) => e.preventDefault()}
+                      className="cursor-pointer"
+                    >
+                      <UserCog className="mr-2 h-4 w-4 text-muted-foreground" />
+                      <span>Switch Role</span>
+                    </DropdownMenuItem>
+                  </SwitchRoleModal>
                   <DropdownMenuItem
                     onClick={() => signOut()}
                     className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"

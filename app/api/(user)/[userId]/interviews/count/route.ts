@@ -1,16 +1,15 @@
+import { NextRequest, NextResponse } from "next/server";
+import { routeWrapper } from "@/backend/middlewares/RouteWrapper";
+import { checkAuth } from "@/backend/middlewares/CheckAuth";
 import { auth } from "@/lib/next-auth";
 import UserRepo from "@/backend/repositories/UserRepo";
-import { NextResponse } from "next/server";
-import { validateRequest } from "@/backend/middlewares/ApiRequestValidator";
-import { Logger } from "@/lib/logger";
+import type { Logger } from "@/lib/logger";
 
-interface RouteContext {
-  params: Promise<{ userId: string }>;
-}
+type RouteContext = { params: Promise<{ userId: string }> };
 
 const getHandler = async (
-  _req: Request,
-  _data: any,
+  _req: NextRequest,
+  _: any,
   _logger: Logger,
   { params }: RouteContext,
 ): Promise<NextResponse> => {
@@ -35,4 +34,4 @@ const getHandler = async (
   return NextResponse.json(result);
 };
 
-export const GET = validateRequest({ requiresAuth: true }, getHandler);
+export const GET = routeWrapper(checkAuth({}, getHandler));

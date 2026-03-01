@@ -1,7 +1,15 @@
 import { db } from "@/backend/db";
 import { count, eq, desc, asc, ne, and } from "drizzle-orm";
-import { interviews, sdiProblems, sdiScorecards } from "@/backend/db/models";
+import {
+  interviews,
+  sdiProblems,
+  sdiScorecards,
+  features,
+  roleFeatures,
+} from "@/backend/db/models";
 import * as Schemas from "@/schemas";
+import CacheManager from "@/lib/CacheManager";
+import Constants from "@/constants";
 
 class UserDAL {
   static async getInterviewsByUser(
@@ -76,6 +84,20 @@ class UserDAL {
     }
 
     return { total, completed, inProgress, abandoned };
+  }
+
+  static async getFeaturesByRole(roleId: string): Promise<string[]> {
+    return CacheManager.get(
+      `role_features_${roleId}`,
+      async () => {
+        const rows = await db
+          .select({ featureId: roleFeatures.featureId })
+          .from(roleFeatures)
+          .where(eq(roleFeatures.roleId, roleId));
+        return rows.map((r) => r.featureId);
+      },
+      Constants.DEFAULT_CACHE_KEY_TTL,
+    );
   }
 }
 

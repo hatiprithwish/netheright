@@ -83,3 +83,20 @@ export const useProblems = () => {
     handleRefresh,
   };
 };
+
+export const useGetRoles = (isOpen: boolean) => {
+  const cachedKey = isOpen ? "/api/metadata/roles" : null;
+
+  const {
+    data,
+    error,
+    mutate: handleRefresh,
+  } = useSWR<{ data: Schemas.Role[] }>(cachedKey, fetcher);
+
+  return {
+    data,
+    error,
+    isLoading: isOpen && !error && !data,
+    handleRefresh,
+  };
+};

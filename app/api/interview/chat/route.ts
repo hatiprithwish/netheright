@@ -1,11 +1,13 @@
-import { validateRequest } from "@/backend/middlewares/ApiRequestValidator";
+import { NextRequest, NextResponse } from "next/server";
+import { routeWrapper } from "@/backend/middlewares/RouteWrapper";
+import { checkAuth } from "@/backend/middlewares/CheckAuth";
+import { validateRequestSchema } from "@/backend/middlewares/ValidateRequestSchema";
 import InterviewRepo from "@/backend/repositories/InterviewRepo";
 import * as Schemas from "@/schemas";
 import type { Logger } from "@/lib/logger";
-import { NextResponse } from "next/server";
 
 const handler = async (
-  _req: Request,
+  _req: NextRequest,
   validatedBody: Schemas.GetChatStreamRequest,
   logger: Logger,
 ) => {
@@ -19,10 +21,8 @@ const handler = async (
   return response;
 };
 
-export const POST = validateRequest(
-  {
-    body: Schemas.ZGetChatStreamRequest,
-    requiresAuth: true,
-  },
-  handler,
+export const POST = routeWrapper(
+  checkAuth({},
+    validateRequestSchema({ body: Schemas.ZGetChatStreamRequest }, handler),
+  ),
 );

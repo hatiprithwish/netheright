@@ -1,12 +1,12 @@
 import pino from "pino";
+import { envConfig } from "./envConfig";
 
 export type Logger = pino.Logger;
 
-// Create base logger instance
 const baseLogger = pino({
-  level: process.env.NODE_ENV === "production" ? "info" : "debug",
+  level: envConfig.NODE_ENV === "production" ? "info" : "debug",
   transport:
-    process.env.NODE_ENV !== "production"
+    envConfig.NODE_ENV !== "production"
       ? {
           target: "pino-pretty",
           options: {
@@ -17,14 +17,6 @@ const baseLogger = pino({
         }
       : undefined,
 });
-
-/**
- * Create a scoped logger with a specific context
- * Use this for standalone scripts or code outside of middleware chains
- */
-export function createScopedLogger(scope: string): Logger {
-  return baseLogger.child({ scope });
-}
 
 /**
  * Create a request-scoped logger with request context
@@ -40,15 +32,4 @@ export function createRequestLogger(
     url,
     ...additionalContext,
   });
-}
-
-/**
- * Extend logger with additional context
- * Returns a new logger instance with the additional context
- */
-export function withContext(
-  logger: Logger,
-  context: Record<string, any>,
-): Logger {
-  return logger.child(context);
 }

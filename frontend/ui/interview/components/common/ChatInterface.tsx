@@ -1,8 +1,15 @@
 "use client";
 
-import { User, Bot, SendIcon, ChevronRightIcon } from "lucide-react";
+import {
+  User,
+  Bot,
+  SendIcon,
+  ChevronRightIcon,
+  FastForward,
+} from "lucide-react";
 import { useRef, useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
+import { useAuth } from "@/frontend/ui/hooks/useAuth";
 
 interface ChatInterfaceProps {
   messages: any[];
@@ -16,6 +23,7 @@ interface ChatInterfaceProps {
   headerClassName?: string;
   pendingPhaseTransition?: number | null;
   onConfirmTransition?: () => void;
+  onSkipPhase?: () => void;
 }
 
 export function ChatInterface({
@@ -30,10 +38,12 @@ export function ChatInterface({
   headerClassName = "p-4 border-b border-border bg-card",
   pendingPhaseTransition,
   onConfirmTransition,
+  onSkipPhase,
 }: ChatInterfaceProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [input, setInput] = useState("");
+  const { hasFeature } = useAuth();
 
   // Auto-scroll on new messages
   useEffect(() => {
@@ -68,10 +78,22 @@ export function ChatInterface({
   return (
     <div className="flex flex-col h-full bg-muted/30 border border-border rounded-xl overflow-hidden shadow-sm">
       {/* Header */}
-      <div className={headerClassName}>
-        <h2 className="font-semibold text-lg text-foreground">{title}</h2>
-        {subtitle && (
-          <p className="text-sm text-muted-foreground">{subtitle}</p>
+      <div className={`${headerClassName} flex justify-between items-center`}>
+        <div>
+          <h2 className="font-semibold text-lg text-foreground">{title}</h2>
+          {subtitle && (
+            <p className="text-sm text-muted-foreground">{subtitle}</p>
+          )}
+        </div>
+        {hasFeature("SKIP_INTV_PHASE") && onSkipPhase && (
+          <button
+            onClick={onSkipPhase}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:hover:bg-orange-900/50 rounded-md transition-colors border border-orange-200 dark:border-orange-800 cursor-pointer"
+            title="Tester Feature: Skip to the next phase immediately"
+          >
+            <FastForward className="w-3.5 h-3.5" />
+            Skip Phase (Tester)
+          </button>
         )}
       </div>
 

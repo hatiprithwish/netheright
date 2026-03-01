@@ -13,6 +13,7 @@ import {
   Clock,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/frontend/ui/hooks/useAuth";
 
 interface InterviewStartModalProps {
   problemId: number;
@@ -27,8 +28,14 @@ export function InterviewStartModal({
 }: InterviewStartModalProps) {
   const router = useRouter();
   const [isCreating, setIsCreating] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   const handleStartInterview = async () => {
+    if (!isAuthenticated) {
+      toast.error("Please sign in before attending an interview");
+      return;
+    }
+
     try {
       setIsCreating(true);
       const response = await createInterviewSession({ problemId });

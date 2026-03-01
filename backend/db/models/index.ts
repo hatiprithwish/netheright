@@ -5,9 +5,48 @@ import {
   integer,
   bigserial,
   jsonb,
+  varchar,
+  boolean,
+  unique,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import type { AdapterAccountType } from "next-auth/adapters";
+
+export const roles = pgTable("roles", {
+  id: varchar("id", { length: 20 }).primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const features = pgTable(
+  "features",
+  {
+    id: varchar("id", { length: 20 }).primaryKey(),
+    description: varchar("description", { length: 255 }).notNull(),
+    permBit: integer("perm_bit").notNull(),
+    permBitIndex: integer("perm_bit_index").notNull(),
+    isActive: boolean("is_active").notNull().default(true),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    uniquePerm: unique().on(table.permBit, table.permBitIndex),
+  }),
+);
+
+export const roleFeatures = pgTable(
+  "role_features",
+  {
+    id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
+    roleId: varchar("role_id", { length: 20 }).notNull(),
+    featureId: varchar("feature_id", { length: 20 }).notNull(),
+    isActive: boolean("is_active").notNull().default(true),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    roleFeaturePk: unique().on(table.roleId, table.featureId),
+  }),
+);
 
 export const users = pgTable("users", {
   id: text("id")
@@ -17,6 +56,7 @@ export const users = pgTable("users", {
   email: text("email").notNull().unique(),
   emailVerified: timestamp("email_verified", { mode: "date" }),
   image: text("image"),
+  roleId: varchar("role_id", { length: 20 }).notNull().default("LEARNER"),
 });
 
 export const accounts = pgTable("accounts", {
@@ -31,18 +71,6 @@ export const accounts = pgTable("accounts", {
   scope: text("scope"),
   id_token: text("id_token"),
   session_state: text("session_state"),
-});
-
-export const user_sessions = pgTable("user_sessions", {
-  sessionToken: text("session_token").primaryKey(),
-  userId: text("user_id").notNull(),
-  expires: timestamp("expires", { mode: "date" }).notNull(),
-});
-
-export const verification_tokens = pgTable("verification_tokens", {
-  identifier: text("identifier").notNull(),
-  token: text("token").notNull(),
-  expires: timestamp("expires", { mode: "date" }).notNull(),
 });
 
 export const sdiProblems = pgTable("sdi_problems", {
