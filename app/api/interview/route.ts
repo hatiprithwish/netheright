@@ -1,12 +1,16 @@
-import { validateRequest } from "@/backend/middlewares/ApiRequestValidator";
+import { NextRequest, NextResponse } from "next/server";
+import { routeWrapper } from "@/backend/middlewares/RouteWrapper";
+import { checkAuth } from "@/backend/middlewares/CheckAuth";
+import { validateRequestSchema } from "@/backend/middlewares/ValidateRequestSchema";
 import InterviewRepo from "@/backend/repositories/InterviewRepo";
 import * as Schemas from "@/schemas";
 import { auth } from "@/lib/next-auth";
-import { NextResponse } from "next/server";
+import type { Logger } from "@/lib/logger";
 
 const handler = async (
-  _req: Request,
+  _req: NextRequest,
   validatedBody: Schemas.CreateInterviewSessionRequest,
+  _logger: Logger,
 ): Promise<NextResponse<Schemas.CreateInterviewResponse>> => {
   const session = await auth();
   if (!session?.user?.id) {
@@ -28,10 +32,11 @@ const handler = async (
   return NextResponse.json(response);
 };
 
-export const POST = validateRequest(
-  {
-    body: Schemas.ZCreateInterviewSessionRequest,
-    requiresAuth: true,
-  },
-  handler,
+export const POST = routeWrapper(
+  checkAuth({},
+    validateRequestSchema(
+      { body: Schemas.ZCreateInterviewSessionRequest },
+      handler,
+    ),
+  ),
 );

@@ -8,6 +8,7 @@ export function BotECalculationStep({
   sendMessage,
   pendingPhaseTransition,
   onConfirmTransition,
+  onSkipPhase,
 }: InterviewPhaseProps) {
   return (
     <div className="h-full max-w-4xl mx-auto flex flex-col">
@@ -19,6 +20,7 @@ export function BotECalculationStep({
         placeholder="Share your calculations..."
         pendingPhaseTransition={pendingPhaseTransition}
         onConfirmTransition={onConfirmTransition}
+        onSkipPhase={onSkipPhase}
         emptyState={
           <div className="text-center text-muted-foreground py-10">
             <p>Start by estimating the scale of the system.</p>

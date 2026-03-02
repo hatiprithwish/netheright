@@ -4,6 +4,7 @@ import * as Schemas from "@/schemas";
 import { UIMessage } from "ai";
 import { useEffect, useState, useRef } from "react";
 import Constants from "@/constants";
+import { updateInterviewSessionStatus } from "@/frontend/api/mutations";
 
 interface UseInterviewChatProps {
   sessionId: string;
@@ -76,10 +77,12 @@ export function useInterviewChat({
     // 1. Messages have finished loading
     // 2. There are no previous messages for this phase
     // 3. We haven't already triggered auto-start
+    // 4. We are NOT in Phase 3 (High Level Design) where user must submit graph first
     if (
       !isLoadingMessages &&
       previousMessages.length === 0 &&
-      !hasAutoStartedRef.current
+      !hasAutoStartedRef.current &&
+      phase !== Schemas.InterviewPhaseIntEnum.HighLevelDesign
     ) {
       hasAutoStartedRef.current = true;
       // Send trigger message to initiate LLM response
@@ -125,11 +128,32 @@ export function useInterviewChat({
     }
   };
 
+  const skipPhase = async () => {
+    // Only allow skip if not already at the last phase (max phase = 3 currently)
+    if (phase < Schemas.InterviewPhaseIntEnum.HighLevelDesign) {
+      onPhaseTransition?.(phase + 1);
+      setPendingPhaseTransition(null);
+    } else if (phase >= Schemas.InterviewPhaseIntEnum.HighLevelDesign) {
+      // If we skip phase 3 (High Level Design), we bypass the LLM feedback
+      // and directly mark the interview as completed on the frontend side.
+      try {
+        await updateInterviewSessionStatus(
+          sessionId,
+          Schemas.InterviewStatusIntEnum.Completed,
+        );
+      } catch (error) {
+        console.error("Failed to update status to completed on skip", error);
+      }
+      onCompleted?.();
+    }
+  };
+
   return {
     messages,
     sendMessage,
     isLoadingMessages,
     pendingPhaseTransitionFromUser: pendingPhaseTransition,
     confirmTransition,
+    skipPhase,
   };
 }

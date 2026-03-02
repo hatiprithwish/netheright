@@ -8,6 +8,7 @@ export function RequirementsStep({
   sendMessage,
   pendingPhaseTransition,
   onConfirmTransition,
+  onSkipPhase,
 }: InterviewPhaseProps) {
   return (
     <div className="h-full max-w-4xl mx-auto flex flex-col">
@@ -19,6 +20,7 @@ export function RequirementsStep({
         placeholder="Asking clarifying questions..."
         pendingPhaseTransition={pendingPhaseTransition}
         onConfirmTransition={onConfirmTransition}
+        onSkipPhase={onSkipPhase}
         emptyState={
           <div className="text-center text-muted-foreground py-10">
             <p>

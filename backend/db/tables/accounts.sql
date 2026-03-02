@@ -4,11 +4,11 @@ CREATE TABLE IF NOT EXISTS accounts (
   provider                                TEXT NOT NULL,
   provider_account_id                     TEXT NOT NULL,
   refresh_token                           TEXT,
-  access_token                            TEXT,
+  access_token                            TEXT, -- GitHub OAuth
   expires_at                              INTEGER,
   token_type                              TEXT,
   scope                                   TEXT,
-  id_token                                TEXT,
+  id_token                                TEXT, -- Google OAuth
   session_state                           TEXT,
   PRIMARY KEY (provider, provider_account_id)
 );

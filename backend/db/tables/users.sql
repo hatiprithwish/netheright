@@ -3,5 +3,6 @@ CREATE TABLE IF NOT EXISTS users (
   name                    TEXT,
   email                   TEXT NOT NULL UNIQUE,
   email_verified          TIMESTAMP,
-  image                   TEXT
+  image                   TEXT,
+  role_id                 VARCHAR(20) NOT NULL DEFAULT 'LEARNER'
 );

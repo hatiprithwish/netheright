@@ -1,45 +1,102 @@
 import useSWR from "swr";
-import { fetcher } from "./apiClient";
+import { fetcher, apiClient } from "./apiClient";
 import * as Schemas from "@/schemas";
+import { useAuth } from "../ui/hooks/useAuth";
 
 export const useInterviewSession = (sessionId: string | null) => {
-  const { data, error, isLoading, mutate } =
-    useSWR<Schemas.GetInterviewResponse>(
-      sessionId ? `/api/interview/${sessionId}` : null,
-      fetcher,
-    );
+  const isDisabled = !sessionId;
+  const cachedKey = !isDisabled ? `/api/interview/${sessionId}` : null;
+
+  const {
+    data,
+    error,
+    mutate: handleRefresh,
+  } = useSWR<Schemas.GetInterviewResponse>(cachedKey, fetcher);
 
   return {
-    session: data?.interview ?? null,
-    isLoading,
-    isError: error,
-    mutate,
+    data,
+    error,
+    isLoading: !isDisabled && !error && !data,
+    handleRefresh,
   };
 };
 
-export const useInterviewHistory = () => {
-  const { data, error, isLoading } =
-    useSWR<Schemas.GetInterviewHistoryResponse>(
-      "/api/dashboard/interviews",
-      fetcher,
-    );
+export const useGetInterviewsByUser = (
+  body: Schemas.GetInterviewsByUserRequest,
+) => {
+  const { currentUser } = useAuth();
+  const isDisabled = !currentUser;
+  const cachedKey = !isDisabled
+    ? [`/api/query/${currentUser?.id}/interviews`, body]
+    : null;
 
-  return {
-    interviews: data?.interviews ?? [],
-    isLoading,
-    error: error?.message ?? null,
-  };
-};
-
-export const useProblems = () => {
-  const { data, error, isLoading } = useSWR<Schemas.GetProblemsResponse>(
-    "/api/problems",
-    fetcher,
+  const {
+    data,
+    error,
+    mutate: handleRefresh,
+  } = useSWR<Schemas.GetInterviewHistoryResponse>(
+    cachedKey,
+    ([url, reqBody]: [string, Schemas.GetInterviewsByUserRequest]) =>
+      apiClient.post<Schemas.GetInterviewHistoryResponse>(url, reqBody),
   );
 
   return {
-    problems: data?.problems ?? [],
-    isLoading,
-    error: error?.message ?? null,
+    data,
+    error,
+    isLoading: !isDisabled && !error && !data,
+    handleRefresh,
+  };
+};
+
+export const useGetInterviewsByUserCount = (userId: string | null) => {
+  const isDisabled = !userId;
+  const cachedKey = !isDisabled ? `/api/${userId}/interviews/count` : null;
+
+  const {
+    data,
+    error,
+    mutate: handleRefresh,
+  } = useSWR<Schemas.GetInterviewCountResponse>(cachedKey, fetcher);
+
+  return {
+    data,
+    error,
+    isLoading: !isDisabled && !error && !data,
+    handleRefresh,
+  };
+};
+
+// Public API
+export const useProblems = () => {
+  const cachedKey = "/api/problems";
+
+  const {
+    data,
+    error,
+    mutate: handleRefresh,
+  } = useSWR<Schemas.GetProblemsResponse>(cachedKey, fetcher);
+
+  return {
+    data,
+    error,
+    isLoading: !error && !data,
+    handleRefresh,
+  };
+};
+
+export const useGetRoles = (isOpen: boolean) => {
+  const cachedKey = isOpen ? "/api/metadata/roles" : null;
+
+  const {
+    data,
+    error,
+    mutate: handleRefresh,
+  } = useSWR<{ data: Schemas.Role[] }>(cachedKey, fetcher);
+
+  return {
+    data,
+    error,
+    isLoading: isOpen && !error && !data,
+    handleRefresh,
   };
 };

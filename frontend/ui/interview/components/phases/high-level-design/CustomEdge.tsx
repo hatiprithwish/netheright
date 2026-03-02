@@ -63,10 +63,10 @@ export function CustomEdge({
             fontSize: 12,
             pointerEvents: "all",
           }}
-          className="nodrag nopan flex items-center gap-1 bg-white border border-slate-200 rounded p-1 shadow-sm"
+          className="nodrag nopan flex items-center gap-1 bg-card border border-border rounded p-1 shadow-sm text-card-foreground"
         >
           <input
-            className="w-24 text-center text-xs bg-transparent outline-none text-slate-700"
+            className="w-24 text-center text-xs bg-transparent outline-none text-foreground placeholder-muted-foreground"
             value={(label as string) || ""}
             onChange={onLabelChange}
             placeholder="Label..."
@@ -75,7 +75,7 @@ export function CustomEdge({
           />
           <button
             onClick={onDelete}
-            className="p-0.5 hover:bg-slate-100 rounded text-slate-400 hover:text-red-500 transition-colors"
+            className="p-0.5 hover:bg-muted rounded text-muted-foreground hover:text-red-500 transition-colors cursor-pointer"
           >
             <X className="w-3 h-3" />
           </button>

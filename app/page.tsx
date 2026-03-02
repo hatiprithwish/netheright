@@ -1,5 +1,4 @@
 import {
-  Navigation,
   HeroSection,
   WhyNextJsSection,
   ThreeLayerArchitectureSection,
@@ -10,13 +9,12 @@ import {
   UpcomingReleasesSection,
   MetricsSection,
   CTASection,
-  Footer,
+  ArchitecturalTradeoffsSection,
 } from "@/frontend/ui/home";
 
 export default async function Home() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <Navigation />
       <HeroSection />
       <WhyNextJsSection />
       <ThreeLayerArchitectureSection />
@@ -25,9 +23,9 @@ export default async function Home() {
       <TechStackSection />
       <CodeQualitySection />
       <UpcomingReleasesSection />
+      <ArchitecturalTradeoffsSection />
       <MetricsSection />
       <CTASection />
-      <Footer />
     </main>
   );
 }

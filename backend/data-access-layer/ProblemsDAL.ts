@@ -20,6 +20,8 @@ class ProblemsDAL {
           functionalRequirements: sdiProblems.functionalRequirements,
           nonFunctionalRequirements: sdiProblems.nonFunctionalRequirements,
           boteFactors: sdiProblems.boteFactors,
+          difficulty: sdiProblems.difficulty,
+          tags: sdiProblems.tags,
         })
         .from(sdiProblems)
         .where(eq(sdiProblems.id, BigInt(problemId)))
@@ -32,6 +34,8 @@ class ProblemsDAL {
         nonFunctionalRequirements:
           dbResult.nonFunctionalRequirements.join("\n"),
         boteFactors: dbResult.boteFactors.join("\n"),
+        difficulty: dbResult.difficulty,
+        tags: dbResult.tags ?? [],
       };
 
       response.isSuccess = true;
@@ -55,6 +59,8 @@ class ProblemsDAL {
           id: sdiProblems.id,
           title: sdiProblems.title,
           description: sdiProblems.description,
+          difficulty: sdiProblems.difficulty,
+          tags: sdiProblems.tags,
         })
         .from(sdiProblems)
         .orderBy(sdiProblems.id);
@@ -63,6 +69,8 @@ class ProblemsDAL {
         id: Number(problem.id),
         title: problem.title,
         description: problem.description,
+        difficulty: problem.difficulty,
+        tags: problem.tags ?? [],
       }));
 
       response.isSuccess = true;

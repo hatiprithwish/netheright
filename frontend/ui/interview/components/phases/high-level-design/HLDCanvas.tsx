@@ -16,8 +16,12 @@ import { useInterviewStore } from "../../../zustand";
 import { Plus, Trash2 } from "lucide-react";
 import { CustomNode } from "./CustomNode";
 import { CustomEdge } from "./CustomEdge";
+import { useTheme } from "next-themes";
 
 export function HLDCanvas() {
+  const { theme, systemTheme } = useTheme();
+  const colorMode = theme === "system" ? systemTheme : theme;
+
   const nodes = useInterviewStore((state) => state.nodes);
   const edges = useInterviewStore((state) => state.edges);
   const onNodesChange = useInterviewStore((state) => state.onNodesChange);
@@ -64,7 +68,7 @@ export function HLDCanvas() {
   };
 
   return (
-    <div className="h-full w-full bg-slate-50 border rounded-xl overflow-hidden relative">
+    <div className="h-full w-full bg-background border rounded-xl overflow-hidden relative">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -74,28 +78,28 @@ export function HLDCanvas() {
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         fitView
+        colorMode={colorMode === "dark" ? "dark" : "light"}
         defaultEdgeOptions={{
           type: "customEdge",
           markerEnd: { type: MarkerType.ArrowClosed },
         }}
       >
         <Background />
-        <Controls />
 
         <Panel position="top-right" className="flex gap-2">
           <button
             onClick={handleAddNode}
-            className="bg-white p-2 rounded shadow-md hover:bg-slate-50 border transition-colors"
+            className="bg-card p-2 rounded shadow-md hover:bg-muted border border-border transition-colors cursor-pointer"
             title="Add Node"
           >
-            <Plus className="w-5 h-5 text-slate-700" />
+            <Plus className="w-5 h-5 text-foreground" />
           </button>
           <button
             onClick={clearCanvas}
-            className="bg-white p-2 rounded shadow-md hover:bg-slate-50 border transition-colors"
+            className="bg-card p-2 rounded shadow-md hover:bg-muted border border-border transition-colors cursor-pointer"
             title="Clear Canvas"
           >
-            <Trash2 className="w-5 h-5 text-red-500" />
+            <Trash2 className="w-5 h-5 text-red-500 hover:text-red-600" />
           </button>
         </Panel>
       </ReactFlow>

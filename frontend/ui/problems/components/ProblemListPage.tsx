@@ -5,8 +5,23 @@ import { useProblems } from "@/frontend/api/cachedQueries";
 import { InterviewStartModal } from "./InterviewStartModal";
 import { Loader2, FileText } from "lucide-react";
 
+const getDifficultyColor = (difficulty: string) => {
+  switch (difficulty) {
+    case "Easy":
+      return "text-emerald-700 bg-emerald-50 border-emerald-100 dark:text-emerald-400 dark:bg-emerald-950/30 dark:border-emerald-900/50";
+    case "Medium":
+      return "text-amber-700 bg-amber-50 border-amber-100 dark:text-amber-400 dark:bg-amber-950/30 dark:border-amber-900/50";
+    case "Hard":
+      return "text-red-700 bg-red-50 border-red-100 dark:text-red-400 dark:bg-red-950/30 dark:border-red-900/50";
+    default:
+      return "text-gray-700 bg-gray-50 border-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:border-gray-700";
+  }
+};
+
 export function ProblemListPage() {
-  const { problems, isLoading, error } = useProblems();
+  const { data, isLoading, error: swrError } = useProblems();
+  const problems = data?.problems ?? [];
+  const error = swrError?.message ?? null;
   const [selectedProblem, setSelectedProblem] = useState<{
     id: number;
     title: string;
@@ -22,10 +37,10 @@ export function ProblemListPage() {
 
   if (isLoading) {
     return (
-      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="h-screen flex items-center justify-center bg-brand-bg">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-12 h-12 animate-spin text-primary" />
-          <p className="text-slate-600 font-medium">Loading problems...</p>
+          <Loader2 className="w-12 h-12 animate-spin text-brand-primary" />
+          <p className="text-text-muted font-medium">Loading problems...</p>
         </div>
       </div>
     );
@@ -33,13 +48,13 @@ export function ProblemListPage() {
 
   if (error) {
     return (
-      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="h-screen flex items-center justify-center bg-brand-bg">
         <div className="max-w-md w-full mx-auto p-8">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-            <p className="text-red-700 font-semibold mb-2">
+          <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-xl p-6 text-center">
+            <p className="text-red-700 font-semibold mb-2 dark:text-red-400">
               Failed to load problems
             </p>
-            <p className="text-red-600 text-sm">{error}</p>
+            <p className="text-red-600 text-sm dark:text-red-400/80">{error}</p>
           </div>
         </div>
       </div>
@@ -47,53 +62,65 @@ export function ProblemListPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-12 px-4">
+    <div className="min-h-screen bg-brand-bg py-12 px-4">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-slate-900 mb-3">
+          <h1 className="text-4xl font-bold text-text-main mb-3">
             System Design Interview
           </h1>
-          <p className="text-lg text-slate-600">
+          <p className="text-lg text-text-muted">
             Select a problem to begin your interview
           </p>
         </div>
 
         {/* Problem Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {problems.map((problem) => (
-            <button
-              key={problem.id}
-              onClick={() =>
-                handleProblemClick({ id: problem.id, title: problem.title })
-              }
-              className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-200 p-6 text-left border border-slate-200 hover:border-primary/50 group cursor-pointer"
-            >
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                  <FileText className="w-6 h-6 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                      Problem #{problem.id}
-                    </span>
+          {problems.map((problem) => {
+            return (
+              <button
+                key={problem.id}
+                onClick={() =>
+                  handleProblemClick({ id: problem.id, title: problem.title })
+                }
+                className="bg-card text-card-foreground rounded-xl shadow-soft hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 p-6 text-left border border-border hover:border-brand-primary/30 group cursor-pointer"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-brand-primary/10 flex items-center justify-center group-hover:bg-brand-primary/20 transition-colors">
+                    <FileText className="w-6 h-6 text-brand-primary" />
                   </div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-primary transition-colors">
-                    {problem.title}
-                  </h3>
-                  <p className="text-sm text-slate-600 line-clamp-3">
-                    {problem.description}
-                  </p>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-xl font-bold text-text-main mb-2 group-hover:text-brand-primary transition-colors">
+                      {problem.title}
+                    </h3>
+                    <p className="text-sm text-text-muted line-clamp-2 leading-relaxed">
+                      {problem.description}
+                    </p>
+                    <div className="flex items-center gap-2 mt-3 flex-wrap">
+                      <span
+                        className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full border ${getDifficultyColor(problem.difficulty)}`}
+                      >
+                        {problem.difficulty}
+                      </span>
+                      {problem.tags?.map((tag) => (
+                        <span
+                          key={tag}
+                          className="text-[10px] uppercase tracking-wider font-medium text-text-muted bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full border border-gray-100"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </button>
-          ))}
+              </button>
+            );
+          })}
         </div>
 
         {problems.length === 0 && !isLoading && !error && (
           <div className="text-center py-12">
-            <p className="text-slate-500">No problems available</p>
+            <p className="text-text-muted">No problems available</p>
           </div>
         )}
       </div>

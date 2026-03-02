@@ -17,7 +17,12 @@ export default function InterviewPage({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const { session, isLoading, mutate } = useInterviewSession(sessionId ?? null);
+  const {
+    data,
+    isLoading,
+    handleRefresh: mutate,
+  } = useInterviewSession(sessionId ?? null);
+  const session = data?.interview ?? null;
 
   const currentPhaseParam = searchParams.get("phase");
   const currentPhase = currentPhaseParam

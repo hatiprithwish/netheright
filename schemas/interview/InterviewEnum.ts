@@ -1,3 +1,5 @@
+import z from "zod";
+
 export enum ChatRoleIntEnum {
   User = 1,
   Assistant = 2,
@@ -114,3 +116,10 @@ export enum RedFlagTypeEnum {
   VagueRequirements = "Vague Requirements",
   SkippedTradeoffs = "Skipped Tradeoffs",
 }
+
+export enum InterviewSortColumn {
+  Id = "id",
+  Status = "status",
+  Date = "date",
+}
+export const ZInterviewSortColumn = z.enum(InterviewSortColumn);
