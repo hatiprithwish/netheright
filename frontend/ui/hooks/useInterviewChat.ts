@@ -62,7 +62,7 @@ export function useInterviewChat({
     fetchPreviousMessages();
   }, [sessionId, phase]);
 
-  const { messages, sendMessage } = useChat({
+  const { messages, sendMessage, status } = useChat({
     messages: previousMessages,
     transport: new DefaultChatTransport({
       api: "/api/interview/chat",
@@ -70,6 +70,8 @@ export function useInterviewChat({
     }),
     experimental_throttle: 50,
   });
+
+  const isLoading = status !== "ready" && status !== "error";
 
   // Auto-start conversation for all phases when they have no messages
   useEffect(() => {
@@ -151,6 +153,7 @@ export function useInterviewChat({
   return {
     messages,
     sendMessage,
+    isLoading,
     isLoadingMessages,
     pendingPhaseTransitionFromUser: pendingPhaseTransition,
     confirmTransition,

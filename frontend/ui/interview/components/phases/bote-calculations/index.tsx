@@ -1,11 +1,12 @@
 "use client";
 
-import { ChatInterface } from "../../common/ChatInterface";
+import { ChatInterface } from "../../ChatInterface";
 import { InterviewPhaseProps } from "../../../utils";
 
 export function BotECalculationStep({
   messages,
   sendMessage,
+  isLoading,
   pendingPhaseTransition,
   onConfirmTransition,
   onSkipPhase,
@@ -17,6 +18,7 @@ export function BotECalculationStep({
         subtitle="Estimate system scale and resource requirements."
         messages={messages}
         onSendMessage={(text) => sendMessage({ text })}
+        isLoading={isLoading}
         placeholder="Share your calculations..."
         pendingPhaseTransition={pendingPhaseTransition}
         onConfirmTransition={onConfirmTransition}

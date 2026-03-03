@@ -63,6 +63,7 @@ export function InterviewInterface({
   const {
     messages,
     sendMessage,
+    isLoading,
     pendingPhaseTransitionFromUser,
     confirmTransition,
     skipPhase,
@@ -151,6 +152,7 @@ export function InterviewInterface({
           <RequirementsStep
             messages={messages}
             sendMessage={sendMessage}
+            isLoading={isLoading}
             pendingPhaseTransition={pendingPhaseTransitionFromUser}
             onConfirmTransition={confirmTransition}
             onSkipPhase={skipPhase}
@@ -160,6 +162,7 @@ export function InterviewInterface({
           <BotECalculationStep
             messages={messages}
             sendMessage={sendMessage}
+            isLoading={isLoading}
             pendingPhaseTransition={pendingPhaseTransitionFromUser}
             onConfirmTransition={confirmTransition}
             onSkipPhase={skipPhase}
@@ -169,6 +172,7 @@ export function InterviewInterface({
           <HighLevelDesign
             messages={messages}
             sendMessage={sendMessage}
+            isLoading={isLoading}
             pendingPhaseTransition={pendingPhaseTransitionFromUser}
             onConfirmTransition={confirmTransition}
             onSkipPhase={skipPhase}

@@ -1,11 +1,12 @@
 "use client";
 
-import { ChatInterface } from "../../common/ChatInterface";
+import { ChatInterface } from "../../ChatInterface";
 import { InterviewPhaseProps } from "../../../utils";
 
 export function RequirementsStep({
   messages,
   sendMessage,
+  isLoading,
   pendingPhaseTransition,
   onConfirmTransition,
   onSkipPhase,
@@ -17,6 +18,7 @@ export function RequirementsStep({
         subtitle="Ask questions to clarify the problem scope."
         messages={messages}
         onSendMessage={(text) => sendMessage({ text })}
+        isLoading={isLoading}
         placeholder="Asking clarifying questions..."
         pendingPhaseTransition={pendingPhaseTransition}
         onConfirmTransition={onConfirmTransition}
