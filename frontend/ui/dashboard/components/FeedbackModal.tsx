@@ -1,57 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import { getInterviewFeedbackDetails } from "@/frontend/api/oneTimeQueries";
+import { useGetInterviewFeedbackDetails } from "@/frontend/api/cachedQueries";
 import { GradeBadge } from "./GradeBadge";
-import * as Schemas from "@/schemas";
 
 interface FeedbackModalProps {
   sessionId: string;
   onClose: () => void;
 }
 
-export function FeedbackModal({
-  sessionId,
+export function FeedbackModal({ sessionId, onClose }: FeedbackModalProps) {
+  const { data, isLoading, error } = useGetInterviewFeedbackDetails(sessionId);
 
-  onClose,
-}: FeedbackModalProps) {
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
-
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [feedback, setFeedback] =
-    useState<Schemas.GetInterviewFeedbackDetailsResponse["feedback"]>(null);
-
-  useEffect(() => {
-    const fetchFeedback = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const response = await getInterviewFeedbackDetails(sessionId);
-
-        if (!response.isSuccess || !response.feedback) {
-          setError(response.message || "Failed to load feedback");
-        } else {
-          setFeedback(response.feedback);
-        }
-      } catch (err) {
-        setError("An error occurred while loading feedback");
-        console.error("Error fetching feedback:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchFeedback();
-  }, [sessionId]);
+  if (!data) {
+    return null;
+  }
 
   return (
     <div
@@ -59,7 +22,7 @@ export function FeedbackModal({
       onClick={onClose}
     >
       <div
-        className="bg-card rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto border border-border"
+        className="bg-card rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -90,7 +53,7 @@ export function FeedbackModal({
             </div>
           )}
 
-          {!isLoading && !error && feedback && (
+          {!isLoading && !error && data?.feedback && (
             <div className="space-y-6">
               {/* Overall Grade */}
               <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/40 dark:via-indigo-950/40 dark:to-purple-950/40 rounded-2xl p-8 text-center overflow-hidden border border-blue-100 dark:border-blue-900/50 relative">
@@ -98,23 +61,26 @@ export function FeedbackModal({
                 <div className="absolute top-0 right-0 w-32 h-32 bg-blue-200/20 dark:bg-blue-400/10 rounded-full blur-3xl pointer-events-none" />
                 <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-200/20 dark:bg-purple-400/10 rounded-full blur-3xl pointer-events-none" />
 
-                <div className="relative z-10">
+                <div>
                   <p className="text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-3">
                     Overall Performance
                   </p>
                   <div className="flex items-center justify-center mb-3">
                     <div className="transform scale-150">
-                      <GradeBadge grade={feedback.overallGrade} size="lg" />
+                      <GradeBadge
+                        grade={data.feedback.overallGrade}
+                        size="lg"
+                      />
                     </div>
                   </div>
                   <p className="text-sm text-foreground/80 font-medium">
-                    {feedback.overallGrade === 5
+                    {data.feedback.overallGrade === 5
                       ? "Outstanding"
-                      : feedback.overallGrade === 4
+                      : data.feedback.overallGrade === 4
                         ? "Excellent"
-                        : feedback.overallGrade === 3
+                        : data.feedback.overallGrade === 3
                           ? "Good"
-                          : feedback.overallGrade === 2
+                          : data.feedback.overallGrade === 2
                             ? "Fair"
                             : "Needs Improvement"}
                   </p>
@@ -132,7 +98,7 @@ export function FeedbackModal({
                       Requirements Gathering
                     </span>
                     <GradeBadge
-                      grade={feedback.requirementsGathering}
+                      grade={data.feedback.requirementsGathering}
                       size="md"
                     />
                   </div>
@@ -140,19 +106,22 @@ export function FeedbackModal({
                     <span className="text-sm font-medium text-foreground">
                       Data Modeling
                     </span>
-                    <GradeBadge grade={feedback.dataModeling} size="md" />
+                    <GradeBadge grade={data.feedback.dataModeling} size="md" />
                   </div>
                   <div className="bg-secondary/50 rounded-lg p-4 flex items-center justify-between">
                     <span className="text-sm font-medium text-foreground">
                       Trade-off Analysis
                     </span>
-                    <GradeBadge grade={feedback.tradeOffAnalysis} size="md" />
+                    <GradeBadge
+                      grade={data.feedback.tradeOffAnalysis}
+                      size="md"
+                    />
                   </div>
                   <div className="bg-secondary/50 rounded-lg p-4 flex items-center justify-between">
                     <span className="text-sm font-medium text-foreground">
                       Scalability
                     </span>
-                    <GradeBadge grade={feedback.scalability} size="md" />
+                    <GradeBadge grade={data.feedback.scalability} size="md" />
                   </div>
                 </div>
               </div>
@@ -163,7 +132,7 @@ export function FeedbackModal({
                   Strengths
                 </h3>
                 <ul className="space-y-2">
-                  {feedback.strengths.map((strength, index) => (
+                  {data.feedback.strengths.map((strength, index) => (
                     <li
                       key={index}
                       className="flex items-start gap-2 text-foreground/80"
@@ -181,7 +150,7 @@ export function FeedbackModal({
                   Areas for Growth
                 </h3>
                 <ul className="space-y-2">
-                  {feedback.growthAreas.map((area, index) => (
+                  {data.feedback.growthAreas.map((area, index) => (
                     <li
                       key={index}
                       className="flex items-start gap-2 text-foreground/80"
@@ -200,7 +169,7 @@ export function FeedbackModal({
                 </h3>
                 <div className="bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/50 rounded-lg p-4">
                   <p className="text-foreground/90 whitespace-pre-wrap">
-                    {feedback.actionableFeedback}
+                    {data.feedback.actionableFeedback}
                   </p>
                 </div>
               </div>
