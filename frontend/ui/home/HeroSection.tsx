@@ -1,13 +1,5 @@
 import Link from "next/link";
-import {
-  ArrowRight,
-  Bot,
-  Database,
-  Globe,
-  Layout,
-  Server,
-  Zap,
-} from "lucide-react";
+import { ArrowRight, Zap } from "lucide-react";
 
 export function HeroSection() {
   return (
@@ -45,82 +37,6 @@ export function HeroSection() {
               View Architecture
             </Link>
           </div>
-        </div>
-
-        {/* Abstract "Peek" of the tool */}
-        <div className="relative mx-auto mt-20 max-w-5xl">
-          <div className="relative z-10 overflow-hidden rounded-xl border border-border bg-card/50 shadow-2xl backdrop-blur-sm dark:bg-slate-900/50">
-            <div className="flex h-10 items-center gap-2 border-b border-border bg-muted/80 px-4">
-              <div className="h-3 w-3 rounded-full bg-red-400"></div>
-              <div className="h-3 w-3 rounded-full bg-yellow-400"></div>
-              <div className="h-3 w-3 rounded-full bg-green-400"></div>
-              <div className="ml-4 h-6 w-64 rounded-md bg-muted-foreground/10"></div>
-            </div>
-
-            {/* Mock Canvas Area */}
-            <div className="relative h-[400px] w-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] dark:bg-[radial-gradient(#1f2937_1px,transparent_1px)]">
-              {/* Mock Nodes connected by lines (simulated) */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transform">
-                {/* Central Load Balancer */}
-                <div className="relative z-10 flex h-24 w-24 flex-col items-center justify-center rounded-lg border-2 border-primary bg-card shadow-lg">
-                  <Server className="h-8 w-8 text-primary" />
-                  <span className="mt-2 text-xs font-semibold text-muted-foreground">
-                    Load Balancer
-                  </span>
-                </div>
-
-                {/* Connecting Lines */}
-                <div className="absolute top-1/2 left-full h-0.5 w-16 bg-border"></div>
-                <div className="absolute top-1/2 right-full h-0.5 w-16 bg-border"></div>
-                <div className="absolute left-1/2 bottom-full h-16 w-0.5 bg-border"></div>
-
-                {/* Satellite Nodes */}
-                <div className="absolute top-1/2 -right-40 -translate-y-1/2 flex h-20 w-20 flex-col items-center justify-center rounded-lg border border-border bg-card shadow-md">
-                  <Database className="h-6 w-6 text-green-500" />
-                  <span className="mt-1 text-[10px] font-medium text-muted-foreground">
-                    Primary DB
-                  </span>
-                </div>
-
-                <div className="absolute top-1/2 -left-40 -translate-y-1/2 flex h-20 w-20 flex-col items-center justify-center rounded-lg border border-border bg-card shadow-md">
-                  <Globe className="h-6 w-6 text-blue-500" />
-                  <span className="mt-1 text-[10px] font-medium text-muted-foreground">
-                    CDN
-                  </span>
-                </div>
-
-                <div className="absolute -top-40 left-1/2 -translate-x-1/2 flex h-20 w-20 flex-col items-center justify-center rounded-lg border border-border bg-card shadow-md">
-                  <Layout className="h-6 w-6 text-purple-500" />
-                  <span className="mt-1 text-[10px] font-medium text-muted-foreground">
-                    Client
-                  </span>
-                </div>
-
-                {/* Floating Feedback Card */}
-                <div className="absolute -right-32 bottom-12 z-20 w-64 rounded-lg border border-border bg-card p-3 shadow-xl animate-in fade-in slide-in-from-bottom-4 duration-1000">
-                  <div className="flex items-start gap-3">
-                    <div className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-primary/10">
-                      <Bot className="h-3.5 w-3.5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold text-foreground">
-                        AI Architect
-                      </p>
-                      <p className="text-[10px] text-muted-foreground leading-relaxed">
-                        Good choice using a CDN for static assets. Ideally, you
-                        should also consider a Redis cache for hot data to
-                        reduce DB load.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Background Glow */}
-          <div className="absolute -top-12 -left-12 -z-10 h-72 w-72 rounded-full bg-primary/20 blur-3xl filter"></div>
-          <div className="absolute -bottom-12 -right-12 -z-10 h-72 w-72 rounded-full bg-purple-500/20 blur-3xl filter"></div>
         </div>
       </div>
     </section>

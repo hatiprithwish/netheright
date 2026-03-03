@@ -1,8 +1,7 @@
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import * as Schemas from "@/schemas";
-import { UIMessage } from "ai";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import Constants from "@/constants";
 import { updateInterviewSessionStatus } from "@/frontend/api/mutations";
 
@@ -21,12 +20,9 @@ export function useInterviewChat({
   onPhaseTransition,
   onCompleted,
 }: UseInterviewChatProps) {
-  const [previousMessages, setPreviousMessages] = useState<UIMessage[]>([]);
-  const [isLoadingMessages, setIsLoadingMessages] = useState(true);
   const [pendingPhaseTransition, setPendingPhaseTransition] = useState<
     number | null
   >(null);
-  const hasAutoStartedRef = useRef(false);
 
   const body: Omit<Schemas.GetChatStreamRequest, "messages"> = {
     sessionId,
@@ -34,36 +30,7 @@ export function useInterviewChat({
     problemId,
   };
 
-  // Reset auto-start flag when phase changes
-  useEffect(() => {
-    hasAutoStartedRef.current = false;
-  }, [phase]);
-
-  // Fetch messages from current phase on mount
-  useEffect(() => {
-    const fetchPreviousMessages = async () => {
-      try {
-        setIsLoadingMessages(true);
-        // Fetch messages for the current phase only (not all phases up to current)
-        const response = await fetch(
-          `/api/interview/messages?sessionId=${sessionId}&exactPhase=${phase}`,
-        );
-        if (response.ok) {
-          const data = await response.json();
-          setPreviousMessages(data.messages || []);
-        }
-      } catch (error) {
-        console.error("Error fetching previous messages:", error);
-      } finally {
-        setIsLoadingMessages(false);
-      }
-    };
-
-    fetchPreviousMessages();
-  }, [sessionId, phase]);
-
-  const { messages, sendMessage } = useChat({
-    messages: previousMessages,
+  const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/interview/chat",
       body,
@@ -71,28 +38,27 @@ export function useInterviewChat({
     experimental_throttle: 50,
   });
 
-  // Auto-start conversation for all phases when they have no messages
+  const isLoading = status !== "ready" && status !== "error";
+
+  // Auto-start: send a trigger message when entering a new phase.
+  // Uses a cleanup-cancelled timer so StrictMode's double-invoke doesn't fire twice.
   useEffect(() => {
-    // Only auto-start if:
-    // 1. Messages have finished loading
-    // 2. There are no previous messages for this phase
-    // 3. We haven't already triggered auto-start
-    // 4. We are NOT in Phase 3 (High Level Design) where user must submit graph first
-    if (
-      !isLoadingMessages &&
-      previousMessages.length === 0 &&
-      !hasAutoStartedRef.current &&
-      phase !== Schemas.InterviewPhaseIntEnum.HighLevelDesign
-    ) {
-      hasAutoStartedRef.current = true;
-      // Send trigger message to initiate LLM response
-      // The LLM will receive the full chat history from previous phases via the API
-      sendMessage({ text: Constants.AUTO_START_TRIGGER_MESSAGE });
-    }
-    // Note: sendMessage is intentionally excluded from dependencies to avoid
-    // re-running this effect when the function reference changes
+    if (phase === Schemas.InterviewPhaseIntEnum.HighLevelDesign) return;
+
+    let cancelled = false;
+    const timer = setTimeout(() => {
+      if (!cancelled) {
+        sendMessage({ text: Constants.AUTO_START_TRIGGER_MESSAGE });
+      }
+    }, 0);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+    // sendMessage is intentionally excluded to avoid re-triggering on reference changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, isLoadingMessages, previousMessages.length]);
+  }, [phase]);
 
   useEffect(() => {
     if (!messages || messages.length === 0) return;
@@ -106,7 +72,6 @@ export function useInterviewChat({
         const result = part.output as { newPhase: number; status: string };
 
         if (result.newPhase && result.newPhase !== phase) {
-          // Set pending phase transition
           setPendingPhaseTransition(result.newPhase);
         }
       }
@@ -151,7 +116,7 @@ export function useInterviewChat({
   return {
     messages,
     sendMessage,
-    isLoadingMessages,
+    isLoading,
     pendingPhaseTransitionFromUser: pendingPhaseTransition,
     confirmTransition,
     skipPhase,

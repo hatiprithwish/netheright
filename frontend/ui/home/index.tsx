@@ -1,5 +1,6 @@
 export { Navigation } from "./Navigation";
 export { HeroSection } from "./HeroSection";
+export { InterviewProcessSection } from "./InterviewProcessSection";
 export { WhyNextJsSection } from "./WhyNextJsSection";
 export { ThreeLayerArchitectureSection } from "./ThreeLayerArchitectureSection";
 export { DatabaseSchemaSection } from "./DatabaseSchemaSection";

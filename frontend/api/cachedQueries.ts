@@ -66,6 +66,24 @@ export const useGetInterviewsByUserCount = (userId: string | null) => {
   };
 };
 
+export const useGetInterviewFeedbackDetails = (sessionId: string | null) => {
+  const isDisabled = !sessionId;
+  const cachedKey = !isDisabled ? `/api/interview/${sessionId}/feedback` : null;
+
+  const {
+    data,
+    error,
+    mutate: handleRefresh,
+  } = useSWR<Schemas.GetInterviewFeedbackDetailsResponse>(cachedKey, fetcher);
+
+  return {
+    data,
+    error,
+    isLoading: !isDisabled && !error && !data,
+    handleRefresh,
+  };
+};
+
 // Public API
 export const useProblems = () => {
   const cachedKey = "/api/problems";

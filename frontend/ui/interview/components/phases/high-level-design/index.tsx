@@ -5,12 +5,13 @@ import { HLDCanvas } from "./HLDCanvas";
 import Utilities from "@/utils";
 import { useState } from "react";
 import { Bot, Loader2, Wand2 } from "lucide-react";
-import { ChatInterface } from "../../common/ChatInterface";
+import { ChatInterface } from "../../ChatInterface";
 import { InterviewPhaseProps } from "../../../utils";
 
 export function HighLevelDesign({
   messages,
   sendMessage,
+  isLoading,
   pendingPhaseTransition,
   onConfirmTransition,
   onSkipPhase,
@@ -55,6 +56,7 @@ export function HighLevelDesign({
           subtitle="Draw your system and discuss trade-offs."
           messages={messages}
           onSendMessage={(text) => sendMessage({ text })}
+          isLoading={isLoading}
           isInputDisabled={!isHighLevelDesignSubmitted}
           placeholder={
             isHighLevelDesignSubmitted
