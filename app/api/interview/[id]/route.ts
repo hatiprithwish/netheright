@@ -17,7 +17,7 @@ const getHandler = async (
   const { id } = await context.params;
   const response = await InterviewRepo.getInterview({ interviewId: id });
   return NextResponse.json(response, {
-    status: response.isSuccess ? 200 : 400,
+    status: response.isSuccess ? 200 : 404,
   });
 };
 
@@ -33,7 +33,7 @@ const patchHandler = async (
     status: validatedBody.status,
   });
   return NextResponse.json(response, {
-    status: response.isSuccess ? 200 : 500,
+    status: response.isSuccess ? 200 : 400,
   });
 };
 
@@ -50,7 +50,7 @@ const deleteHandler = async (
   });
 
   return NextResponse.json(response, {
-    status: response.isSuccess ? 200 : 500,
+    status: response.isSuccess ? 200 : 400,
   });
 };
 

@@ -2,6 +2,8 @@ import Constants from "@/constants";
 import RedisCache from "@/lib/redis/cache";
 import * as Schemas from "@/schemas";
 import MetadataDAL from "../data-access-layer/MetadataDAL";
+import MetadataRepo from "./MetadataRepo";
+import UserDAL from "../data-access-layer/UserDAL";
 import InterviewDAL from "../data-access-layer/InterviewDAL";
 
 class UserRepo {
@@ -56,6 +58,37 @@ class UserRepo {
     }
 
     return access;
+  }
+
+  static async switchRole(params: { userId: string; roleId: string }) {
+    const { userId, roleId } = params;
+    const response: Schemas.ApiResponse & { roleId?: string } = {
+      isSuccess: false,
+      message: "Failed to switch role",
+    };
+
+    try {
+      // Validate role against DB (via cache)
+      const validRolesResponse = await MetadataRepo.getAllRoles();
+      const validRoles = validRolesResponse.roles || [];
+      const isValidRole = validRoles.some((r: any) => r.id === roleId);
+
+      if (!isValidRole) {
+        response.message = "Invalid role";
+        return response;
+      }
+
+      await UserDAL.updateUserRole(userId, roleId);
+
+      response.isSuccess = true;
+      response.message = "Role switched successfully";
+      response.roleId = roleId;
+    } catch (error) {
+      console.error("[UserRepo] Failed to switch role", error);
+      response.message = "Internal server error";
+    }
+
+    return response;
   }
 }
 

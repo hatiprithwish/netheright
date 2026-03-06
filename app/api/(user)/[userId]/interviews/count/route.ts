@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { routeWrapper } from "@/backend/middlewares/RouteWrapper";
 import { checkAuth } from "@/backend/middlewares/CheckAuth";
-import { auth } from "@/lib/next-auth";
 import UserRepo from "@/backend/repositories/UserRepo";
 import type { Logger } from "@/lib/pino";
 
@@ -9,26 +8,15 @@ type RouteContext = { params: Promise<{ userId: string }> };
 
 const getHandler = async (
   _req: NextRequest,
-  _: any,
+  _body: undefined,
   _logger: Logger,
-  { params }: RouteContext,
-): Promise<NextResponse> => {
-  const session = await auth();
-  const { userId } = await params;
-
-  if (session?.user?.id !== userId) {
-    return NextResponse.json(
-      {
-        isSuccess: false,
-        message: "Forbidden",
-        totalRecords: 0,
-      },
-      { status: 403 },
-    );
-  }
-
+  context: RouteContext,
+) => {
+  const { userId } = await context.params;
   const result = await UserRepo.getInterviewsCount(userId);
-  return NextResponse.json(result);
+  return NextResponse.json(result, {
+    status: result.isSuccess ? 200 : 500,
+  });
 };
 
 export const GET = routeWrapper(checkAuth({}, getHandler));

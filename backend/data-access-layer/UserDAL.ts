@@ -1,6 +1,7 @@
 import neonDBClient from "@/lib/neon-db";
 import { eq } from "drizzle-orm";
-import { role_features } from "@/backend/db/tables";
+import { role_features, users } from "@/backend/db/tables";
+import * as Schemas from "@/schemas";
 import RedisCache from "@/lib/redis/cache";
 import Constants from "@/constants";
 import Log from "@/lib/pino/Log";
@@ -25,6 +26,23 @@ class UserDAL {
         msg: "Unknown error occured while fetching features by role",
       });
       return [];
+    }
+  }
+
+  static async updateUserRole(userId: string, roleId: string): Promise<void> {
+    try {
+      await neonDBClient
+        .update(users)
+        .set({ role_id: roleId as Schemas.RoleCodeEnum })
+        .where(eq(users.id, userId));
+    } catch (error) {
+      Log.error({
+        err: error,
+        msg: "Failed to update user role",
+        userId,
+        roleId,
+      });
+      throw error;
     }
   }
 }

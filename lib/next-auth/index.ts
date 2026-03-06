@@ -3,7 +3,7 @@ import type { DefaultSession } from "next-auth";
 import Google from "next-auth/providers/google";
 import GitHub from "next-auth/providers/github";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
-import { neonDBClient } from "@/lib/neon-db";
+import neonDBClient from "@/lib/neon-db";
 import * as schema from "@/backend/db/tables";
 import { envConfig } from "@/lib/envConfig";
 import UserDAL from "@/backend/data-access-layer/UserDAL";
@@ -44,8 +44,8 @@ export interface CurrentUser {
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: DrizzleAdapter(neonDBClient, {
-    usersTable: schema.users,
-    accountsTable: schema.accounts,
+    usersTable: schema.users as any,
+    accountsTable: schema.accounts as any,
   }),
   providers: [
     Google({
@@ -71,7 +71,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             : ((user as typeof user & { roleId?: string }).roleId ?? "LEARNER");
         token.roleId = roleId;
 
-        const allRoles = await MetadataRepo.getAllRoles();
+        const allRolesResponse = await MetadataRepo.getAllRoles();
+        const allRoles = allRolesResponse.roles || [];
         const foundRole = allRoles.find(
           (r: { id: string; name: string }) => r.id === roleId,
         );

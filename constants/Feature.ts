@@ -10,7 +10,8 @@ export default class Feature {
   }
 
   async checkAccess(userAccess: number[] | null): Promise<boolean> {
-    const allFeatures = await MetadataRepo.getAllFeatures();
+    const allFeaturesResponse = await MetadataRepo.getAllFeatures();
+    const allFeatures = allFeaturesResponse.features || [];
     const feature = allFeatures.find(
       (f: Schemas.Feature) => f.id === this.featureId,
     );

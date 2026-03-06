@@ -1,4 +1,4 @@
-import { neonDBClient } from "@/lib/neon-db";
+import neonDBClient from "@/lib/neon-db";
 import { problems } from "@/backend/db/tables";
 import * as Schemas from "@/schemas";
 import { eq, sql } from "drizzle-orm";
@@ -63,7 +63,7 @@ class ProblemsDAL {
     try {
       const result = await neonDBClient
         .select({
-          id: sql<number>`sdiProblems.id`,
+          id: sql<string>`"problems"."id"`,
           title: problems.title,
           description: problems.description,
           difficulty: problems.difficulty,
@@ -72,7 +72,7 @@ class ProblemsDAL {
         .from(problems)
         .orderBy(problems.id);
 
-      response.problems = result;
+      response.problems = result.map((r) => ({ ...r, id: Number(r.id) }));
 
       response.isSuccess = true;
       response.message = "Problems fetched successfully";

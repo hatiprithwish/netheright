@@ -80,7 +80,10 @@ class InterviewDAL {
         .where(eq(interviews.id, params.interviewId))
         .limit(1);
 
-      response.interview = result[0];
+      response.interview = {
+        ...result[0],
+        startTime: result[0].createdAt, // fallback if start_time not queried
+      } as any;
     } catch (error) {
       Log.error({
         err: error,
@@ -149,7 +152,10 @@ class InterviewDAL {
         .limit(params.pageSize)
         .offset(offset);
 
-      response.interviews = result;
+      response.interviews = result.map((r) => ({
+        ...r,
+        startTime: r.createdAt,
+      })) as any;
     } catch (error) {
       Log.error({
         err: error,

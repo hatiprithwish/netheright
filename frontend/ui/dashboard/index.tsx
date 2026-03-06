@@ -49,7 +49,7 @@ function Dashboard({
     data: countData,
     isLoading: isCountLoading,
     handleRefresh: refreshCount,
-  } = useGetInterviewsByUserCount(userId);
+  } = useGetInterviewsByUserCount({ userId });
 
   const totalRecords = countData?.totalRecords ?? 0;
 

@@ -4,19 +4,18 @@ import { checkAuth } from "@/backend/middlewares/CheckAuth";
 import { validateRequestSchema } from "@/backend/middlewares/ValidateRequestSchema";
 import InterviewRepo from "@/backend/repositories/InterviewRepo";
 import * as Schemas from "@/schemas";
+import type { Logger } from "@/lib/pino";
 
 const handler = async (
   _req: NextRequest,
   validatedBody: Schemas.GetChatStreamRequest,
+  _logger: Logger,
 ) => {
   const response = await InterviewRepo.getChatStream(validatedBody);
-  if (!response) {
-    return NextResponse.json(
-      { error: "Problem not found or invalid session" },
-      { status: 404 },
-    );
-  }
-  return response;
+
+  return NextResponse.json(response.stream, {
+    status: response.isSuccess ? 200 : 400,
+  });
 };
 
 export const POST = routeWrapper(

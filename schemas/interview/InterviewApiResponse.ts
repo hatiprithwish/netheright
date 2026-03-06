@@ -23,6 +23,10 @@ export interface CreateMessageResponse extends ApiResponse {
   messageData: any | null;
 }
 
+export interface GetChatStreamResponse extends ApiResponse {
+  stream?: Response;
+}
+
 export interface GetInterviewChatsResponse extends ApiResponse {
   messages: {
     id: string;

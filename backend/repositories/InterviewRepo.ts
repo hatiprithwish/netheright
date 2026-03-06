@@ -42,7 +42,10 @@ class InterviewRepo {
     );
     if (!problemDetailsResponse.problem) {
       Log.error(`Problem details not found for problemId ${params.problemId}`);
-      return;
+      return {
+        isSuccess: false,
+        message: "Problem details not found",
+      };
     }
 
     // 5. Generate system prompt
@@ -161,21 +164,25 @@ class InterviewRepo {
       },
     });
 
-    return result.toUIMessageStreamResponse({
-      onFinish: async ({ messages }) => {
-        const assistantMessage = messages[messages.length - 1];
-        const content = assistantMessage.parts
-          .map((p) => (p.type == "text" ? p.text : ""))
-          .join("");
+    return {
+      isSuccess: true,
+      message: "Stream initiated successfully",
+      stream: result.toUIMessageStreamResponse({
+        onFinish: async ({ messages }) => {
+          const assistantMessage = messages[messages.length - 1];
+          const content = assistantMessage.parts
+            .map((p) => (p.type == "text" ? p.text : ""))
+            .join("");
 
-        await InterviewDAL.createInterviewChat({
-          interviewId: params.interviewId,
-          role: Schemas.ChatRoleIntEnum.Assistant,
-          content,
-          phase: params.phase,
-        });
-      },
-    });
+          await InterviewDAL.createInterviewChat({
+            interviewId: params.interviewId,
+            role: Schemas.ChatRoleIntEnum.Assistant,
+            content,
+            phase: params.phase,
+          });
+        },
+      }),
+    };
   }
 
   static async createInterview(params: Schemas.CreateInterviewRepoRequest) {

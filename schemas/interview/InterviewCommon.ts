@@ -19,7 +19,9 @@ export interface Interview {
   currentPhase: InterviewPhaseIntEnum;
   currentPhaseLabel: InterviewPhaseLabelEnum;
   overallGrade?: InterviewGradeIntEnum | null;
-  createdAt: Date;
+  scorecard?: InterviewScorecard;
+  startTime: string | Date;
+  createdAt: string | Date;
 }
 
 export const ZInterviewScorecard = z.object({

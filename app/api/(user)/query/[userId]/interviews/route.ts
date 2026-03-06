@@ -11,58 +11,43 @@ type RouteContext = { params: Promise<{ userId: string }> };
 
 const getHandler = async (
   _req: NextRequest,
-  _: any,
+  _body: undefined,
   _logger: Logger,
-  { params }: RouteContext,
+  context: RouteContext,
 ): Promise<NextResponse> => {
-  const session = await auth();
-  const { userId } = await params;
-
-  if (session?.user?.id !== userId) {
-    return NextResponse.json(
-      { isSuccess: false, message: "Forbidden", interviews: [] },
-      { status: 403 },
-    );
-  }
-
+  const { userId } = await context.params;
   const result = await UserRepo.getInterviewsByUser({ userId });
-  return NextResponse.json(result);
+  return NextResponse.json(result, {
+    status: result.isSuccess ? 200 : 500,
+  });
 };
 
 const postHandler = async (
   _req: NextRequest,
   validatedBody: Schemas.GetInterviewsByUserRequest,
   _logger: Logger,
-  { params }: RouteContext,
+  context: RouteContext,
 ): Promise<NextResponse> => {
-  const session = await auth();
-  const { userId } = await params;
-
-  if (session?.user?.id !== userId) {
-    return NextResponse.json(
-      { isSuccess: false, message: "Forbidden", interviews: [] },
-      { status: 403 },
-    );
-  }
+  const { userId } = await context.params;
 
   const result = await UserRepo.getInterviewsByUser({
+    ...validatedBody,
     userId,
-    pageNo: validatedBody.pageNo,
-    pageSize: validatedBody.pageSize,
-    sortColumn: validatedBody.sortColumn,
-    sortDirection: validatedBody.sortDirection,
-    status: validatedBody.status,
   });
-  return NextResponse.json(result);
+  return NextResponse.json(result, {
+    status: result.isSuccess ? 200 : 500,
+  });
 };
 
-export const GET = routeWrapper(checkAuth({}, getHandler));
+export const GET = routeWrapper(
+  checkAuth({}, validateRequestSchema({ params: ["userId"] }, getHandler)),
+);
 
 export const POST = routeWrapper(
   checkAuth(
     {},
     validateRequestSchema(
-      { body: Schemas.ZGetInterviewsByUserRequest },
+      { params: ["userId"], body: Schemas.ZGetInterviewsByUserRequest },
       postHandler,
     ),
   ),

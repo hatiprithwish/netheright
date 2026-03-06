@@ -171,7 +171,7 @@ export function InterviewHistoryTable({
       sortKey: Schemas.InterviewSortColumn.createdAt,
       cell: (row) => (
         <span className="whitespace-nowrap text-muted-foreground">
-          {formatDate(row.createdAt)}
+          {row.createdAt ? formatDate(row.createdAt.toString()) : "—"}
         </span>
       ),
     },

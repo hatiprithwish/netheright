@@ -10,21 +10,21 @@ type RouteContext = { params: Promise<{ id: string }> };
 
 const getHandler = async (
   _req: NextRequest,
-  _: any,
+  _body: undefined,
   _logger: Logger,
   context: RouteContext,
 ) => {
   const session = await auth();
   const { id } = await context.params;
-  const result = await InterviewRepo.getInterviewScorecard(
-    id,
-    session!.user.id,
-  );
 
-  if (!result.isSuccess) {
-    return NextResponse.json(result, { status: 404 });
-  }
-  return NextResponse.json(result);
+  const result = await InterviewRepo.getInterviewScorecard({
+    interviewId: id,
+    userId: session!.user.id,
+  });
+
+  return NextResponse.json(result, {
+    status: result.isSuccess ? 200 : 404,
+  });
 };
 
 export const GET = routeWrapper(

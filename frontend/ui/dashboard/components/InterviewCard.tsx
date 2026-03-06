@@ -9,7 +9,7 @@ import { mutate } from "swr";
 import { useState } from "react";
 
 interface InterviewCardProps {
-  interview: Schemas.InterviewHistoryItem;
+  interview: Schemas.Interview;
 }
 
 export function InterviewCard({ interview }: InterviewCardProps) {
@@ -29,7 +29,7 @@ export function InterviewCard({ interview }: InterviewCardProps) {
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      await deleteInterview(interview.sessionId);
+      await deleteInterview(interview.id);
       await mutate("/api/dashboard/interviews");
       setIsDeleting(false);
       setShowDeleteConfirm(false);
@@ -85,7 +85,7 @@ export function InterviewCard({ interview }: InterviewCardProps) {
             </h3>
             <div className="flex items-center gap-2 text-sm text-text-muted">
               <Calendar className="w-4 h-4" />
-              <span>{formatDate(interview.startTime)}</span>
+              <span>{formatDate(interview.startTime.toString())}</span>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -119,24 +119,30 @@ export function InterviewCard({ interview }: InterviewCardProps) {
             <div className="flex items-center justify-between">
               <span className="text-sm text-text-muted">Requirements</span>
               <GradeBadge
-                grade={interview.scorecard.requirementsGathering}
+                grade={interview.scorecard.categories.requirementsGathering}
                 size="sm"
               />
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-text-muted">Data Modeling</span>
-              <GradeBadge grade={interview.scorecard.dataModeling} size="sm" />
+              <GradeBadge
+                grade={interview.scorecard.categories.dataModeling}
+                size="sm"
+              />
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-text-muted">Trade-offs</span>
               <GradeBadge
-                grade={interview.scorecard.tradeOffAnalysis}
+                grade={interview.scorecard.categories.tradeOffAnalysis}
                 size="sm"
               />
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-text-muted">Scalability</span>
-              <GradeBadge grade={interview.scorecard.scalability} size="sm" />
+              <GradeBadge
+                grade={interview.scorecard.categories.scalability}
+                size="sm"
+              />
             </div>
           </div>
         )}
@@ -196,7 +202,7 @@ export function InterviewCard({ interview }: InterviewCardProps) {
       {/* Feedback Modal */}
       {showFeedbackModal && (
         <FeedbackModal
-          sessionId={interview.sessionId}
+          sessionId={interview.id}
           onClose={() => setShowFeedbackModal(false)}
         />
       )}

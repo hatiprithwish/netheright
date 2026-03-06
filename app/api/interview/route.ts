@@ -13,23 +13,15 @@ const handler = async (
   _logger: Logger,
 ): Promise<NextResponse<Schemas.CreateInterviewResponse>> => {
   const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json(
-      {
-        isSuccess: false,
-        message: "Failed to authorize user",
-        interview: null,
-      },
-      { status: 401 },
-    );
-  }
 
   const response = await InterviewRepo.createInterview({
-    userId: session.user.id,
+    userId: session!.user.id,
     problemId: validatedBody.problemId,
   });
 
-  return NextResponse.json(response);
+  return NextResponse.json(response, {
+    status: response.isSuccess ? 201 : 500,
+  });
 };
 
 export const POST = routeWrapper(
