@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { routeWrapper } from "@/backend/middlewares/RouteWrapper";
 import { checkAuth } from "@/backend/middlewares/CheckAuth";
-import { db } from "@/backend/db";
+import { neonDBClient } from "@/lib/neon-db";
 import { users } from "@/backend/db/tables";
 import { eq } from "drizzle-orm";
 import MetadataRepo from "@/backend/repositories/MetadataRepo";
@@ -26,7 +26,7 @@ const handler = async (
     return NextResponse.json({ error: "Invalid role" }, { status: 400 });
   }
 
-  await db
+  await neonDBClient
     .update(users)
     .set({ roleId: requestedRoleId })
     .where(eq(users.id, userId));

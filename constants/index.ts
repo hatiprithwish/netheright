@@ -186,7 +186,7 @@ class Constants {
 
   static readonly FEATURES_CACHE_KEY = "CK_GET_ALL_FEATURES";
   static readonly ROLES_CACHE_KEY = "CK_GET_ALL_ROLES";
-  static readonly DEFAULT_CACHE_KEY_TTL = 60 * 60 * 1000; // 60 minutes
+  static readonly DEFAULT_CACHE_KEY_TTL = 60 * 60; // 60 minutes
   static readonly DEFAULT_PAGE_NO = 1;
   static readonly DEFAULT_PAGE_SIZE = 10;
 }

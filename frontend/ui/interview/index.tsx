@@ -1,6 +1,6 @@
 "use client";
 
-import { useInterviewSession } from "@/frontend/api/cachedQueries";
+import { useGetInterview } from "@/frontend/api/cachedQueries";
 import * as Schemas from "@/schemas";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
@@ -21,7 +21,7 @@ export default function InterviewPage({
     data,
     isLoading,
     handleRefresh: mutate,
-  } = useInterviewSession(sessionId ?? null);
+  } = useGetInterview(sessionId ?? null);
   const session = data?.interview ?? null;
 
   const currentPhaseParam = searchParams.get("phase");

@@ -1,5 +1,5 @@
 import Constants from "@/constants";
-import CacheManager from "@/lib/CacheManager";
+import RedisCache from "@/lib/redis/cache";
 import * as Schemas from "@/schemas";
 import MetadataDAL from "../data-access-layer/MetadataDAL";
 import InterviewDAL from "../data-access-layer/InterviewDAL";
@@ -34,7 +34,7 @@ class UserRepo {
   }
 
   static async calculateAccessBitmask(featureIds: string[]): Promise<number[]> {
-    const allFeatures = await CacheManager.get<Schemas.Feature[]>(
+    const allFeatures = await RedisCache.get<Schemas.Feature[]>(
       Constants.FEATURES_CACHE_KEY,
       async () => (await MetadataDAL.getAllFeatures()).features,
       Constants.DEFAULT_CACHE_KEY_TTL,

@@ -1,4 +1,4 @@
-import { db } from "@/backend/db";
+import { neonDBClient } from "@/lib/neon-db";
 import { problems } from "@/backend/db/tables";
 import * as Schemas from "@/schemas";
 import { eq, sql } from "drizzle-orm";
@@ -13,7 +13,7 @@ class ProblemsDAL {
     };
 
     try {
-      const [dbResult] = await db
+      const [dbResult] = await neonDBClient
         .select({
           id: problems.id,
           title: problems.title,
@@ -61,7 +61,7 @@ class ProblemsDAL {
     };
 
     try {
-      const result = await db
+      const result = await neonDBClient
         .select({
           id: sql<number>`sdiProblems.id`,
           title: problems.title,

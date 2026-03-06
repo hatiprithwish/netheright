@@ -30,7 +30,7 @@ export function SwitchRoleModal({ children }: SwitchRoleModalProps) {
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { data, isLoading } = useGetRoles(open);
+  const { data, isLoading } = useGetRoles();
 
   const handleSwitch = async () => {
     if (!selectedRoleId || selectedRoleId === currentUser?.roleId) {
@@ -75,7 +75,7 @@ export function SwitchRoleModal({ children }: SwitchRoleModalProps) {
                 disabled={isSubmitting}
                 className="gap-3"
               >
-                {data?.data.map((role) => (
+                {data?.roles.map((role) => (
                   <div
                     key={role.id}
                     className="flex items-center space-x-3 rounded-lg border border-border p-3 transition-colors hover:bg-muted/50"

@@ -1,4 +1,4 @@
-import { db } from "@/backend/db";
+import neonDBClient from "@/lib/neon-db";
 import { and, asc, desc, eq, sql } from "drizzle-orm";
 import {
   interview_chats,
@@ -17,13 +17,13 @@ class InterviewDAL {
       interview: null,
     };
     try {
-      const [interview] = await db
+      const [interview] = await neonDBClient
         .insert(interviews)
         .values({
-          userId: params.userId,
-          problemId: params.problemId,
+          user_id: params.userId,
+          problem_id: params.problemId,
           status: Schemas.InterviewStatusIntEnum.Active,
-          currentPhase: Schemas.InterviewPhaseIntEnum.RequirementsGathering,
+          phase: Schemas.InterviewPhaseIntEnum.RequirementsGathering,
         })
         .returning({ id: interviews.id });
 
@@ -52,10 +52,10 @@ class InterviewDAL {
       interview: null,
     };
     try {
-      const result = await db
+      const result = await neonDBClient
         .select({
           id: interviews.id,
-          userId: interviews.userId,
+          userId: interviews.user_id,
           problemId: interviews.problem_id,
           problemTitle: problems.title,
           status: interviews.status,
@@ -65,15 +65,15 @@ class InterviewDAL {
             WHEN ${interviews.status} = ${Schemas.InterviewStatusIntEnum.Deleted} THEN ${Schemas.InterviewStatusLabelEnum.Deleted}
             ELSE ${Schemas.InterviewStatusLabelEnum.Active}
             END`,
-          currentPhase: interviews.current_phase,
+          currentPhase: interviews.phase,
           currentPhaseLabel: sql<Schemas.InterviewPhaseLabelEnum>`CASE
-            WHEN ${interviews.current_phase} = ${Schemas.InterviewPhaseIntEnum.BotECalculation} THEN ${Schemas.InterviewPhaseLabelEnum.BotECalculation}
-            WHEN ${interviews.current_phase} = ${Schemas.InterviewPhaseIntEnum.HighLevelDesign} THEN ${Schemas.InterviewPhaseLabelEnum.HighLevelDesign}
-            WHEN ${interviews.current_phase} = ${Schemas.InterviewPhaseIntEnum.ComponentDeepDive} THEN ${Schemas.InterviewPhaseLabelEnum.ComponentDeepDive}
-            WHEN ${interviews.current_phase} = ${Schemas.InterviewPhaseIntEnum.BottlenecksDiscussion} THEN ${Schemas.InterviewPhaseLabelEnum.BottlenecksDiscussion}
+            WHEN ${interviews.phase} = ${Schemas.InterviewPhaseIntEnum.BotECalculation} THEN ${Schemas.InterviewPhaseLabelEnum.BotECalculation}
+            WHEN ${interviews.phase} = ${Schemas.InterviewPhaseIntEnum.HighLevelDesign} THEN ${Schemas.InterviewPhaseLabelEnum.HighLevelDesign}
+            WHEN ${interviews.phase} = ${Schemas.InterviewPhaseIntEnum.ComponentDeepDive} THEN ${Schemas.InterviewPhaseLabelEnum.ComponentDeepDive}
+            WHEN ${interviews.phase} = ${Schemas.InterviewPhaseIntEnum.BottlenecksDiscussion} THEN ${Schemas.InterviewPhaseLabelEnum.BottlenecksDiscussion}
             ELSE ${Schemas.InterviewPhaseLabelEnum.RequirementsGathering}
             END`,
-          createdAt: interviews.createdAt,
+          createdAt: interviews.created_at,
         })
         .from(interviews)
         .innerJoin(problems, eq(interviews.problem_id, problems.id))
@@ -103,19 +103,19 @@ class InterviewDAL {
         interviews[
           params.sortColumn as keyof Pick<
             typeof interviews,
-            "id" | "status" | "createdAt"
+            "id" | "status" | "created_at"
           >
         ];
       const orderExpr =
         params.sortDirection === "desc" ? desc(sortCol) : asc(sortCol);
       const offset = (params.pageNo - 1) * params.pageSize;
 
-      const result = await db
+      const result = await neonDBClient
         .select({
           id: interviews.id,
           problemId: interviews.problem_id,
           problemTitle: problems.title,
-          userId: interviews.userId,
+          userId: interviews.user_id,
           status: interviews.status,
           statusLabel: sql<Schemas.InterviewStatusLabelEnum>`CASE
             WHEN ${interviews.status} = ${Schemas.InterviewStatusIntEnum.Completed} THEN ${Schemas.InterviewStatusLabelEnum.Completed}
@@ -123,23 +123,23 @@ class InterviewDAL {
             WHEN ${interviews.status} = ${Schemas.InterviewStatusIntEnum.Deleted} THEN ${Schemas.InterviewStatusLabelEnum.Deleted}
             ELSE ${Schemas.InterviewStatusLabelEnum.Active}
             END`,
-          currentPhase: interviews.current_phase,
+          currentPhase: interviews.phase,
           currentPhaseLabel: sql<Schemas.InterviewPhaseLabelEnum>`CASE
-            WHEN ${interviews.current_phase} = ${Schemas.InterviewPhaseIntEnum.BotECalculation} THEN ${Schemas.InterviewPhaseLabelEnum.BotECalculation}
-            WHEN ${interviews.current_phase} = ${Schemas.InterviewPhaseIntEnum.HighLevelDesign} THEN ${Schemas.InterviewPhaseLabelEnum.HighLevelDesign}
-            WHEN ${interviews.current_phase} = ${Schemas.InterviewPhaseIntEnum.ComponentDeepDive} THEN ${Schemas.InterviewPhaseLabelEnum.ComponentDeepDive}
-            WHEN ${interviews.current_phase} = ${Schemas.InterviewPhaseIntEnum.BottlenecksDiscussion} THEN ${Schemas.InterviewPhaseLabelEnum.BottlenecksDiscussion}
+            WHEN ${interviews.phase} = ${Schemas.InterviewPhaseIntEnum.BotECalculation} THEN ${Schemas.InterviewPhaseLabelEnum.BotECalculation}
+            WHEN ${interviews.phase} = ${Schemas.InterviewPhaseIntEnum.HighLevelDesign} THEN ${Schemas.InterviewPhaseLabelEnum.HighLevelDesign}
+            WHEN ${interviews.phase} = ${Schemas.InterviewPhaseIntEnum.ComponentDeepDive} THEN ${Schemas.InterviewPhaseLabelEnum.ComponentDeepDive}
+            WHEN ${interviews.phase} = ${Schemas.InterviewPhaseIntEnum.BottlenecksDiscussion} THEN ${Schemas.InterviewPhaseLabelEnum.BottlenecksDiscussion}
             ELSE ${Schemas.InterviewPhaseLabelEnum.RequirementsGathering}
             END`,
           overallGrade: scorecards.overall_grade,
-          createdAt: interviews.createdAt,
+          createdAt: interviews.created_at,
         })
         .from(interviews)
         .innerJoin(problems, eq(interviews.problem_id, problems.id))
-        .leftJoin(scorecards, eq(interviews.id, scorecards.interviewId))
+        .leftJoin(scorecards, eq(interviews.id, scorecards.interview_id))
         .where(() => {
           const conditions = [];
-          conditions.push(eq(interviews.userId, params.userId));
+          conditions.push(eq(interviews.user_id, params.userId));
           if (params.status) {
             conditions.push(eq(interviews.status, params.status));
           }
@@ -170,13 +170,13 @@ class InterviewDAL {
       message: "Successfully fetched interviews count",
     };
     try {
-      const result = await db
+      const result = await neonDBClient
         .select({ count: sql<number>`count(*)` })
         .from(interviews)
         .innerJoin(problems, eq(interviews.problem_id, problems.id))
         .where(() => {
           const conditions = [];
-          conditions.push(eq(interviews.userId, params.userId));
+          conditions.push(eq(interviews.user_id, params.userId));
           if (params.status) {
             conditions.push(eq(interviews.status, params.status));
           }
@@ -202,13 +202,13 @@ class InterviewDAL {
     try {
       const fieldsToUpdate: Partial<typeof interviews.$inferInsert> = {};
       if (params.phase) {
-        fieldsToUpdate.currentPhase = params.phase;
+        fieldsToUpdate.phase = params.phase;
       }
       if (params.status) {
         fieldsToUpdate.status = params.status;
       }
       if (Object.keys(fieldsToUpdate).length > 0) {
-        await db
+        await neonDBClient
           .update(interviews)
           .set(fieldsToUpdate)
           .where(
@@ -238,8 +238,8 @@ class InterviewDAL {
       message: "Successfully created message",
     };
     try {
-      await db.insert(interview_chats).values({
-        interviewId: params.interviewId,
+      await neonDBClient.insert(interview_chats).values({
+        interview_id: params.interviewId,
         role: params.role,
         content: params.content,
         phase: params.phase,
@@ -262,7 +262,7 @@ class InterviewDAL {
       messages: [],
     };
     try {
-      let result = await db
+      let result = await neonDBClient
         .select({
           id: sql<string>`CAST(${interview_chats.id} AS TEXT)`,
           role: sql<Schemas.ChatRoleLabelEnum>`CASE
@@ -275,10 +275,10 @@ class InterviewDAL {
         .from(interview_chats)
         .where(() => {
           const conditions = [];
-          conditions.push(eq(interview_chats.interviewId, params.interviewId));
+          conditions.push(eq(interview_chats.interview_id, params.interviewId));
           return and(...conditions);
         })
-        .orderBy(interview_chats.createdAt);
+        .orderBy(interview_chats.created_at);
 
       response.messages = result.map((m) => ({
         ...m,
@@ -304,31 +304,31 @@ class InterviewDAL {
       scorecard: null,
     };
     try {
-      const [result] = await db
+      const [result] = await neonDBClient
         .insert(scorecards)
         .values({
-          interviewId: params.interviewId,
-          overallGrade: params.overallGrade,
-          requirementsGathering: params.requirementsGathering,
-          dataModeling: params.dataModeling,
-          tradeOffAnalysis: params.tradeOffAnalysis,
+          interview_id: params.interviewId,
+          overall_grade: params.overallGrade,
+          requirements_gathering: params.requirementsGathering,
+          data_modeling: params.dataModeling,
+          trade_off_analysis: params.tradeOffAnalysis,
           scalability: params.scalability,
           strengths: params.strengths,
-          growthAreas: params.growthAreas,
-          actionableFeedback: params.actionableFeedback,
+          growth_areas: params.growthAreas,
+          actionable_feedback: params.actionableFeedback,
         })
         .returning();
       response.scorecard = {
-        overallGrade: result.overallGrade,
+        overallGrade: result.overall_grade,
         categories: {
-          requirementsGathering: result.requirementsGathering,
-          dataModeling: result.dataModeling,
-          tradeOffAnalysis: result.tradeOffAnalysis,
+          requirementsGathering: result.requirements_gathering,
+          dataModeling: result.data_modeling,
+          tradeOffAnalysis: result.trade_off_analysis,
           scalability: result.scalability,
         },
         strengths: result.strengths,
-        growthAreas: result.growthAreas,
-        actionableFeedback: result.actionableFeedback,
+        growthAreas: result.growth_areas,
+        actionableFeedback: result.actionable_feedback,
       };
     } catch (error) {
       Log.error({
@@ -350,7 +350,7 @@ class InterviewDAL {
       scorecard: null,
     };
     try {
-      const [result] = await db
+      const [result] = await neonDBClient
         .select({
           overallGrade: scorecards.overall_grade,
           requirementsGathering: scorecards.requirements_gathering,
@@ -362,11 +362,11 @@ class InterviewDAL {
           actionableFeedback: scorecards.actionable_feedback,
         })
         .from(scorecards)
-        .innerJoin(interviews, eq(scorecards.interviewId, interviews.id))
+        .innerJoin(interviews, eq(scorecards.interview_id, interviews.id))
         .where(() => {
           const conditions = [];
-          conditions.push(eq(scorecards.interviewId, params.interviewId));
-          conditions.push(eq(interviews.userId, params.userId));
+          conditions.push(eq(scorecards.interview_id, params.interviewId));
+          conditions.push(eq(interviews.user_id, params.userId));
           return and(...conditions);
         })
         .limit(1);

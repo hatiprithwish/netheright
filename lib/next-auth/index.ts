@@ -3,7 +3,7 @@ import type { DefaultSession } from "next-auth";
 import Google from "next-auth/providers/google";
 import GitHub from "next-auth/providers/github";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
-import { db } from "@/backend/db";
+import { neonDBClient } from "@/lib/neon-db";
 import * as schema from "@/backend/db/tables";
 import { envConfig } from "@/lib/envConfig";
 import UserDAL from "@/backend/data-access-layer/UserDAL";
@@ -43,7 +43,7 @@ export interface CurrentUser {
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  adapter: DrizzleAdapter(db, {
+  adapter: DrizzleAdapter(neonDBClient, {
     usersTable: schema.users,
     accountsTable: schema.accounts,
   }),

@@ -1,8 +1,8 @@
-import { db } from "@/backend/db";
 import { features, roles } from "@/backend/db/tables";
 import { eq } from "drizzle-orm";
 import * as Schemas from "@/schemas";
 import Log from "@/lib/pino/Log";
+import neonDBClient from "@/lib/neon-db";
 
 class MetadataDAL {
   static async getAllFeatures() {
@@ -12,7 +12,7 @@ class MetadataDAL {
       features: [],
     };
     try {
-      const result = await db
+      const result = await neonDBClient
         .select({
           id: features.id,
           description: features.description,
@@ -41,7 +41,7 @@ class MetadataDAL {
       roles: [],
     };
     try {
-      const result = await db
+      const result = await neonDBClient
         .select({
           id: roles.id,
           name: roles.name,

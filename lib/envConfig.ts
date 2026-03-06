@@ -1,7 +1,12 @@
 import { z } from "zod";
+import Log from "./pino/Log";
 
 const envSchema = z.object({
+  NODE_ENV: z.string().min(1, "NODE_ENV is required"),
   // Auth
+  AUTH_TRUST_HOST: z
+    .string("AUTH_TRUST_HOST is required")
+    .transform((val) => val === "true"),
   AUTH_SECRET: z.string().min(1, "AUTH_SECRET is required"),
   NEXTAUTH_URL: z.url("NEXTAUTH_URL must be a valid URL"),
 
@@ -15,18 +20,19 @@ const envSchema = z.object({
   DATABASE_URL: z.url("DATABASE_URL must be a valid URL"),
 
   // Sentry
-  SENTRY_AUTH_TOKEN: z.string().optional(),
-  SENTRY_DSN: z.url().optional(),
+  SENTRY_AUTH_TOKEN: z.string("SENTRY_AUTH_TOKEN is required"),
+  SENTRY_DSN: z.url("SENTRY_DSN is required"),
 
-  // AI
+  // Gemini
   GOOGLE_GENERATIVE_AI_API_KEY: z
     .string()
     .min(1, "GOOGLE_GENERATIVE_AI_API_KEY is required"),
 
-  AUTH_TRUST_HOST: z
-    .string("AUTH_TRUST_HOST is required")
-    .transform((val) => val === "true"),
-  NODE_ENV: z.string().min(1, "NODE_ENV is required"),
+  // Redis
+  REDIS_USERNAME: z.string().min(1, "REDIS_USERNAME is required"),
+  REDIS_PASSWORD: z.string().min(1, "REDIS_PASSWORD is required"),
+  REDIS_HOST: z.string().min(1, "REDIS_HOST is required"),
+  REDIS_PORT: z.string().min(1, "REDIS_PORT is required"),
 });
 
 type EnvSchema = z.infer<typeof envSchema>;
@@ -39,10 +45,11 @@ export class EnvConfig {
     const parsed = envSchema.safeParse(process.env);
 
     if (!parsed.success) {
-      console.error(
-        "❌ Invalid environment variables:",
-        JSON.stringify(parsed.error.format(), null, 4),
-      );
+      Log.error({
+        message: "Invalid environment variables",
+        error: parsed.error,
+      });
+      // DEV_NOTE: Throwing error explicitly because app shouldn't boot if env variables are invalid
       throw new Error("Invalid environment variables");
     }
 
@@ -91,6 +98,18 @@ export class EnvConfig {
   }
   public get NODE_ENV() {
     return this.env.NODE_ENV;
+  }
+  public get REDIS_USERNAME() {
+    return this.env.REDIS_USERNAME;
+  }
+  public get REDIS_PASSWORD() {
+    return this.env.REDIS_PASSWORD;
+  }
+  public get REDIS_HOST() {
+    return this.env.REDIS_HOST;
+  }
+  public get REDIS_PORT() {
+    return this.env.REDIS_PORT;
   }
 }
 
