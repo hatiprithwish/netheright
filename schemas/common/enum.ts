@@ -17,8 +17,3 @@ export enum AccountProviderType {
   Google = "google",
   Github = "github",
 }
-
-export enum RoleCodeEnum {
-  Learner = "LEARNER",
-  Tester = "TESTER",
-}

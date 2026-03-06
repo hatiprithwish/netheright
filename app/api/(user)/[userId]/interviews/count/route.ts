@@ -13,7 +13,7 @@ const getHandler = async (
   context: RouteContext,
 ) => {
   const { userId } = await context.params;
-  const result = await UserRepo.getInterviewsCount(userId);
+  const result = await UserRepo.getInterviewsByUserCount({ userId });
   return NextResponse.json(result, {
     status: result.isSuccess ? 200 : 500,
   });

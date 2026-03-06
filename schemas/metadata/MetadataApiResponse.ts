@@ -8,3 +8,7 @@ export interface GetAllFeaturesResponse extends ApiResponse {
 export interface GetAllRolesResponse extends ApiResponse {
   roles: Role[];
 }
+
+export interface GetAllRoleFeaturesResponse extends ApiResponse {
+  map: Record<string, string[]> | null;
+}

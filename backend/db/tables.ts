@@ -1,3 +1,4 @@
+// DONE_PRITH
 import {
   pgTable,
   text,
@@ -63,19 +64,18 @@ export const users = pgTable("users", {
     .default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
-  email_verified: timestamp("email_verified", { mode: "date" }),
+  //🔽 DEV_NOTE: Kept in camelCase for next-auth adapter compatibility
+  emailVerified: timestamp("email_verified", { mode: "date" }),
   image: text("image"),
-  role_id: text("role_id")
-    .$type<Schemas.RoleCodeEnum>()
-    .notNull()
-    .default(Schemas.RoleCodeEnum.Learner),
+  role_id: text("role_id").notNull(),
 });
 
 export const accounts = pgTable("accounts", {
-  user_id: text("user_id").notNull(),
+  //🔽 DEV_NOTE: Kept in camelCase for next-auth adapter compatibility
+  userId: text("user_id").notNull(),
   type: text("type").$type<AdapterAccountType>().notNull(),
   provider: text("provider").$type<Schemas.AccountProviderType>().notNull(),
-  //🔽 DEV_NOTE: Kept in camelCase for next-auth adapter usage
+  //🔽 DEV_NOTE: Kept in camelCase for next-auth adapter compatibility
   providerAccountId: text("provider_account_id").notNull(),
   refresh_token: text("refresh_token"),
   access_token: text("access_token"),

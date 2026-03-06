@@ -1,3 +1,5 @@
+// DONE_PRITH
+
 import RedisCache from "@/lib/redis/cache";
 import MetadataDAL from "@/backend/data-access-layer/MetadataDAL";
 import Constants from "@/constants";
@@ -42,6 +44,19 @@ class MetadataRepo {
     }
 
     return response;
+  }
+
+  static async getAllRoleFeatures() {
+    return await RedisCache.get<Schemas.GetAllRoleFeaturesResponse["map"]>(
+      Constants.ROLE_FEATURES_CACHE_KEY,
+      async () => (await MetadataDAL.getAllRoleFeatures()).map,
+      Constants.DEFAULT_CACHE_KEY_TTL,
+    );
+  }
+
+  static async getFeaturesByRoleId(roleId: string) {
+    const response = await this.getAllRoleFeatures();
+    return response?.[roleId];
   }
 }
 

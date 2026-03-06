@@ -1,4 +1,6 @@
-import { features, roles } from "@/backend/db/tables";
+// DONE_PRITH
+
+import { features, roles, role_features } from "@/backend/db/tables";
 import { eq } from "drizzle-orm";
 import * as Schemas from "@/schemas";
 import Log from "@/lib/pino/Log";
@@ -57,6 +59,39 @@ class MetadataDAL {
       });
       response.isSuccess = false;
       response.message = "Failed to fetch roles";
+    }
+    return response;
+  }
+
+  static async getAllRoleFeatures() {
+    const response: Schemas.GetAllRoleFeaturesResponse = {
+      isSuccess: true,
+      message: "Successfully fetched role features",
+      map: null,
+    };
+    try {
+      const result = await neonDBClient
+        .select({
+          roleId: role_features.role_id,
+          featureId: role_features.feature_id,
+        })
+        .from(role_features);
+
+      const roleFeaturesMap: Record<string, string[]> = {};
+      for (const row of result) {
+        if (!roleFeaturesMap[row.roleId]) {
+          roleFeaturesMap[row.roleId] = [];
+        }
+        roleFeaturesMap[row.roleId].push(row.featureId);
+      }
+      response.map = roleFeaturesMap;
+    } catch (error) {
+      Log.error({
+        err: error,
+        msg: "Unknown error occured while fetching all role features",
+      });
+      response.isSuccess = false;
+      response.message = "Failed to fetch role features";
     }
     return response;
   }

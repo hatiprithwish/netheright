@@ -1,3 +1,5 @@
+// DONE_PRITH
+
 "use client";
 
 import { useState } from "react";
@@ -17,34 +19,42 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { updateUserRole } from "@/frontend/api/mutations";
+import { useSession } from "next-auth/react";
 
 interface SwitchRoleModalProps {
   children: React.ReactNode;
 }
 
 export function SwitchRoleModal({ children }: SwitchRoleModalProps) {
-  const { currentUser, switchRole } = useAuth();
+  const { currentUser } = useAuth();
+  const { update } = useSession();
   const [open, setOpen] = useState(false);
-  const [selectedRoleId, setSelectedRoleId] = useState<string>(
-    currentUser?.roleId || "",
-  );
+  const [selectedRoleId, setSelectedRoleId] = useState<string | null>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { data, isLoading } = useGetRoles();
 
   const handleSwitch = async () => {
-    if (!selectedRoleId || selectedRoleId === currentUser?.roleId) {
-      setOpen(false);
-      return;
-    }
-
     try {
       setIsSubmitting(true);
-      await switchRole(selectedRoleId);
+      if (
+        !selectedRoleId ||
+        selectedRoleId === currentUser?.roleId ||
+        !currentUser
+      ) {
+        setOpen(false);
+        return;
+      }
+      await updateUserRole(currentUser.id, { roleId: selectedRoleId });
+
+      // DEV_NOTE: Force JWT callback to run and issue fresh token with new permissions
+      await update({ roleId: selectedRoleId });
+
       toast.success("Role updated successfully.");
       setOpen(false);
     } catch (error) {
-      console.error(error);
+      // TODO: add sentry log
       toast.error("Failed to update role. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -115,7 +125,7 @@ export function SwitchRoleModal({ children }: SwitchRoleModalProps) {
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Swapping...
+                Updating...
               </>
             ) : (
               "Save changes"

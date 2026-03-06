@@ -1,13 +1,9 @@
-// DONE_PRITH
+1. For fatal errors, like DB interactions, always use try-catch block
 
-import neonDBClient from "@/lib/neon-db";
-import { eq } from "drizzle-orm";
-import { users } from "@/backend/db/tables";
-import * as Schemas from "@/schemas";
-import Log from "@/lib/pino/Log";
+2. If there's multiple error returns possible, define response as failed so that you don't have to set isSucess = false multiple times.
 
-class UserDAL {
-  static async updateUserRole(params: Schemas.UpdateUserRoleSqlRequest) {
+```
+static async updateUserRole(params: Schemas.UpdateUserRoleSqlRequest) {
     const response: Schemas.ApiResponse = {
       isSuccess: false,
       message: "Failed to update user role",
@@ -48,6 +44,6 @@ class UserDAL {
     }
     return response;
   }
-}
+```
 
-export default UserDAL;
+3. You'll only define response body once per API call - it will either be in DAL or repo layer. If multiple DALs are being called or external API calls are happening, then you need to define it in Repo, else it should be defined in DAL.

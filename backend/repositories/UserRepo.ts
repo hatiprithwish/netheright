@@ -1,10 +1,12 @@
+// DONE_PRITH
+
 import Constants from "@/constants";
 import RedisCache from "@/lib/redis/cache";
 import * as Schemas from "@/schemas";
 import MetadataDAL from "../data-access-layer/MetadataDAL";
-import MetadataRepo from "./MetadataRepo";
 import UserDAL from "../data-access-layer/UserDAL";
 import InterviewDAL from "../data-access-layer/InterviewDAL";
+import Log from "@/lib/pino/Log";
 
 class UserRepo {
   static async getInterviewsByUser(params: Schemas.GetInterviewsByUserRequest) {
@@ -18,24 +20,23 @@ class UserRepo {
     });
   }
 
-  static async getInterviewsCount(userId: string, status?: number | null) {
-    const response: Schemas.TotalRecordsResponse = {
-      isSuccess: false,
-      message: "Failed to fetch interview count",
-      totalRecords: 0,
-    };
-
-    const counts = await InterviewDAL.getInterviewsCount({
-      userId,
-      status: status ?? null,
+  static async getInterviewsByUserCount(
+    params: Schemas.GetInterviewsByUserCountRequest,
+  ) {
+    return await InterviewDAL.getInterviewsCount({
+      userId: params.userId,
+      status: params.status ?? null,
     });
-    response.totalRecords = counts.totalRecords;
-    response.isSuccess = true;
-    response.message = "Interview count fetched successfully";
-    return response;
   }
 
-  static async calculateAccessBitmask(featureIds: string[]): Promise<number[]> {
+  static async updateUserRole(params: Schemas.UpdateUserRoleRepoRequest) {
+    return await UserDAL.updateUserRole({
+      userId: params.userId,
+      roleId: params.roleId,
+    });
+  }
+
+  static async calculateAccessBitmask(featureIds: string[]) {
     const allFeatures = await RedisCache.get<Schemas.Feature[]>(
       Constants.FEATURES_CACHE_KEY,
       async () => (await MetadataDAL.getAllFeatures()).features,
@@ -47,7 +48,7 @@ class UserRepo {
     for (const featureId of featureIds) {
       const feature = allFeatures.find((f) => f.id === featureId);
       if (!feature) {
-        console.error(`[UserRepo] Invalid or inactive feature: ${featureId}`);
+        Log.warn(`Faced an invalid feature: ${featureId}`);
         continue;
       }
       if (access[feature.permBitIndex] === undefined) {
@@ -58,37 +59,6 @@ class UserRepo {
     }
 
     return access;
-  }
-
-  static async switchRole(params: { userId: string; roleId: string }) {
-    const { userId, roleId } = params;
-    const response: Schemas.ApiResponse & { roleId?: string } = {
-      isSuccess: false,
-      message: "Failed to switch role",
-    };
-
-    try {
-      // Validate role against DB (via cache)
-      const validRolesResponse = await MetadataRepo.getAllRoles();
-      const validRoles = validRolesResponse.roles || [];
-      const isValidRole = validRoles.some((r: any) => r.id === roleId);
-
-      if (!isValidRole) {
-        response.message = "Invalid role";
-        return response;
-      }
-
-      await UserDAL.updateUserRole(userId, roleId);
-
-      response.isSuccess = true;
-      response.message = "Role switched successfully";
-      response.roleId = roleId;
-    } catch (error) {
-      console.error("[UserRepo] Failed to switch role", error);
-      response.message = "Internal server error";
-    }
-
-    return response;
   }
 }
 

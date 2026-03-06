@@ -184,8 +184,9 @@ class Constants {
         Chat History: ${conversationHistory}
   `;
 
-  static readonly FEATURES_CACHE_KEY = "CK_GET_ALL_FEATURES";
-  static readonly ROLES_CACHE_KEY = "CK_GET_ALL_ROLES";
+  static readonly FEATURES_CACHE_KEY = "CK_FEATURES";
+  static readonly ROLES_CACHE_KEY = "CK_ROLES";
+  static readonly ROLE_FEATURES_CACHE_KEY = "CK_ROLE_FEATURES";
   static readonly DEFAULT_CACHE_KEY_TTL = 60 * 60; // 60 minutes
   static readonly DEFAULT_PAGE_NO = 1;
   static readonly DEFAULT_PAGE_SIZE = 10;

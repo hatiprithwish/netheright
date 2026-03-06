@@ -1,3 +1,4 @@
+// DONE_PRITH
 import InterviewDAL from "@/backend/data-access-layer/InterviewDAL";
 import ProblemsDAL from "@/backend/data-access-layer/ProblemsDAL";
 import * as Schemas from "../../schemas";
@@ -52,11 +53,11 @@ class InterviewRepo {
     const systemPrompt = Constants.systemPrompts({
       phase: params.phase,
       systemName: problemDetailsResponse.problem?.title,
-      botEAssumptions: problemDetailsResponse.problem?.boteFactors,
+      botEAssumptions: problemDetailsResponse.problem?.boteFactors?.join("\n"),
       functionalRequirements:
-        problemDetailsResponse.problem?.functionalRequirements,
+        problemDetailsResponse.problem?.functionalRequirements?.join("\n"),
       nonFunctionalRequirements:
-        problemDetailsResponse.problem?.nonFunctionalRequirements,
+        problemDetailsResponse.problem?.nonFunctionalRequirements?.join("\n"),
     });
 
     // 6. If the request is HLD design, append the graph to the last model message

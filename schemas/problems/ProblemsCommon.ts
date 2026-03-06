@@ -7,7 +7,7 @@ export interface ProblemBase {
 }
 
 export interface Problem extends ProblemBase {
-  functionalRequirements: string;
-  nonFunctionalRequirements: string;
-  boteFactors: string;
+  functionalRequirements: string[];
+  nonFunctionalRequirements: string[];
+  boteFactors: string[];
 }

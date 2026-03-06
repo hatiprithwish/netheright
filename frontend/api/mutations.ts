@@ -30,3 +30,10 @@ export const updateInterviewSessionStatus = async (
     status,
   });
 };
+
+export const updateUserRole = async (
+  userId: string,
+  body: Schemas.UpdateUserRoleRequest,
+) => {
+  return apiClient.post(`/api/${userId}/update-role`, body);
+};

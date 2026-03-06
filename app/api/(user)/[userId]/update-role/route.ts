@@ -10,13 +10,13 @@ type RouteContext = { params: Promise<{ userId: string }> };
 
 const postHandler = async (
   _req: NextRequest,
-  validatedBody: Schemas.SwitchRoleRequest,
+  validatedBody: Schemas.UpdateUserRoleRequest,
   _logger: Logger,
   context: RouteContext,
 ) => {
   const { userId } = await context.params;
 
-  const result = await UserRepo.switchRole({
+  const result = await UserRepo.updateUserRole({
     userId,
     roleId: validatedBody.roleId,
   });
@@ -30,7 +30,7 @@ export const POST = routeWrapper(
   checkAuth(
     {},
     validateRequestSchema(
-      { params: ["userId"], body: Schemas.ZSwitchRoleRequest },
+      { params: ["userId"], body: Schemas.ZUpdateUserRoleRequest },
       postHandler,
     ),
   ),

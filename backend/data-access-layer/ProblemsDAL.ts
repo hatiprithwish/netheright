@@ -15,7 +15,7 @@ class ProblemsDAL {
     try {
       const [dbResult] = await neonDBClient
         .select({
-          id: problems.id,
+          id: sql<number>`problems.id`,
           title: problems.title,
           description: problems.description,
           functionalRequirements: problems.functional_requirements,
@@ -28,16 +28,7 @@ class ProblemsDAL {
         .where(eq(problems.id, BigInt(problemId)))
         .limit(1);
 
-      response.problem = {
-        ...dbResult,
-        id: Number(dbResult.id),
-        functionalRequirements: dbResult.functionalRequirements.join("\n"),
-        nonFunctionalRequirements:
-          dbResult.nonFunctionalRequirements.join("\n"),
-        boteFactors: dbResult.boteFactors.join("\n"),
-        difficulty: dbResult.difficulty,
-        tags: dbResult.tags ?? [],
-      };
+      response.problem = dbResult;
 
       response.isSuccess = true;
       response.message = "Sdi problem details fetched successfully";

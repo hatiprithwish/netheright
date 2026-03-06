@@ -27,8 +27,12 @@ export type GetInterviewsByUserRequest = z.infer<
   userId: string;
 };
 
-export const ZSwitchRoleRequest = z.object({
+export const ZUpdateUserRoleRequest = z.object({
   roleId: z.string(),
 });
 
-export type SwitchRoleRequest = z.infer<typeof ZSwitchRoleRequest>;
+export type UpdateUserRoleRequest = z.infer<typeof ZUpdateUserRoleRequest>;
+
+export interface UpdateUserRoleRepoRequest extends UpdateUserRoleRequest {
+  userId: string;
+}
