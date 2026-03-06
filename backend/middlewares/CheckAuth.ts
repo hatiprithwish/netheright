@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/next-auth";
 import { type FeatureCheck } from "@/schemas";
-import { Logger } from "@/lib/logger";
+import { Logger } from "@/lib/pino";
 import UserRepo from "@/backend/repositories/UserRepo";
 import { type RouteHandler } from "./RouteWrapper";
 

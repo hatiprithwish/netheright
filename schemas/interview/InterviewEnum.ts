@@ -25,6 +25,7 @@ export enum InterviewPhaseIntEnum {
   ComponentDeepDive = 4,
   BottlenecksDiscussion = 5,
 }
+export const ZInterviewPhaseIntEnum = z.enum(InterviewPhaseIntEnum);
 
 export enum InterviewPhaseLabelEnum {
   RequirementsGathering = "Requirements Gathering",
@@ -66,13 +67,14 @@ export const interviewPhaseIntToLabel: Record<
     InterviewPhaseLabelEnum.BotECalculation,
 };
 
-export enum InterviewGrade {
+export enum InterviewGradeIntEnum {
   F = 1,
   C = 2,
   B = 3,
   A = 4,
   S = 5,
 }
+export const ZInterviewGradeIntEnum = z.enum(InterviewGradeIntEnum);
 
 export enum InterviewStatusIntEnum {
   Active = 1,
@@ -80,6 +82,7 @@ export enum InterviewStatusIntEnum {
   Abandoned = 3,
   Deleted = 4,
 }
+export const ZInterviewStatusIntEnum = z.enum(InterviewStatusIntEnum);
 
 export enum InterviewStatusLabelEnum {
   Active = "Active",
@@ -120,6 +123,6 @@ export enum RedFlagTypeEnum {
 export enum InterviewSortColumn {
   Id = "id",
   Status = "status",
-  Date = "date",
+  createdAt = "createdAt",
 }
 export const ZInterviewSortColumn = z.enum(InterviewSortColumn);

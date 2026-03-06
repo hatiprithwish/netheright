@@ -1,5 +1,5 @@
 import MetadataRepo from "@/backend/repositories/MetadataRepo";
-import Log from "@/lib/Log";
+import Log from "@/lib/pino/Log";
 import * as Schemas from "@/schemas";
 
 export default class Feature {

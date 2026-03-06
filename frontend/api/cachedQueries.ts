@@ -56,7 +56,7 @@ export const useGetInterviewsByUserCount = (userId: string | null) => {
     data,
     error,
     mutate: handleRefresh,
-  } = useSWR<Schemas.GetInterviewCountResponse>(cachedKey, fetcher);
+  } = useSWR<Schemas.TotalRecordsResponse>(cachedKey, fetcher);
 
   return {
     data,
@@ -74,7 +74,7 @@ export const useGetInterviewFeedbackDetails = (sessionId: string | null) => {
     data,
     error,
     mutate: handleRefresh,
-  } = useSWR<Schemas.GetInterviewFeedbackDetailsResponse>(cachedKey, fetcher);
+  } = useSWR<Schemas.GetInterviewScorecardResponse>(cachedKey, fetcher);
 
   return {
     data,

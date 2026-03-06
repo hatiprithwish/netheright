@@ -19,6 +19,9 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  experimental: {
+    serverComponentsExternalPackages: ["pino", "pino-pretty"],
+  },
 };
 
 export default withSentryConfig(nextConfig, {

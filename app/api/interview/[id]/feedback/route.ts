@@ -4,7 +4,7 @@ import { checkAuth } from "@/backend/middlewares/CheckAuth";
 import { validateRequestSchema } from "@/backend/middlewares/ValidateRequestSchema";
 import InterviewRepo from "@/backend/repositories/InterviewRepo";
 import { auth } from "@/lib/next-auth";
-import type { Logger } from "@/lib/logger";
+import type { Logger } from "@/lib/pino";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -16,7 +16,7 @@ const getHandler = async (
 ) => {
   const session = await auth();
   const { id } = await context.params;
-  const result = await InterviewRepo.getInterviewFeedbackDetails(
+  const result = await InterviewRepo.getInterviewScorecard(
     id,
     session!.user.id,
   );

@@ -5,7 +5,7 @@ import { validateRequestSchema } from "@/backend/middlewares/ValidateRequestSche
 import { auth } from "@/lib/next-auth";
 import UserRepo from "@/backend/repositories/UserRepo";
 import * as Schemas from "@/schemas";
-import type { Logger } from "@/lib/logger";
+import type { Logger } from "@/lib/pino";
 
 type RouteContext = { params: Promise<{ userId: string }> };
 
@@ -25,7 +25,7 @@ const getHandler = async (
     );
   }
 
-  const result = await UserRepo.getInterviewsByUser(userId);
+  const result = await UserRepo.getInterviewsByUser({ userId });
   return NextResponse.json(result);
 };
 
@@ -45,20 +45,22 @@ const postHandler = async (
     );
   }
 
-  const result = await UserRepo.getInterviewsByUser(
+  const result = await UserRepo.getInterviewsByUser({
     userId,
-    validatedBody.pageNo,
-    validatedBody.pageSize,
-    validatedBody.sortColumn,
-    validatedBody.sortDirection,
-  );
+    pageNo: validatedBody.pageNo,
+    pageSize: validatedBody.pageSize,
+    sortColumn: validatedBody.sortColumn,
+    sortDirection: validatedBody.sortDirection,
+    status: validatedBody.status,
+  });
   return NextResponse.json(result);
 };
 
 export const GET = routeWrapper(checkAuth({}, getHandler));
 
 export const POST = routeWrapper(
-  checkAuth({},
+  checkAuth(
+    {},
     validateRequestSchema(
       { body: Schemas.ZGetInterviewsByUserRequest },
       postHandler,

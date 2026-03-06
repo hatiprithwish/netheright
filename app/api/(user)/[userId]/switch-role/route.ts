@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { routeWrapper } from "@/backend/middlewares/RouteWrapper";
 import { checkAuth } from "@/backend/middlewares/CheckAuth";
 import { db } from "@/backend/db";
-import { users } from "@/backend/db/models";
+import { users } from "@/backend/db/tables";
 import { eq } from "drizzle-orm";
 import MetadataRepo from "@/backend/repositories/MetadataRepo";
-import type { Logger } from "@/lib/logger";
+import type { Logger } from "@/lib/pino";
 
 type RouteContext = { params: Promise<{ userId: string }> };
 

@@ -1,3 +1,10 @@
+"use client";
+
+import { AppTable } from "@/frontend/ui/common/components/AppTable";
+import { AppTableColumn } from "@/frontend/ui/common/components/AppTable/AppTable.types";
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
 const ROADMAP_ITEMS = [
   {
     feature: "Distributed Tracing",
@@ -27,56 +34,49 @@ const ROADMAP_ITEMS = [
 
 type RoadmapStatus = "In Development" | "Beta Testing" | "Backlog" | "Planned";
 
-function getStatusColor(status: RoadmapStatus): string {
-  switch (status) {
-    case "In Development":
-      return "bg-chart-1/10 text-chart-1 border-chart-1/20";
-    case "Beta Testing":
-      return "bg-chart-2/10 text-chart-2 border-chart-2/20";
-    case "Backlog":
-      return "bg-muted text-muted-foreground border-border";
-    case "Planned":
-      return "bg-primary/10 text-primary border-primary/20";
-  }
-}
+type RoadmapItem = (typeof ROADMAP_ITEMS)[number];
+
+const STATUS_COLOR_MAP: Record<RoadmapStatus, string> = {
+  "In Development": "bg-chart-1/10 text-chart-1 border-chart-1/20",
+  "Beta Testing": "bg-chart-2/10 text-chart-2 border-chart-2/20",
+  Backlog: "bg-muted text-muted-foreground border-border",
+  Planned: "bg-primary/10 text-primary border-primary/20",
+};
+
+// ─── Column Definitions ───────────────────────────────────────────────────────
+
+const columns: AppTableColumn<RoadmapItem>[] = [
+  {
+    key: "feature",
+    header: "Feature",
+    cell: (row) => <span className="font-semibold">{row.feature}</span>,
+  },
+  {
+    key: "technicalFocus",
+    header: "Technical Focus",
+    className: "text-sm text-muted-foreground",
+  },
+  {
+    key: "status",
+    header: "Status",
+    cell: (row) => (
+      <span
+        className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium ${STATUS_COLOR_MAP[row.status]}`}
+      >
+        {row.status}
+      </span>
+    ),
+  },
+];
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export function RoadmapTable() {
   return (
-    <div className="overflow-x-auto rounded-xl border border-border">
-      <table className="w-full">
-        <thead className="border-b border-border bg-muted/50">
-          <tr>
-            <th className="px-6 py-4 text-left text-sm font-semibold">
-              Feature
-            </th>
-            <th className="px-6 py-4 text-left text-sm font-semibold">
-              Technical Focus
-            </th>
-            <th className="px-6 py-4 text-left text-sm font-semibold">
-              Status
-            </th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-border">
-          {ROADMAP_ITEMS.map((item, i) => (
-            <tr key={i} className="transition-colors hover:bg-muted/30">
-              <td className="px-6 py-4">
-                <span className="font-semibold">{item.feature}</span>
-              </td>
-              <td className="px-6 py-4 text-sm text-muted-foreground">
-                {item.technicalFocus}
-              </td>
-              <td className="px-6 py-4">
-                <span
-                  className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium ${getStatusColor(item.status)}`}
-                >
-                  {item.status}
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <AppTable<RoadmapItem>
+      columns={columns}
+      data={ROADMAP_ITEMS}
+      keyExtractor={(row) => row.feature}
+    />
   );
 }

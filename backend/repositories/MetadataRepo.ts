@@ -7,7 +7,7 @@ class MetadataRepo {
   static async getAllFeatures(): Promise<Schemas.Feature[]> {
     return CacheManager.get(
       Constants.FEATURES_CACHE_KEY,
-      () => MetadataDAL.getAllFeatures(),
+      async () => (await MetadataDAL.getAllFeatures()).features,
       Constants.DEFAULT_CACHE_KEY_TTL,
     );
   }
@@ -15,7 +15,7 @@ class MetadataRepo {
   static async getAllRoles(): Promise<Schemas.Role[]> {
     return CacheManager.get(
       Constants.ROLES_CACHE_KEY,
-      () => MetadataDAL.getAllRoles(),
+      async () => (await MetadataDAL.getAllRoles()).roles,
       Constants.DEFAULT_CACHE_KEY_TTL,
     );
   }

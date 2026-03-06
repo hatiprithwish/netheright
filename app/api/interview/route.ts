@@ -5,11 +5,11 @@ import { validateRequestSchema } from "@/backend/middlewares/ValidateRequestSche
 import InterviewRepo from "@/backend/repositories/InterviewRepo";
 import * as Schemas from "@/schemas";
 import { auth } from "@/lib/next-auth";
-import type { Logger } from "@/lib/logger";
+import type { Logger } from "@/lib/pino";
 
 const handler = async (
   _req: NextRequest,
-  validatedBody: Schemas.CreateInterviewSessionRequest,
+  validatedBody: Schemas.CreateInterviewRequest,
   _logger: Logger,
 ): Promise<NextResponse<Schemas.CreateInterviewResponse>> => {
   const session = await auth();
@@ -24,7 +24,7 @@ const handler = async (
     );
   }
 
-  const response = await InterviewRepo.createInterviewSession({
+  const response = await InterviewRepo.createInterview({
     userId: session.user.id,
     problemId: validatedBody.problemId,
   });
@@ -33,10 +33,8 @@ const handler = async (
 };
 
 export const POST = routeWrapper(
-  checkAuth({},
-    validateRequestSchema(
-      { body: Schemas.ZCreateInterviewSessionRequest },
-      handler,
-    ),
+  checkAuth(
+    {},
+    validateRequestSchema({ body: Schemas.ZCreateInterviewRequest }, handler),
   ),
 );

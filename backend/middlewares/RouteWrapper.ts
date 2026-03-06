@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { createRequestLogger, Logger } from "@/lib/logger";
+import { createRequestLogger, Logger } from "@/lib/pino";
 import { randomUUID } from "crypto";
 
 export type RouteHandler = (

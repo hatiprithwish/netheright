@@ -53,7 +53,7 @@ export function FeedbackModal({ sessionId, onClose }: FeedbackModalProps) {
             </div>
           )}
 
-          {!isLoading && !error && data?.feedback && (
+          {!isLoading && !error && data?.scorecard && (
             <div className="space-y-6">
               {/* Overall Grade */}
               <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/40 dark:via-indigo-950/40 dark:to-purple-950/40 rounded-2xl p-8 text-center overflow-hidden border border-blue-100 dark:border-blue-900/50 relative">
@@ -68,19 +68,19 @@ export function FeedbackModal({ sessionId, onClose }: FeedbackModalProps) {
                   <div className="flex items-center justify-center mb-3">
                     <div className="transform scale-150">
                       <GradeBadge
-                        grade={data.feedback.overallGrade}
+                        grade={data.scorecard.overallGrade}
                         size="lg"
                       />
                     </div>
                   </div>
                   <p className="text-sm text-foreground/80 font-medium">
-                    {data.feedback.overallGrade === 5
+                    {data.scorecard.overallGrade === 5
                       ? "Outstanding"
-                      : data.feedback.overallGrade === 4
+                      : data.scorecard.overallGrade === 4
                         ? "Excellent"
-                        : data.feedback.overallGrade === 3
+                        : data.scorecard.overallGrade === 3
                           ? "Good"
-                          : data.feedback.overallGrade === 2
+                          : data.scorecard.overallGrade === 2
                             ? "Fair"
                             : "Needs Improvement"}
                   </p>
@@ -98,7 +98,7 @@ export function FeedbackModal({ sessionId, onClose }: FeedbackModalProps) {
                       Requirements Gathering
                     </span>
                     <GradeBadge
-                      grade={data.feedback.requirementsGathering}
+                      grade={data.scorecard.categories.requirementsGathering}
                       size="md"
                     />
                   </div>
@@ -106,14 +106,17 @@ export function FeedbackModal({ sessionId, onClose }: FeedbackModalProps) {
                     <span className="text-sm font-medium text-foreground">
                       Data Modeling
                     </span>
-                    <GradeBadge grade={data.feedback.dataModeling} size="md" />
+                    <GradeBadge
+                      grade={data.scorecard.categories.dataModeling}
+                      size="md"
+                    />
                   </div>
                   <div className="bg-secondary/50 rounded-lg p-4 flex items-center justify-between">
                     <span className="text-sm font-medium text-foreground">
                       Trade-off Analysis
                     </span>
                     <GradeBadge
-                      grade={data.feedback.tradeOffAnalysis}
+                      grade={data.scorecard.categories.tradeOffAnalysis}
                       size="md"
                     />
                   </div>
@@ -121,7 +124,10 @@ export function FeedbackModal({ sessionId, onClose }: FeedbackModalProps) {
                     <span className="text-sm font-medium text-foreground">
                       Scalability
                     </span>
-                    <GradeBadge grade={data.feedback.scalability} size="md" />
+                    <GradeBadge
+                      grade={data.scorecard.categories.scalability}
+                      size="md"
+                    />
                   </div>
                 </div>
               </div>
@@ -132,7 +138,7 @@ export function FeedbackModal({ sessionId, onClose }: FeedbackModalProps) {
                   Strengths
                 </h3>
                 <ul className="space-y-2">
-                  {data.feedback.strengths.map((strength, index) => (
+                  {data.scorecard.strengths.map((strength, index) => (
                     <li
                       key={index}
                       className="flex items-start gap-2 text-foreground/80"
@@ -150,7 +156,7 @@ export function FeedbackModal({ sessionId, onClose }: FeedbackModalProps) {
                   Areas for Growth
                 </h3>
                 <ul className="space-y-2">
-                  {data.feedback.growthAreas.map((area, index) => (
+                  {data.scorecard.growthAreas.map((area, index) => (
                     <li
                       key={index}
                       className="flex items-start gap-2 text-foreground/80"
@@ -169,7 +175,7 @@ export function FeedbackModal({ sessionId, onClose }: FeedbackModalProps) {
                 </h3>
                 <div className="bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/50 rounded-lg p-4">
                   <p className="text-foreground/90 whitespace-pre-wrap">
-                    {data.feedback.actionableFeedback}
+                    {data.scorecard.actionableFeedback}
                   </p>
                 </div>
               </div>

@@ -4,14 +4,12 @@ import { checkAuth } from "@/backend/middlewares/CheckAuth";
 import { validateRequestSchema } from "@/backend/middlewares/ValidateRequestSchema";
 import InterviewRepo from "@/backend/repositories/InterviewRepo";
 import * as Schemas from "@/schemas";
-import type { Logger } from "@/lib/logger";
 
 const handler = async (
   _req: NextRequest,
   validatedBody: Schemas.GetChatStreamRequest,
-  logger: Logger,
 ) => {
-  const response = await InterviewRepo.getChatStream(validatedBody, logger);
+  const response = await InterviewRepo.getChatStream(validatedBody);
   if (!response) {
     return NextResponse.json(
       { error: "Problem not found or invalid session" },
@@ -22,7 +20,8 @@ const handler = async (
 };
 
 export const POST = routeWrapper(
-  checkAuth({},
+  checkAuth(
+    {},
     validateRequestSchema({ body: Schemas.ZGetChatStreamRequest }, handler),
   ),
 );

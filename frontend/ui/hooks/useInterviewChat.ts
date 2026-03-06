@@ -25,7 +25,7 @@ export function useInterviewChat({
   >(null);
 
   const body: Omit<Schemas.GetChatStreamRequest, "messages"> = {
-    sessionId,
+    interviewId: sessionId,
     phase,
     problemId,
   };

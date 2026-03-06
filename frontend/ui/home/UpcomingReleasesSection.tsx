@@ -28,43 +28,10 @@ export function UpcomingReleasesSection() {
           <RoadmapTable />
         </div>
 
-        {/* Changelog and Technical Debt Side-by-Side */}
-        <div className="grid gap-8 md:grid-cols-2">
-          <ChangelogComponent />
-
-          {/* Technical Debt / Scalability Goals */}
-          <div className="rounded-xl border border-border bg-card p-6">
-            <h3 className="mb-4 text-xl font-semibold">
-              Scalability & Technical Debt
-            </h3>
-            <div className="space-y-4">
-              <div className="rounded-lg border border-border bg-muted/30 p-4">
-                <h4 className="mb-2 font-semibold">
-                  Infrastructure as Code (IaC)
-                </h4>
-                <p className="text-sm text-muted-foreground">
-                  Moving the deployment from manual Vercel pushes to a{" "}
-                  <strong>Terraform</strong> managed AWS stack for better
-                  infrastructure versioning and reproducibility.
-                </p>
-              </div>
-              <div className="rounded-lg border border-border bg-muted/30 p-4">
-                <h4 className="mb-2 font-semibold">Load Testing</h4>
-                <p className="text-sm text-muted-foreground">
-                  Plan to run <strong>k6</strong> stress tests to determine the
-                  maximum concurrent interview sessions the current Next.js
-                  backend can handle before requiring horizontal scaling.
-                </p>
-              </div>
-              <div className="rounded-lg border border-border bg-muted/30 p-4">
-                <h4 className="mb-2 font-semibold">Database Sharding</h4>
-                <p className="text-sm text-muted-foreground">
-                  Evaluating <strong>Neon&apos;s branching</strong> feature for
-                  multi-tenant isolation and exploring sharding strategies for
-                  sessions table as user base grows.
-                </p>
-              </div>
-            </div>
+        {/* Changelog Section */}
+        <div className="flex justify-center">
+          <div className="w-full max-w-3xl">
+            <ChangelogComponent />
           </div>
         </div>
 

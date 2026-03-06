@@ -6,7 +6,7 @@ export const analyzeDesign = async (sessionId: string, graph: any) => {
 };
 
 export const createInterviewSession = async (
-  params: Schemas.CreateInterviewSessionRequest,
+  params: Schemas.CreateInterviewRequest,
 ) => {
   return apiClient.post<Schemas.CreateInterviewResponse>(
     "/api/interview",

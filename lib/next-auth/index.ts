@@ -4,7 +4,7 @@ import Google from "next-auth/providers/google";
 import GitHub from "next-auth/providers/github";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from "@/backend/db";
-import * as schema from "@/backend/db/models";
+import * as schema from "@/backend/db/tables";
 import { envConfig } from "@/lib/envConfig";
 import UserDAL from "@/backend/data-access-layer/UserDAL";
 import UserRepo from "@/backend/repositories/UserRepo";

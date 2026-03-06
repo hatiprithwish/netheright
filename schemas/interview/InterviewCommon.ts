@@ -1,4 +1,3 @@
-import { SanitizedGraph } from "../common/ReactFlow";
 import {
   ChatRoleLabelEnum,
   InterviewPhaseIntEnum,
@@ -6,16 +5,9 @@ import {
   InterviewStatusIntEnum,
   InterviewStatusLabelEnum,
   RedFlagTypeEnum,
+  InterviewGradeIntEnum,
 } from "./InterviewEnum";
 import { z } from "zod";
-
-export type SaveDiagramParams = {
-  sessionId: string;
-  topology: SanitizedGraph;
-  rawReactFlow: any;
-  phase: InterviewPhaseIntEnum;
-  userId: string;
-};
 
 export interface Interview {
   id: string;
@@ -26,8 +18,24 @@ export interface Interview {
   statusLabel: InterviewStatusLabelEnum;
   currentPhase: InterviewPhaseIntEnum;
   currentPhaseLabel: InterviewPhaseLabelEnum;
-  createdAt: string;
+  overallGrade?: InterviewGradeIntEnum | null;
+  createdAt: Date;
 }
+
+export const ZInterviewScorecard = z.object({
+  overallGrade: z.nativeEnum(InterviewGradeIntEnum),
+  categories: z.object({
+    requirementsGathering: z.nativeEnum(InterviewGradeIntEnum),
+    dataModeling: z.nativeEnum(InterviewGradeIntEnum),
+    tradeOffAnalysis: z.nativeEnum(InterviewGradeIntEnum),
+    scalability: z.nativeEnum(InterviewGradeIntEnum),
+  }),
+  strengths: z.array(z.string()),
+  growthAreas: z.array(z.string()),
+  actionableFeedback: z.string(),
+});
+
+export type InterviewScorecard = z.infer<typeof ZInterviewScorecard>;
 
 export const ZAiMessage = z.object({
   id: z.string(),
@@ -43,13 +51,6 @@ export const ZAiMessage = z.object({
 });
 
 export type AiMessage = z.infer<typeof ZAiMessage>;
-
-export const ZRecordRedFlagParams = z.object({
-  type: z.enum(RedFlagTypeEnum),
-  reason: z.string(),
-});
-
-export type RecordRedFlagParams = z.infer<typeof ZRecordRedFlagParams>;
 
 export const ZTransitionToPhaseParams = z.object({
   nextPhase: z.enum(InterviewPhaseLabelEnum),

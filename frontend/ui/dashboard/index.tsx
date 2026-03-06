@@ -25,7 +25,7 @@ function Dashboard({
 }: DashboardContentProps) {
   const [pageNo, setPageNo] = useState(1);
   const [sortBy, setSortBy] = useState<Schemas.InterviewSortColumn>(
-    Schemas.InterviewSortColumn.Date,
+    Schemas.InterviewSortColumn.createdAt,
   );
   const [sortOrder, setSortOrder] = useState<Schemas.SortDirection>(
     Schemas.SortDirection.Desc,
@@ -45,13 +45,13 @@ function Dashboard({
   });
   const interviews = data?.interviews ?? [];
 
-  const { data: countData, isLoading: isCountLoading } =
-    useGetInterviewsByUserCount(userId);
+  const {
+    data: countData,
+    isLoading: isCountLoading,
+    handleRefresh: refreshCount,
+  } = useGetInterviewsByUserCount(userId);
 
-  const total = countData?.total ?? 0;
-  const completed = countData?.completed ?? 0;
-  const inProgress = countData?.inProgress ?? 0;
-  const abandoned = countData?.abandoned ?? 0;
+  const totalRecords = countData?.totalRecords ?? 0;
 
   const handleSort = (
     newSortBy: Schemas.InterviewSortColumn,
@@ -109,7 +109,7 @@ function Dashboard({
               </span>
             </div>
             <p className="text-3xl font-bold text-foreground">
-              {isCountLoading ? "—" : total}
+              {isCountLoading ? "—" : totalRecords}
             </p>
           </div>
 
@@ -123,7 +123,8 @@ function Dashboard({
               </span>
             </div>
             <p className="text-3xl font-bold text-foreground">
-              {isCountLoading ? "—" : completed}
+              {/* Completed count is no longer tracked separately */}
+              {isCountLoading ? "—" : "—"}
             </p>
           </div>
 
@@ -137,7 +138,8 @@ function Dashboard({
               </span>
             </div>
             <p className="text-3xl font-bold text-foreground">
-              {isCountLoading ? "—" : inProgress}
+              {/* In-progress count is no longer tracked separately */}
+              {isCountLoading ? "—" : "—"}
             </p>
           </div>
 
@@ -151,7 +153,8 @@ function Dashboard({
               </span>
             </div>
             <p className="text-3xl font-bold text-foreground">
-              {isCountLoading ? "—" : abandoned}
+              {/* Abandoned count is no longer tracked separately */}
+              {isCountLoading ? "—" : "—"}
             </p>
           </div>
         </div>
@@ -163,13 +166,20 @@ function Dashboard({
           </h2>
           <InterviewHistoryTable
             interviews={interviews}
+            totalRecords={totalRecords}
             isLoading={isLoading}
             page={pageNo}
             sortBy={sortBy}
             sortOrder={sortOrder}
             onPageChange={setPageNo}
             onSort={handleSort}
-            onDeleteSuccess={() => mutate()}
+            onDeleteSuccess={() => {
+              mutate();
+              refreshCount();
+            }}
+            onRefresh={async () => {
+              await Promise.all([mutate(), refreshCount()]);
+            }}
           />
         </div>
       </div>

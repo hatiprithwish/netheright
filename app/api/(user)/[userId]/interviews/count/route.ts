@@ -3,7 +3,7 @@ import { routeWrapper } from "@/backend/middlewares/RouteWrapper";
 import { checkAuth } from "@/backend/middlewares/CheckAuth";
 import { auth } from "@/lib/next-auth";
 import UserRepo from "@/backend/repositories/UserRepo";
-import type { Logger } from "@/lib/logger";
+import type { Logger } from "@/lib/pino";
 
 type RouteContext = { params: Promise<{ userId: string }> };
 
@@ -21,10 +21,7 @@ const getHandler = async (
       {
         isSuccess: false,
         message: "Forbidden",
-        total: 0,
-        completed: 0,
-        inProgress: 0,
-        abandoned: 0,
+        totalRecords: 0,
       },
       { status: 403 },
     );

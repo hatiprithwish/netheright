@@ -6,6 +6,7 @@ import { SessionProvider } from "next-auth/react";
 import HeaderWrapper from "@/frontend/ui/common/HeaderWrapper";
 import FooterWrapper from "@/frontend/ui/common/FooterWrapper";
 import { ThemeProvider } from "@/frontend/ui/common/providers/theme-provider";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -49,11 +50,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <SessionProvider>
-            <HeaderWrapper />
-            {children}
-            <FooterWrapper />
-          </SessionProvider>
+          <TooltipProvider>
+            <SessionProvider>
+              <HeaderWrapper />
+              {children}
+              <FooterWrapper />
+            </SessionProvider>
+          </TooltipProvider>
         </ThemeProvider>
         <Toaster />
       </body>

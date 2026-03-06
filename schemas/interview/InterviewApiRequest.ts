@@ -1,25 +1,41 @@
 import { z } from "zod";
-import { InterviewPhaseIntEnum } from "./InterviewEnum";
+import {
+  ZInterviewPhaseIntEnum,
+  ZInterviewStatusIntEnum,
+} from "./InterviewEnum";
 import { ZAiMessage } from "./InterviewCommon";
 import { ZSanitizedGraph } from "../common";
 
-export const ZCreateInterviewSessionRequest = z.object({
+export const ZCreateInterviewRequest = z.object({
   problemId: z.number(),
 });
 
-export type CreateInterviewSessionRequest = z.infer<
-  typeof ZCreateInterviewSessionRequest
->;
+export type CreateInterviewRequest = z.infer<typeof ZCreateInterviewRequest>;
 
-export type CreateInterviewSessionRepoRequest = z.infer<
-  typeof ZCreateInterviewSessionRequest
+export type CreateInterviewRepoRequest = z.infer<
+  typeof ZCreateInterviewRequest
 > & {
   userId: string;
 };
 
+export const ZGetInterviewApiRequest = z.object({
+  interviewId: z.string(),
+});
+
+export type GetInterviewApiRequest = z.infer<typeof ZGetInterviewApiRequest>;
+
+export const ZGetInterviewScorecardApiRequest = z.object({
+  interviewId: z.string(),
+  userId: z.string(),
+});
+
+export type GetInterviewScorecardApiRequest = z.infer<
+  typeof ZGetInterviewScorecardApiRequest
+>;
+
 export const ZGetChatStreamRequest = z.object({
-  phase: z.nativeEnum(InterviewPhaseIntEnum),
-  sessionId: z.string(),
+  phase: ZInterviewPhaseIntEnum,
+  interviewId: z.string(),
   problemId: z.number(),
   messages: z.array(ZAiMessage),
   graph: ZSanitizedGraph.optional(),
@@ -27,8 +43,19 @@ export const ZGetChatStreamRequest = z.object({
 
 export type GetChatStreamRequest = z.infer<typeof ZGetChatStreamRequest>;
 
-export const ZDeleteInterviewRequest = z.object({
-  sessionId: z.string(),
+export const ZDeleteInterviewApiRequest = z.object({
+  interviewId: z.string(),
 });
 
-export type DeleteInterviewRequest = z.infer<typeof ZDeleteInterviewRequest>;
+export type DeleteInterviewApiRequest = z.infer<
+  typeof ZDeleteInterviewApiRequest
+>;
+
+export const ZUpdateInterviewStatusApiRequest = z.object({
+  interviewId: z.string(),
+  status: ZInterviewStatusIntEnum,
+});
+
+export type UpdateInterviewStatusApiRequest = z.infer<
+  typeof ZUpdateInterviewStatusApiRequest
+>;
