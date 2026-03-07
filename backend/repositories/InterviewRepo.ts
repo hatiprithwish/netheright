@@ -38,7 +38,7 @@ class InterviewRepo {
     const modelMessages = await convertToModelMessages(uiMessages);
 
     // 4. Get problem details
-    const problemDetailsResponse = await ProblemsDAL.getProblemDetails(
+    const problemDetailsResponse = await ProblemsDAL.getProblem(
       params.problemId,
     );
     if (!problemDetailsResponse.problem) {

@@ -1,3 +1,5 @@
+// DONE_PRITH
+
 import neonDBClient from "@/lib/neon-db";
 import { problems } from "@/backend/db/tables";
 import * as Schemas from "@/schemas";
@@ -5,15 +7,15 @@ import { eq, sql } from "drizzle-orm";
 import Log from "@/lib/pino/Log";
 
 class ProblemsDAL {
-  static async getProblemDetails(problemId: number) {
-    const response: Schemas.GetProblemDetailsResponse = {
-      isSuccess: false,
-      message: "Failed to get sdi problem details",
+  static async getProblem(problemId: number) {
+    const response: Schemas.GetProblemResponse = {
+      isSuccess: true,
+      message: "Successfully fetched problem details",
       problem: null,
     };
 
     try {
-      const [dbResult] = await neonDBClient
+      const [result] = await neonDBClient
         .select({
           id: sql<number>`problems.id`,
           title: problems.title,
@@ -28,10 +30,7 @@ class ProblemsDAL {
         .where(eq(problems.id, BigInt(problemId)))
         .limit(1);
 
-      response.problem = dbResult;
-
-      response.isSuccess = true;
-      response.message = "Sdi problem details fetched successfully";
+      response.problem = result;
     } catch (error) {
       Log.error({
         err: error,
@@ -46,15 +45,15 @@ class ProblemsDAL {
 
   static async getProblems() {
     const response: Schemas.GetProblemsResponse = {
-      isSuccess: false,
-      message: "Failed to get problems",
+      isSuccess: true,
+      message: "Successfully fetched problems",
       problems: [],
     };
 
     try {
       const result = await neonDBClient
         .select({
-          id: sql<string>`"problems"."id"`,
+          id: sql<number>`problems.id`,
           title: problems.title,
           description: problems.description,
           difficulty: problems.difficulty,
@@ -63,10 +62,7 @@ class ProblemsDAL {
         .from(problems)
         .orderBy(problems.id);
 
-      response.problems = result.map((r) => ({ ...r, id: Number(r.id) }));
-
-      response.isSuccess = true;
-      response.message = "Problems fetched successfully";
+      response.problems = result;
     } catch (error) {
       Log.error({
         err: error,

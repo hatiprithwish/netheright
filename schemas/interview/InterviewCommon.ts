@@ -20,7 +20,6 @@ export interface Interview {
   currentPhaseLabel: InterviewPhaseLabelEnum;
   overallGrade?: InterviewGradeIntEnum | null;
   scorecard?: InterviewScorecard;
-  startTime: string | Date;
   createdAt: string | Date;
 }
 

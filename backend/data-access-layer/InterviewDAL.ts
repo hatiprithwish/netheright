@@ -1,3 +1,4 @@
+// DONE_PRITH
 import neonDBClient from "@/lib/neon-db";
 import { and, asc, desc, eq, sql } from "drizzle-orm";
 import {
@@ -80,10 +81,7 @@ class InterviewDAL {
         .where(eq(interviews.id, params.interviewId))
         .limit(1);
 
-      response.interview = {
-        ...result[0],
-        startTime: result[0].createdAt, // fallback if start_time not queried
-      } as any;
+      response.interview = result[0];
     } catch (error) {
       Log.error({
         err: error,

@@ -5,6 +5,6 @@ export interface GetProblemsResponse extends ApiResponse {
   problems: ProblemBase[] | null;
 }
 
-export interface GetProblemDetailsResponse extends ApiResponse {
+export interface GetProblemResponse extends ApiResponse {
   problem: Problem | null;
 }
