@@ -9,10 +9,10 @@ import { InterviewInterface } from "./components/InterviewInterface";
 
 export default function InterviewPage({
   problemId,
-  sessionId,
+  interviewId,
 }: {
   problemId: number;
-  sessionId?: string;
+  interviewId?: string;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -21,7 +21,7 @@ export default function InterviewPage({
     data,
     isLoading,
     handleRefresh: mutate,
-  } = useGetInterview(sessionId ?? null);
+  } = useGetInterview(interviewId ?? null);
   const session = data?.interview ?? null;
 
   const currentPhaseParam = searchParams.get("phase");
@@ -47,7 +47,7 @@ export default function InterviewPage({
   if (isLoading) {
     return (
       <div className="h-screen w-full flex items-center justify-center">
-        <div className="text-slate-600">Loading interview session...</div>
+        <div className="text-slate-600">Loading interview...</div>
       </div>
     );
   }
@@ -55,7 +55,7 @@ export default function InterviewPage({
   if (!session) {
     return (
       <div className="h-screen w-full flex items-center justify-center">
-        <div className="text-slate-600">Session not found</div>
+        <div className="text-slate-600">Interview not found</div>
       </div>
     );
   }

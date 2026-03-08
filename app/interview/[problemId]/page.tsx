@@ -7,5 +7,7 @@ type Props = {
 export default async function index({ params }: Props) {
   const { problemId, sessionId } = await params;
 
-  return <InterviewPage problemId={Number(problemId)} sessionId={sessionId} />;
+  return (
+    <InterviewPage problemId={Number(problemId)} interviewId={sessionId} />
+  );
 }

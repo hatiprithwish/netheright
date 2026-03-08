@@ -1,3 +1,5 @@
+// DONE_PRITH
+
 import Link from "next/link";
 import { ArrowRight, Zap } from "lucide-react";
 
@@ -18,20 +20,20 @@ export function HeroSection() {
             </span>
           </h1>
           <p className="mx-auto mb-10 max-w-3xl text-lg text-muted-foreground sm:text-xl lg:text-2xl">
-            Practice high-stakes system design interviews with an AI senior
-            architect. Get instant feedback on your diagrams, scalability
-            trade-offs, and database choices.
+            Don't wait for human feedback. Get instant, expert-level critiques
+            on your architecture diagrams and system bottlenecks in a realistic
+            interview environment.
           </p>
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               href="/dashboard"
               className="group inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-4 text-lg font-semibold text-primary-foreground shadow-lg transition-all hover:bg-primary/90 hover:shadow-xl hover:-translate-y-0.5"
             >
-              Start Interview
+              Start Mock Interview
               <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
             </Link>
             <Link
-              href="/dashboard"
+              href="/architecture"
               className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-8 py-4 text-lg font-semibold text-foreground transition-all hover:bg-muted/50 hover:border-border/80"
             >
               View Architecture

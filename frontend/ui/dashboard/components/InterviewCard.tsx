@@ -85,7 +85,7 @@ export function InterviewCard({ interview }: InterviewCardProps) {
             </h3>
             <div className="flex items-center gap-2 text-sm text-text-muted">
               <Calendar className="w-4 h-4" />
-              <span>{formatDate(interview.startTime.toString())}</span>
+              <span>{formatDate(interview.createdAt.toString())}</span>
             </div>
           </div>
           <div className="flex items-center gap-2">

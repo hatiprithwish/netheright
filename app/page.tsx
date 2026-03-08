@@ -1,33 +1,25 @@
+// DONE_PRITH
+
+import Header from "@/frontend/ui/common/Header";
+import Footer from "@/frontend/ui/common/Footer";
 import {
   HeroSection,
   InterviewProcessSection,
-  WhyNextJsSection,
-  ThreeLayerArchitectureSection,
-  DatabaseSchemaSection,
-  ProductionEngineeringSection,
-  TechStackSection,
-  CodeQualitySection,
-  UpcomingReleasesSection,
   MetricsSection,
   CTASection,
-  ArchitecturalTradeoffsSection,
 } from "@/frontend/ui/home";
 
 export default async function Home() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <HeroSection />
-      <InterviewProcessSection />
-      <WhyNextJsSection />
-      <ThreeLayerArchitectureSection />
-      <DatabaseSchemaSection />
-      <ProductionEngineeringSection />
-      <TechStackSection />
-      <CodeQualitySection />
-      <UpcomingReleasesSection />
-      <ArchitecturalTradeoffsSection />
-      <MetricsSection />
-      <CTASection />
-    </main>
+    <>
+      <Header />
+      <main className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+        <HeroSection />
+        <InterviewProcessSection />
+        <MetricsSection />
+        <CTASection />
+      </main>
+      <Footer />
+    </>
   );
 }

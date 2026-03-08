@@ -4,8 +4,8 @@ import {
   InterviewPhaseLabelEnum,
   InterviewStatusIntEnum,
   InterviewStatusLabelEnum,
-  RedFlagTypeEnum,
   InterviewGradeIntEnum,
+  ZInterviewGradeIntEnum,
 } from "./InterviewEnum";
 import { z } from "zod";
 
@@ -24,12 +24,12 @@ export interface Interview {
 }
 
 export const ZInterviewScorecard = z.object({
-  overallGrade: z.nativeEnum(InterviewGradeIntEnum),
+  overallGrade: ZInterviewGradeIntEnum,
   categories: z.object({
-    requirementsGathering: z.nativeEnum(InterviewGradeIntEnum),
-    dataModeling: z.nativeEnum(InterviewGradeIntEnum),
-    tradeOffAnalysis: z.nativeEnum(InterviewGradeIntEnum),
-    scalability: z.nativeEnum(InterviewGradeIntEnum),
+    requirementsGathering: ZInterviewGradeIntEnum,
+    dataModeling: ZInterviewGradeIntEnum,
+    tradeOffAnalysis: ZInterviewGradeIntEnum,
+    scalability: ZInterviewGradeIntEnum,
   }),
   strengths: z.array(z.string()),
   growthAreas: z.array(z.string()),
