@@ -4,7 +4,6 @@ import Link from "next/link";
 import { Code2, LogOut, User } from "lucide-react";
 import { useAuth } from "@/frontend/ui/hooks/useAuth";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
 import { ModeToggle } from "@/frontend/ui/common/components/mode-toggle";
 import {
   DropdownMenu,
@@ -17,11 +16,10 @@ import {
 import { SwitchRoleModal } from "@/frontend/ui/common/components/SwitchRoleModal";
 import { UserCog } from "lucide-react";
 import packageJson from "@/package.json";
+import { HeaderLinks } from "./utils";
 
 export default function Header() {
   const { currentUser, signOut } = useAuth();
-  const pathname = usePathname();
-  const isHomePage = pathname === "/";
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-lg">
@@ -34,34 +32,15 @@ export default function Header() {
         </div>
 
         <div className="flex items-center gap-6">
-          {isHomePage && (
-            <>
-              <Link
-                href="#architecture"
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-              >
-                Architecture
-              </Link>
-              <Link
-                href="#tech"
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-              >
-                Tech Stack
-              </Link>
-            </>
-          )}
-          <Link
-            href="/dashboard"
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Dashboard
-          </Link>
-          <Link
-            href="/problems"
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Problems
-          </Link>
+          {HeaderLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
+              {link.label}
+            </Link>
+          ))}
 
           <div className="flex items-center">
             <ModeToggle />

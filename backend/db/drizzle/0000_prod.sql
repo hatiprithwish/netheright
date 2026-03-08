@@ -12,25 +12,35 @@ CREATE TABLE "accounts" (
 	"session_state" text
 );
 --> statement-breakpoint
-CREATE TABLE "ai_chats" (
-	"id" bigserial PRIMARY KEY NOT NULL,
-	"session_id" text NOT NULL,
+CREATE TABLE "features" (
+	"id" text PRIMARY KEY NOT NULL,
+	"description" text NOT NULL,
+	"perm_bit" integer NOT NULL,
+	"perm_bit_index" integer NOT NULL,
+	"is_active" boolean DEFAULT true NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "UK_features_perm_bit" UNIQUE("perm_bit","perm_bit_index")
+);
+--> statement-breakpoint
+CREATE TABLE "hld_diagrams" (
+	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+	"interview_id" text NOT NULL,
+	"topology" jsonb NOT NULL,
+	"raw_diagram" jsonb NOT NULL,
+	"phase" integer NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp,
+	"created_by" text NOT NULL,
+	"updated_by" text NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "interview_chats" (
+	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+	"interview_id" text NOT NULL,
 	"role" integer NOT NULL,
 	"content" jsonb NOT NULL,
 	"phase" integer NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE "hld_diagrams" (
-	"id" bigserial PRIMARY KEY NOT NULL,
-	"session_id" text NOT NULL,
-	"topology" jsonb NOT NULL,
-	"raw_react_flow" jsonb NOT NULL,
-	"phase" integer NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"created_by" text NOT NULL,
-	"updated_by" text NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "interviews" (
@@ -38,35 +48,53 @@ CREATE TABLE "interviews" (
 	"user_id" text NOT NULL,
 	"problem_id" integer NOT NULL,
 	"status" integer DEFAULT 1 NOT NULL,
-	"current_phase" integer DEFAULT 1 NOT NULL,
+	"phase" integer DEFAULT 1 NOT NULL,
 	"start_time" timestamp DEFAULT now() NOT NULL,
 	"end_time" timestamp,
 	"created_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "problems" (
+	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+	"title" text NOT NULL,
+	"description" text NOT NULL,
+	"functional_requirements" text[] NOT NULL,
+	"non_functional_requirements" text[] NOT NULL,
+	"bote_factors" text[] NOT NULL,
+	"difficulty" text NOT NULL,
+	"tags" text[],
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp
+);
+--> statement-breakpoint
 CREATE TABLE "red_flags" (
-	"id" bigserial PRIMARY KEY NOT NULL,
-	"session_id" text NOT NULL,
+	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+	"interview_id" text NOT NULL,
 	"type" text NOT NULL,
 	"reason" text NOT NULL,
 	"phase" integer NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "sdi_problems" (
-	"id" bigserial PRIMARY KEY NOT NULL,
-	"title" text NOT NULL,
-	"description" text NOT NULL,
-	"functional_requirements" text[] NOT NULL,
-	"non_functional_requirements" text[] NOT NULL,
-	"bote_factors" text[] NOT NULL,
+CREATE TABLE "role_features" (
+	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+	"role_id" text NOT NULL,
+	"feature_id" text NOT NULL,
+	"is_active" boolean DEFAULT true NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp
+	CONSTRAINT "UK_role_features_role_id" UNIQUE("role_id","feature_id")
 );
 --> statement-breakpoint
-CREATE TABLE "sdi_scorecards" (
-	"id" bigserial PRIMARY KEY NOT NULL,
-	"session_id" text NOT NULL,
+CREATE TABLE "roles" (
+	"id" text PRIMARY KEY NOT NULL,
+	"name" text NOT NULL,
+	"is_active" boolean DEFAULT true NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "scorecards" (
+	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+	"interview_id" text NOT NULL,
 	"overall_grade" integer NOT NULL,
 	"requirements_gathering" integer NOT NULL,
 	"data_modeling" integer NOT NULL,
@@ -76,26 +104,15 @@ CREATE TABLE "sdi_scorecards" (
 	"growth_areas" text[] NOT NULL,
 	"actionable_feedback" text NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE "user_sessions" (
-	"session_token" text PRIMARY KEY NOT NULL,
-	"user_id" text NOT NULL,
-	"expires" timestamp NOT NULL
+	"updated_at" timestamp
 );
 --> statement-breakpoint
 CREATE TABLE "users" (
 	"id" text PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"name" text,
+	"name" text NOT NULL,
 	"email" text NOT NULL,
 	"email_verified" timestamp,
 	"image" text,
+	"role_id" text NOT NULL,
 	CONSTRAINT "users_email_unique" UNIQUE("email")
-);
---> statement-breakpoint
-CREATE TABLE "verification_tokens" (
-	"identifier" text NOT NULL,
-	"token" text NOT NULL,
-	"expires" timestamp NOT NULL
 );

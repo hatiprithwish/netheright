@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
-import { SessionProvider } from "next-auth/react";
+import { AuthProvider } from "@/frontend/ui/common/providers/auth-provider";
 import { ThemeProvider } from "@/frontend/ui/common/providers/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -47,7 +47,7 @@ export default function RootLayout({
       >
         <ThemeProvider defaultTheme="system" enableSystem>
           <TooltipProvider>
-            <SessionProvider>{children}</SessionProvider>
+            <AuthProvider>{children}</AuthProvider>
           </TooltipProvider>
         </ThemeProvider>
         <Toaster />

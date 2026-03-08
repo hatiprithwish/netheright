@@ -19,12 +19,7 @@ const proxy = auth((req) => {
 
 export const config = {
   // DEV_NOTE: This matcher is used to define the routes that should be protected by the middleware.
-  matcher: [
-    "/dashboard/:path*",
-    "/interview/:path*",
-    "/architecture/:path*",
-    "/auth/:path*",
-  ],
+  matcher: ["/dashboard/:path*", "/interview/:path*", "/auth/:path*"],
 };
 
 export default proxy;

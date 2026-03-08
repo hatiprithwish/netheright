@@ -44,10 +44,7 @@ export const features = pgTable(
 export const role_features = pgTable(
   "role_features",
   {
-    id: integer("id")
-      .generatedAlwaysAsIdentity()
-      .primaryKey()
-      .generatedAlwaysAsIdentity(),
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     role_id: text("role_id").notNull(),
     feature_id: text("feature_id").notNull(),
     is_active: boolean("is_active").notNull().default(true),
