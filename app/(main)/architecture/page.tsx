@@ -7,7 +7,7 @@ import {
   CodeQualitySection,
   UpcomingReleasesSection,
   ArchitecturalTradeoffsSection,
-} from "@/frontend/ui/home";
+} from "@/frontend/home";
 
 const ArchitecturePage = () => {
   return (

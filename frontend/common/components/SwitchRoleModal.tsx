@@ -3,7 +3,7 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@/frontend/ui/hooks/useAuth";
+import { useAuth } from "@/frontend/hooks/useAuth";
 import { useGetRoles } from "@/frontend/api/cachedQueries";
 import {
   Dialog,
@@ -13,10 +13,13 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+} from "@/frontend/components/ui/dialog";
+import { Button } from "@/frontend/components/ui/button";
+import { Label } from "@/frontend/components/ui/label";
+import {
+  RadioGroup,
+  RadioGroupItem,
+} from "@/frontend/components/ui/radio-group";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { updateUserRole } from "@/frontend/api/mutations";

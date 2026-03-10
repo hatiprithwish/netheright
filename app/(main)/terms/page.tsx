@@ -1,6 +1,6 @@
 // DONE_PRITH
 
-import TermsPage from "@/frontend/ui/terms";
+import TermsPage from "@/frontend/terms";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

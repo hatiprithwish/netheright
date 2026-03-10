@@ -13,7 +13,7 @@ import {
   Clock,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useAuth } from "@/frontend/ui/hooks/useAuth";
+import { useAuth } from "@/frontend/hooks/useAuth";
 
 interface InterviewStartModalProps {
   problemId: number;

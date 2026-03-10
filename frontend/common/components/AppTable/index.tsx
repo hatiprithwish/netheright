@@ -12,7 +12,7 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
-import { Table } from "@/components/ui/table";
+import { Table } from "@/frontend/components/ui/table";
 import { AppTableProps } from "./AppTable.types";
 import { AppTableHeader } from "./AppTableHeader";
 import { AppTableBody } from "./AppTableBody";

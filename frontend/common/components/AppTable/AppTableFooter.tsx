@@ -1,4 +1,4 @@
-import { TableCell, TableRow } from "@/components/ui/table";
+import { TableCell, TableRow } from "@/frontend/components/ui/table";
 import { AppTableColumn } from "./AppTable.types";
 import { cn } from "@/lib/utils";
 import { FOOTER_ROW_CLASS, resolveVisibleColumns } from "./utils";

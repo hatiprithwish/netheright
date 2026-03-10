@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { InterviewHistoryTable } from "@/frontend/ui/dashboard/components/InterviewHistoryTable";
+import { InterviewHistoryTable } from "@/frontend/dashboard/components/InterviewHistoryTable";
 import {
   useGetInterviewsByUser,
   useGetInterviewsByUserCount,

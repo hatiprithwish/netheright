@@ -4,9 +4,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
-import { AuthProvider } from "@/frontend/ui/common/providers/auth-provider";
-import { ThemeProvider } from "@/frontend/ui/common/providers/theme-provider";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider } from "@/frontend/common/providers/auth-provider";
+import { ThemeProvider } from "@/frontend/common/providers/theme-provider";
+import { TooltipProvider } from "@/frontend/shadcn/ui/tooltip";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

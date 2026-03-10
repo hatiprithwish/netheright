@@ -1,6 +1,6 @@
 import { auth } from "@/lib/next-auth";
 
-import Dashboard from "@/frontend/ui/dashboard";
+import Dashboard from "@/frontend/dashboard";
 
 export default async function DashboardPage() {
   const session = await auth();

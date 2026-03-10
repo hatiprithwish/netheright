@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { Code2, LogOut, User, Menu } from "lucide-react";
-import { useAuth } from "@/frontend/ui/hooks/useAuth";
+import { useAuth } from "@/frontend/hooks/useAuth";
 import Image from "next/image";
-import { ModeToggle } from "@/frontend/ui/common/components/mode-toggle";
+import { ModeToggle } from "@/frontend/common/components/mode-toggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,8 +12,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { SwitchRoleModal } from "@/frontend/ui/common/components/SwitchRoleModal";
+} from "@/frontend/shadcn/ui/dropdown-menu";
+import { SwitchRoleModal } from "@/frontend/common/components/SwitchRoleModal";
 import { UserCog } from "lucide-react";
 import packageJson from "@/package.json";
 import { HeaderLinks } from "./utils";
@@ -23,7 +23,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet";
+} from "@/frontend/shadcn/ui/sheet";
 import { useState, useEffect } from "react";
 
 export default function Header() {

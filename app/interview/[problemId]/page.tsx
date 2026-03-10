@@ -1,4 +1,4 @@
-import InterviewPage from "@/frontend/ui/interview";
+import InterviewPage from "@/frontend/interview";
 
 type Props = {
   params: Promise<{ problemId: number; sessionId?: string }>;

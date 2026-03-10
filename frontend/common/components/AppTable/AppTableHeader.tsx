@@ -18,8 +18,8 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { TableHead, TableHeader, TableRow } from "@/components/ui/table";
+} from "@/frontend/components/ui/tooltip";
+import { TableHead, TableHeader, TableRow } from "@/frontend/components/ui/table";
 import { AppTableColumn, AppTableSortDirection } from "./AppTable.types";
 import { cn } from "@/lib/utils";
 import {

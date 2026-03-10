@@ -1,4 +1,4 @@
-import { TableBody, TableCell, TableRow } from "@/components/ui/table";
+import { TableBody, TableCell, TableRow } from "@/frontend/components/ui/table";
 import { cn } from "@/lib/utils";
 import { AppTableColumn } from "./AppTable.types";
 import { AppTableEmpty } from "./AppTableEmpty";

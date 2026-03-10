@@ -1,7 +1,7 @@
 import useSWR from "swr";
 import { fetcher, apiClient } from "./apiClient";
 import * as Schemas from "@/schemas";
-import { useAuth } from "../ui/hooks/useAuth";
+import { useAuth } from "../hooks/useAuth";
 
 export const useGetInterview = (interviewId: string | null) => {
   const { currentUser } = useAuth();

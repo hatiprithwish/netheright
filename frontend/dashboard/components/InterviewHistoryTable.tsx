@@ -6,9 +6,9 @@ import * as Schemas from "@/schemas";
 import { deleteInterview } from "@/frontend/api/mutations";
 import { GradeBadge } from "./GradeBadge";
 import { FeedbackModal } from "./FeedbackModal";
-import { AppTable } from "@/frontend/ui/common/components/AppTable";
-import { AppTablePagination } from "@/frontend/ui/common/components/AppTable/AppTablePagination";
-import { AppTableColumn } from "@/frontend/ui/common/components/AppTable/AppTable.types";
+import { AppTable } from "@/frontend/common/components/AppTable";
+import { AppTablePagination } from "@/frontend/common/components/AppTable/AppTablePagination";
+import { AppTableColumn } from "@/frontend/common/components/AppTable/AppTable.types";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 

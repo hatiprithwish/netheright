@@ -5,7 +5,7 @@ import * as Schemas from "@/schemas";
 import { toast } from "sonner";
 import { useState } from "react";
 import { LogOut } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/frontend/shadcn/ui/button";
 import { MobileBlocker } from "./MobileBlocker";
 import { PhaseStep } from "./PhaseStep";
 import { ConfirmationModal } from "../../common/ConfirmationModal";
@@ -15,7 +15,7 @@ import { RequirementsStep } from "./phases/requirements-gathering";
 import { BotECalculationStep } from "./phases/bote-calculations";
 import { HighLevelDesign } from "./phases/high-level-design";
 import { useInterviewChat } from "../../hooks/useInterviewChat";
-import { useAuth } from "@/frontend/ui/hooks/useAuth";
+import { useAuth } from "@/frontend/hooks/useAuth";
 
 export function InterviewInterface({
   sessionId,

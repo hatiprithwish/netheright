@@ -1,7 +1,7 @@
 "use client";
 
-import { AppTable } from "@/frontend/ui/common/components/AppTable";
-import { AppTableColumn } from "@/frontend/ui/common/components/AppTable/AppTable.types";
+import { AppTable } from "@/frontend/common/components/AppTable";
+import { AppTableColumn } from "@/frontend/common/components/AppTable/AppTable.types";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
