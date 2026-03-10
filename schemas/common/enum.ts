@@ -17,3 +17,8 @@ export enum AccountProviderType {
   Google = "google",
   Github = "github",
 }
+
+export enum UserRole {
+  Learner = "LEARNER",
+  Tester = "TESTER",
+}

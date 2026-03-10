@@ -90,47 +90,67 @@ export function InterviewInterface({
         </div>
       )}
 
-      <header className="h-14 bg-card border-border border-b flex items-center px-6 justify-between shrink-0 shadow-sm z-10 overflow-x-auto relative">
-        <div className="font-bold text-lg text-foreground">{problemTitle}</div>
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2 p-1 rounded-full bg-card/50 backdrop-blur-sm border border-border/50 shadow-sm">
-          <PhaseStep
-            current={phase}
-            step={Schemas.InterviewPhaseIntEnum.RequirementsGathering}
-            label={`1. ${Schemas.InterviewPhaseLabelEnum.RequirementsGathering}`}
-            maxReachedPhase={maxReachedPhase}
-            onClick={() =>
-              onPhaseChange(Schemas.InterviewPhaseIntEnum.RequirementsGathering)
-            }
-          />
-          <div className="w-4 h-px bg-border"></div>
-          <PhaseStep
-            current={phase}
-            step={Schemas.InterviewPhaseIntEnum.BotECalculation}
-            label={`2. ${Schemas.InterviewPhaseLabelEnum.BotECalculation}`}
-            maxReachedPhase={maxReachedPhase}
-            onClick={() =>
-              onPhaseChange(Schemas.InterviewPhaseIntEnum.BotECalculation)
-            }
-          />
-          <div className="w-4 h-px bg-border"></div>
-          <PhaseStep
-            current={phase}
-            step={Schemas.InterviewPhaseIntEnum.HighLevelDesign}
-            label={`3. ${Schemas.InterviewPhaseLabelEnum.HighLevelDesign}`}
-            maxReachedPhase={maxReachedPhase}
-            onClick={() =>
-              onPhaseChange(Schemas.InterviewPhaseIntEnum.HighLevelDesign)
-            }
-          />
+      <header className="bg-card border-border border-b flex flex-col md:flex-row items-center justify-between shrink-0 shadow-sm z-10 px-4 py-2 md:py-0 md:px-6 md:h-14 gap-3 md:gap-0 relative w-full">
+        <div className="w-full md:w-auto flex items-center justify-between">
+          <div className="font-bold text-base md:text-lg text-foreground truncate mr-2">
+            {problemTitle}
+          </div>
+          <div className="md:hidden">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowAbandonConfirm(true)}
+              className="text-red-600 hover:text-red-700 hover:bg-red-50 cursor-pointer h-8 w-8"
+              title="Abandon Interview"
+            >
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
 
-        <div className="">
+        <div className="w-full md:w-auto overflow-x-auto hide-scrollbar pb-1 md:pb-0">
+          <div className="flex items-center gap-1 sm:gap-2 p-1 rounded-full bg-card/50 backdrop-blur-sm border border-border/50 shadow-sm w-max mx-auto md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2">
+            <PhaseStep
+              current={phase}
+              step={Schemas.InterviewPhaseIntEnum.RequirementsGathering}
+              label={`1. ${Schemas.InterviewPhaseLabelEnum.RequirementsGathering}`}
+              maxReachedPhase={maxReachedPhase}
+              onClick={() =>
+                onPhaseChange(
+                  Schemas.InterviewPhaseIntEnum.RequirementsGathering,
+                )
+              }
+            />
+            <div className="w-2 sm:w-4 h-px bg-border shrink-0"></div>
+            <PhaseStep
+              current={phase}
+              step={Schemas.InterviewPhaseIntEnum.BotECalculation}
+              label={`2. ${Schemas.InterviewPhaseLabelEnum.BotECalculation}`}
+              maxReachedPhase={maxReachedPhase}
+              onClick={() =>
+                onPhaseChange(Schemas.InterviewPhaseIntEnum.BotECalculation)
+              }
+            />
+            <div className="w-2 sm:w-4 h-px bg-border shrink-0"></div>
+            <PhaseStep
+              current={phase}
+              step={Schemas.InterviewPhaseIntEnum.HighLevelDesign}
+              label={`3. ${Schemas.InterviewPhaseLabelEnum.HighLevelDesign}`}
+              maxReachedPhase={maxReachedPhase}
+              onClick={() =>
+                onPhaseChange(Schemas.InterviewPhaseIntEnum.HighLevelDesign)
+              }
+            />
+          </div>
+        </div>
+
+        <div className="hidden md:block">
           <Button
             variant="ghost"
             onClick={() => setShowAbandonConfirm(true)}
             className="text-red-600 hover:text-red-700 hover:bg-red-50 cursor-pointer"
           >
-            <LogOut className="h-4 w-4" />
+            <LogOut className="h-4 w-4 mr-2" />
             Abandon Interview
           </Button>
         </div>

@@ -33,12 +33,12 @@ export function PhaseStep({
       }`}
     >
       {isCompleted ? (
-        <span className="flex items-center justify-center w-4 h-4 rounded-full bg-emerald-200/50 dark:bg-emerald-900/50">
+        <span className="flex items-center justify-center w-4 h-4 rounded-full bg-emerald-200/50 dark:bg-emerald-900/50 shrink-0">
           <Check className="w-3 h-3" />
         </span>
       ) : (
         <span
-          className={`flex items-center justify-center w-4 h-4 rounded-full text-[10px] ${
+          className={`flex items-center justify-center w-4 h-4 rounded-full text-[10px] shrink-0 ${
             isCurrent
               ? "bg-white/20 text-white"
               : "bg-muted text-muted-foreground"
@@ -47,7 +47,9 @@ export function PhaseStep({
           {step}
         </span>
       )}
-      <span>{labelWithoutNumber(label)}</span>
+      <span className="hidden sm:inline-block whitespace-nowrap">
+        {labelWithoutNumber(label)}
+      </span>
     </button>
   );
 }

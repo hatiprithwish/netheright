@@ -64,7 +64,7 @@ function Dashboard({
   return (
     <div className="min-h-screen bg-brand-bg text-foreground">
       <div className="mx-auto max-w-7xl px-6 py-8">
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             {userImage ? (
               <Image
@@ -86,10 +86,10 @@ function Dashboard({
               <p className="text-muted-foreground">{userEmail}</p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 w-full sm:w-auto">
             <a
               href="/problems"
-              className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors shadow-md hover:shadow-lg"
+              className="flex w-full sm:w-auto items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors shadow-md hover:shadow-lg"
             >
               <Plus className="w-5 h-5" />
               Start New Interview

@@ -11,11 +11,21 @@ import { accounts, users } from "@/backend/db/tables";
 import * as Schemas from "@/schemas";
 import Log from "../pino/Log";
 
+const drizzleAdapter = DrizzleAdapter(neonDBClient, {
+  usersTable: users,
+  accountsTable: accounts,
+});
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  adapter: DrizzleAdapter(neonDBClient, {
-    usersTable: users,
-    accountsTable: accounts,
-  }),
+  adapter: {
+    ...drizzleAdapter,
+    createUser: async (data: any) => {
+      return drizzleAdapter.createUser!({
+        ...data,
+        role_id: Schemas.UserRole.Learner,
+      });
+    },
+  },
   providers: [
     Google({
       clientId: envConfig.GOOGLE_CLIENT_ID,

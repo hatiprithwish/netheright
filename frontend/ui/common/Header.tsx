@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Code2, LogOut, User } from "lucide-react";
+import { Code2, LogOut, User, Menu } from "lucide-react";
 import { useAuth } from "@/frontend/ui/hooks/useAuth";
 import Image from "next/image";
 import { ModeToggle } from "@/frontend/ui/common/components/mode-toggle";
@@ -17,9 +17,28 @@ import { SwitchRoleModal } from "@/frontend/ui/common/components/SwitchRoleModal
 import { UserCog } from "lucide-react";
 import packageJson from "@/package.json";
 import { HeaderLinks } from "./utils";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { useState, useEffect } from "react";
 
 export default function Header() {
   const { currentUser, signOut } = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Close the mobile menu automatically when clicking a link
+  useEffect(() => {
+    const handleRouteChange = () => {
+      setIsMobileMenuOpen(false);
+    };
+
+    window.addEventListener("popstate", handleRouteChange);
+    return () => window.removeEventListener("popstate", handleRouteChange);
+  }, []);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-lg">
@@ -31,7 +50,8 @@ export default function Header() {
           </Link>
         </div>
 
-        <div className="flex items-center gap-6">
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center gap-6">
           {HeaderLinks.map((link) => (
             <Link
               key={link.href}
@@ -47,7 +67,7 @@ export default function Header() {
           </div>
 
           {currentUser ? (
-            <div className="flex items-center gap-4 border-l border-border/40">
+            <div className="flex items-center gap-4 border-l border-border/40 pl-4">
               <DropdownMenu>
                 <DropdownMenuTrigger className="flex items-center gap-2 outline-none rounded-full ring-offset-background transition-colors focus-visible:outline-none cursor-pointer">
                   {currentUser.image ? (
@@ -123,6 +143,104 @@ export default function Header() {
               Sign In
             </Link>
           )}
+        </div>
+
+        {/* Mobile Navigation Toggle */}
+        <div className="flex items-center gap-4 md:hidden">
+          <ModeToggle />
+          <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <button
+                className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                aria-label="Toggle Menu"
+              >
+                <Menu className="h-6 w-6" />
+              </button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[300px] sm:w-[350px] pr-0">
+              <SheetHeader className="px-1 text-left">
+                <SheetTitle className="flex items-center gap-2">
+                  <Code2 className="h-6 w-6 text-primary" />
+                  <span className="text-xl font-bold">Netheright</span>
+                </SheetTitle>
+              </SheetHeader>
+
+              <div className="flex flex-col gap-6 py-6 pr-6">
+                {currentUser && (
+                  <div className="flex items-center gap-3 rounded-lg border border-border p-4 bg-muted/30">
+                    {currentUser.image ? (
+                      <Image
+                        src={currentUser.image}
+                        alt={currentUser.name || "User"}
+                        width={40}
+                        height={40}
+                        className="h-10 w-10 rounded-full border border-border object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                        <User className="h-5 w-5 text-primary" />
+                      </div>
+                    )}
+                    <div className="flex flex-col space-y-1 overflow-hidden">
+                      <p className="truncate text-sm font-medium leading-none">
+                        {currentUser.name}
+                      </p>
+                      <p className="truncate text-xs leading-none text-muted-foreground">
+                        {currentUser.roleName}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex flex-col gap-2">
+                  <h4 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center">
+                    Navigation
+                  </h4>
+                  {HeaderLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="block rounded-md px-3 py-2 text-base font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+
+                <div className="mt-auto border-t border-border pt-6">
+                  {currentUser ? (
+                    <div className="flex flex-col gap-2">
+                      <SwitchRoleModal>
+                        <button className="flex w-full items-center justify-start rounded-md px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted">
+                          <UserCog className="mr-2 h-4 w-4 text-muted-foreground" />
+                          <span>Switch Role</span>
+                        </button>
+                      </SwitchRoleModal>
+                      <button
+                        onClick={() => {
+                          setIsMobileMenuOpen(false);
+                          signOut();
+                        }}
+                        className="flex w-full items-center justify-start rounded-md px-3 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Sign Out</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <Link
+                      href="/auth"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex w-full cursor-pointer items-center justify-center rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90 hover:shadow-lg"
+                    >
+                      Sign In
+                    </Link>
+                  )}
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </nav>
