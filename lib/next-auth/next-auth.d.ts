@@ -25,6 +25,5 @@ declare module "next-auth/jwt" {
     roleId: string;
     roleName: string;
     features: string[];
-    access: number[]; // DEV_NOTE: Lives only in JWT
   }
 }

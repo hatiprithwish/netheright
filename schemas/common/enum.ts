@@ -22,3 +22,14 @@ export enum UserRole {
   Learner = "LEARNER",
   Tester = "TESTER",
 }
+
+export enum Feature {
+  SkipInterviewPhase = "SKPINTVPH",
+  ManageDashboard = "MNGDSHBD",
+  AttendInterview = "ATTNDINTV",
+}
+
+export enum AppStaticRoute {
+  Home = "/",
+  Forbidden = "/forbidden",
+}

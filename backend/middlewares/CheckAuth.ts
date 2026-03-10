@@ -1,16 +1,18 @@
 /**
- * Authentication and RBAC permission guard.
- * Must be wrapped inside routeWrapper so it receives a logger.
+ * Authentication and feature guard middleware.
+ * Pass featureIds to enforce that the user holds all required features.
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/next-auth";
-import { type FeatureCheck } from "@/schemas";
 import { Logger } from "@/lib/pino";
-import UserRepo from "@/backend/repositories/UserRepo";
 import { type RouteHandler } from "./RouteWrapper";
 
-export const checkAuth = (params: FeatureCheck, handler: RouteHandler) => {
+interface CheckAuthParams {
+  featureIds?: string[];
+}
+
+export const checkAuth = (params: CheckAuthParams, handler: RouteHandler) => {
   return async (
     req: NextRequest,
     _: any,
@@ -24,58 +26,17 @@ export const checkAuth = (params: FeatureCheck, handler: RouteHandler) => {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Compute bitmask from session features (CacheManager-backed, fast after first call)
-    const userAccess = await UserRepo.calculateAccessBitmask(
-      session.user.features ?? [],
-    );
-
-    // Single feature check
-    if (params.feature) {
-      const allowed = await params.feature.checkAccess(userAccess);
-      if (!allowed) {
+    if (params.featureIds && params.featureIds.length > 0) {
+      const userFeatures = session.user.features ?? [];
+      const denied = params.featureIds.find((id) => !userFeatures.includes(id));
+      if (denied) {
         logger.error(
-          `[CheckAuth] Denied feature: ${params.feature.featureId}, userId: ${session.user.id}`,
+          `[CheckAuth] Denied feature: ${denied}, userId: ${session.user.id}`,
         );
         return NextResponse.json(
           { error: "Access not allowed" },
           { status: 403 },
         );
-      }
-    }
-
-    // OR logic — user needs at least one
-    if (params.featuresOr && params.featuresOr.length > 0) {
-      let anyAllowed = false;
-      for (const feat of params.featuresOr) {
-        if (await feat.checkAccess(userAccess)) {
-          anyAllowed = true;
-          break;
-        }
-      }
-      if (!anyAllowed) {
-        logger.error(
-          `[CheckAuth] Denied featuresOr: [${params.featuresOr.map((f) => f.featureId).join(", ")}], userId: ${session.user.id}`,
-        );
-        return NextResponse.json(
-          { error: "Access not allowed" },
-          { status: 403 },
-        );
-      }
-    }
-
-    // AND logic — user needs all
-    if (params.featuresAnd && params.featuresAnd.length > 0) {
-      for (const feat of params.featuresAnd) {
-        const allowed = await feat.checkAccess(userAccess);
-        if (!allowed) {
-          logger.error(
-            `[CheckAuth] Denied featuresAnd: missing ${feat.featureId}, userId: ${session.user.id}`,
-          );
-          return NextResponse.json(
-            { error: "Access not allowed" },
-            { status: 403 },
-          );
-        }
       }
     }
 

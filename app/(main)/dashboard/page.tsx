@@ -1,18 +1,23 @@
-import { auth } from "@/lib/next-auth";
+// DONE_PRITH
 
+import { redirect } from "next/navigation";
+import { serverAuth } from "@/lib/next-auth";
 import Dashboard from "@/frontend/dashboard";
+import * as Schemas from "@/schemas";
 
 export default async function DashboardPage() {
-  const session = await auth();
+  const { currentUser, hasFeature } = await serverAuth();
 
-  if (!session?.user || !session.user.id) return null;
+  if (!currentUser || !hasFeature(Schemas.Feature.ManageDashboard)) {
+    redirect(Schemas.AppStaticRoute.Forbidden);
+  }
 
   return (
     <Dashboard
-      userId={session.user.id}
-      userName={session.user.name || "User"}
-      userEmail={session.user.email || ""}
-      userImage={session.user.image}
+      userId={currentUser.id}
+      userName={currentUser.name || "User"}
+      userEmail={currentUser.email || ""}
+      userImage={currentUser.image}
     />
   );
 }

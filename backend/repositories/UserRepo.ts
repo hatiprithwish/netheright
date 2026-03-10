@@ -1,12 +1,9 @@
 // DONE_PRITH
 
 import Constants from "@/constants";
-import RedisCache from "@/lib/redis/cache";
 import * as Schemas from "@/schemas";
-import MetadataDAL from "../data-access-layer/MetadataDAL";
 import UserDAL from "../data-access-layer/UserDAL";
 import InterviewDAL from "../data-access-layer/InterviewDAL";
-import Log from "@/lib/pino/Log";
 
 class UserRepo {
   static async getInterviewsByUser(params: Schemas.GetInterviewsByUserRequest) {
@@ -34,31 +31,6 @@ class UserRepo {
       userId: params.userId,
       roleId: params.roleId,
     });
-  }
-
-  static async calculateAccessBitmask(featureIds: string[]) {
-    const allFeatures = await RedisCache.get<Schemas.Feature[]>(
-      Constants.FEATURES_CACHE_KEY,
-      async () => (await MetadataDAL.getAllFeatures()).features,
-      Constants.DEFAULT_CACHE_KEY_TTL,
-    );
-
-    const access: number[] = [];
-
-    for (const featureId of featureIds) {
-      const feature = allFeatures.find((f) => f.id === featureId);
-      if (!feature) {
-        Log.warn(`Faced an invalid feature: ${featureId}`);
-        continue;
-      }
-      if (access[feature.permBitIndex] === undefined) {
-        access[feature.permBitIndex] = 0;
-      }
-      access[feature.permBitIndex] =
-        access[feature.permBitIndex] | (1 << feature.permBit);
-    }
-
-    return access;
   }
 }
 
