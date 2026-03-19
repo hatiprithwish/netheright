@@ -1,7 +1,7 @@
 // DONE_PRITH
 
-import Header from "@/frontend/common/Header";
-import Footer from "@/frontend/common/Footer";
+import Footer from "@/frontend/components/navigation/Footer";
+import Header from "@/frontend/components/navigation/Header";
 
 export default function MainLayout({
   children,

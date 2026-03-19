@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { serverAuth } from "@/lib/next-auth";
-import InterviewPage from "@/frontend/interview";
+import InterviewPage from "@/frontend/pages/interview";
 import * as Schemas from "@/schemas";
 
 type Props = {

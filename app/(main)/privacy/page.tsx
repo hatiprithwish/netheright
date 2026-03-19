@@ -1,6 +1,6 @@
 // DONE_PRITH
 
-import PrivacyPage from "@/frontend/privacy";
+import PrivacyPage from "@/frontend/pages/privacy";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

@@ -1,13 +1,11 @@
 // DONE_PRITH
 
-import Header from "@/frontend/common/Header";
-import Footer from "@/frontend/common/Footer";
-import {
-  HeroSection,
-  InterviewProcessSection,
-  MetricsSection,
-  CTASection,
-} from "@/frontend/home";
+import Footer from "@/frontend/components/navigation/Footer";
+import Header from "@/frontend/components/navigation/Header";
+import HeroSection from "@/frontend/pages/home/HeroSection";
+import InterviewProcessSection from "@/frontend/pages/home/InterviewProcessSection";
+import MetricsSection from "@/frontend/pages/home/MetricsSection";
+import CTASection from "@/frontend/pages/home/CTASection";
 
 export default async function Home() {
   return (

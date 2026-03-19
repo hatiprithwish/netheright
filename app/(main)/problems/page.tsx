@@ -1,4 +1,4 @@
-import { ProblemListPage } from "@/frontend/problems/components/ProblemListPage";
+import { ProblemListPage } from "@/frontend/pages/problems/components/ProblemListPage";
 
 const ProblemsPage = async () => {
   return <ProblemListPage />;

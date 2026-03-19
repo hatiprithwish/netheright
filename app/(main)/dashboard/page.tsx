@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { serverAuth } from "@/lib/next-auth";
-import Dashboard from "@/frontend/dashboard";
+import Dashboard from "@/frontend/pages/dashboard";
 import * as Schemas from "@/schemas";
 
 export default async function DashboardPage() {

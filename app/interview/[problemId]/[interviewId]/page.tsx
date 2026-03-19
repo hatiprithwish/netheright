@@ -1,6 +1,6 @@
 // DONE_PRITH
 
-import InterviewPage from "@/frontend/interview";
+import InterviewPage from "@/frontend/pages/interview";
 
 type Props = {
   params: Promise<{ problemId: string; interviewId: string }>;

@@ -1,13 +1,11 @@
-import {
-  WhyNextJsSection,
-  ThreeLayerArchitectureSection,
-  DatabaseSchemaSection,
-  ProductionEngineeringSection,
-  TechStackSection,
-  CodeQualitySection,
-  UpcomingReleasesSection,
-  ArchitecturalTradeoffsSection,
-} from "@/frontend/home";
+import ArchitecturalTradeoffsSection from "@/frontend/pages/architecture/ArchitecturalTradeoffsSection";
+import CodeQualitySection from "@/frontend/pages/architecture/CodeQualitySection";
+import DatabaseSchemaSection from "@/frontend/pages/architecture/DatabaseSchemaSection";
+import ProductionEngineeringSection from "@/frontend/pages/architecture/ProductionEngineeringSection";
+import TechStackSection from "@/frontend/pages/architecture/TechStackSection";
+import ThreeLayerArchitectureSection from "@/frontend/pages/architecture/ThreeLayerArchitectureSection";
+import UpcomingReleasesSection from "@/frontend/pages/architecture/UpcomingReleasesSection";
+import WhyNextJsSection from "@/frontend/pages/architecture/WhyNextJsSection";
 
 const ArchitecturePage = () => {
   return (
