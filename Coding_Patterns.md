@@ -47,3 +47,7 @@ static async updateUserRole(params: Schemas.UpdateUserRoleSqlRequest) {
 ```
 
 3. You'll only define response body once per API call - it will either be in DAL or repo layer. If multiple DALs are being called or external API calls are happening, then you need to define it in Repo, else it should be defined in DAL.
+
+4. Try not to use useEffect.
+
+5. Always use default export

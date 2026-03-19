@@ -12,7 +12,7 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/frontend/components/ui/tooltip";
+} from "@/frontend/components/shadcn/tooltip";
 import { cn } from "@/lib/utils";
 import { AppTablePaginationProps } from "./AppTable.types";
 import {
