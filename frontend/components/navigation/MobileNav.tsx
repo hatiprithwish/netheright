@@ -5,10 +5,11 @@ import {
   Sheet,
   SheetContent,
   SheetTrigger,
+  SheetTitle,
+  SheetDescription,
 } from "@/frontend/components/shadcn/sheet";
 import { HeaderLinks } from "./utils";
 import ThemeToggler from "./ThemeToggler";
-
 import UserDropdown from "./UserDropdown";
 
 interface MobileNavProps {
@@ -37,6 +38,10 @@ export default function MobileNav({ currentUser, signOut }: MobileNavProps) {
           </button>
         </SheetTrigger>
         <SheetContent side="right" className="w-[300px] sm:w-[350px] px-4 py-8">
+          <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+          <SheetDescription className="sr-only">
+            Access main navigation links and settings.
+          </SheetDescription>
           <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-2">
               {HeaderLinks.map((link) => (

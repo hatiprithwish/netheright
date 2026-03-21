@@ -1,8 +1,10 @@
+import { ProblemDifficultyEnum } from "./ProblemsEnum";
+
 export interface ProblemBase {
   id: number;
   title: string;
   description: string;
-  difficulty: string;
+  difficulty: ProblemDifficultyEnum;
   tags: string[] | null;
 }
 

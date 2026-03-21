@@ -1,4 +1,5 @@
 import z from "zod";
+import { BadgeColor } from "../common";
 
 export enum ChatRoleIntEnum {
   User = 1,
@@ -126,3 +127,13 @@ export enum InterviewSortColumn {
   createdAt = "createdAt",
 }
 export const ZInterviewSortColumn = z.enum(InterviewSortColumn);
+
+export const InterviewStatusLabelToBadgeColor: Record<
+  InterviewStatusLabelEnum,
+  BadgeColor
+> = {
+  [InterviewStatusLabelEnum.Completed]: BadgeColor.Green,
+  [InterviewStatusLabelEnum.Active]: BadgeColor.Yellow,
+  [InterviewStatusLabelEnum.Abandoned]: BadgeColor.Red,
+  [InterviewStatusLabelEnum.Deleted]: BadgeColor.Gray,
+};

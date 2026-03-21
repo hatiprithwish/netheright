@@ -7,8 +7,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/frontend/components/ui/dialog";
-import { Button } from "@/frontend/components/ui/button";
+} from "@/frontend/components/shadcn/dialog";
+import { Button } from "@/frontend/components/shadcn/button";
 
 interface ConfirmationModalProps {
   open: boolean;

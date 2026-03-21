@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2, Loader2, FileText } from "lucide-react";
+import { Trash2, Loader2 } from "lucide-react";
 import * as Schemas from "@/schemas";
 import { deleteInterview } from "@/frontend/api/mutations";
 import { GradeBadge } from "./GradeBadge";
@@ -9,33 +9,12 @@ import { FeedbackModal } from "./FeedbackModal";
 import { AppTable } from "@/frontend/components/app-table";
 import { AppTablePagination } from "@/frontend/components/app-table/AppTablePagination";
 import { AppTableColumn } from "@/frontend/components/app-table/AppTable.types";
+import { cn } from "@/lib/utils";
+import Utilities from "@/utils";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const ITEMS_PER_PAGE = 10;
-
-const EMPTY_STATE = (
-  <div className="flex flex-col items-center gap-4 py-4">
-    <div className="rounded-full bg-gray-100 p-6 dark:bg-gray-800">
-      <FileText className="h-12 w-12 text-gray-400 dark:text-gray-500" />
-    </div>
-    <div className="space-y-2 text-center">
-      <h3 className="text-xl font-semibold text-foreground">
-        No Interviews Yet
-      </h3>
-      <p className="text-muted-foreground">
-        You haven&apos;t completed any interviews yet. Start your first
-        interview to see your progress here.
-      </p>
-    </div>
-    <a
-      href="/problems"
-      className="inline-block rounded-lg bg-primary px-6 py-3 font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
-    >
-      Start Your First Interview
-    </a>
-  </div>
-);
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -104,32 +83,18 @@ export function InterviewHistoryTable({
   };
 
   const getStatusBadge = (interview: Schemas.Interview) => {
-    switch (interview.status) {
-      case Schemas.InterviewStatusIntEnum.Completed:
-        return (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400">
-            {interview.statusLabel}
-          </span>
-        );
-      case Schemas.InterviewStatusIntEnum.Active:
-        return (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-950/30 dark:text-blue-400">
-            {interview.statusLabel}
-          </span>
-        );
-      case Schemas.InterviewStatusIntEnum.Abandoned:
-        return (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700 dark:bg-red-950/30 dark:text-red-400">
-            {interview.statusLabel}
-          </span>
-        );
-      default:
-        return (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-xs font-semibold text-secondary-foreground">
-            {interview.statusLabel}
-          </span>
-        );
-    }
+    return (
+      <span
+        className={cn(
+          "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold",
+          Utilities.getBadgeColor(
+            Schemas.InterviewStatusLabelToBadgeColor[interview.statusLabel],
+          ),
+        )}
+      >
+        {interview.statusLabel}
+      </span>
+    );
   };
 
   const columns: AppTableColumn<Schemas.Interview>[] = [

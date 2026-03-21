@@ -7,6 +7,8 @@ import * as Schemas from "@/schemas";
 import { deleteInterview } from "@/frontend/api/mutations";
 import { mutate } from "swr";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
+import Utilities from "@/utils";
 
 interface InterviewCardProps {
   interview: Schemas.Interview;
@@ -49,19 +51,6 @@ export function InterviewCard({ interview }: InterviewCardProps) {
         return <XCircle className="w-4 h-4 text-red-600" />;
       default:
         return null;
-    }
-  };
-
-  const getStatusColor = () => {
-    switch (interview.status) {
-      case 2: // Completed
-        return "text-emerald-700 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-950/30";
-      case 1: // Active
-        return "text-blue-700 bg-blue-50 dark:text-blue-400 dark:bg-blue-950/30";
-      case 3: // Abandoned
-        return "text-red-700 bg-red-50 dark:text-red-400 dark:bg-red-950/30";
-      default:
-        return "text-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800";
     }
   };
 
@@ -150,7 +139,12 @@ export function InterviewCard({ interview }: InterviewCardProps) {
         {/* Footer */}
         <div className="flex items-center justify-between pt-3 border-t border-border">
           <div
-            className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${getStatusColor()}`}
+            className={cn(
+              "flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider",
+              Utilities.getBadgeColor(
+                Schemas.InterviewStatusLabelToBadgeColor[interview.statusLabel],
+              ),
+            )}
           >
             {getStatusIcon()}
             <span>{interview.statusLabel}</span>

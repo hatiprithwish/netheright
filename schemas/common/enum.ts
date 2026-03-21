@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { InterviewStatusLabelEnum } from "../interview";
 
 export enum SortDirection {
   Asc = "asc",
@@ -32,4 +33,14 @@ export enum Feature {
 export enum AppStaticRoute {
   Home = "/",
   Forbidden = "/forbidden",
+}
+
+export enum BadgeColor {
+  Green = "green",
+  Emerald = "emerald",
+  Amber = "amber",
+  Yellow = "yellow",
+  Red = "red",
+  Blue = "blue",
+  Gray = "gray",
 }
