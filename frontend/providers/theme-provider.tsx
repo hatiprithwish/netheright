@@ -28,7 +28,7 @@ function ThemeWrapper({ children }: { children: React.ReactNode }) {
 `attribute="data-theme"` prevents next-themes from mutating html's `class`.
 ThemeWrapper applies the theme class to a <div> so Tailwind's `dark:` variants work.
  */
-export function ThemeProvider({
+function ThemeProvider({
   children,
   ...props
 }: React.ComponentProps<typeof NextThemesProvider>) {
@@ -38,3 +38,5 @@ export function ThemeProvider({
     </NextThemesProvider>
   );
 }
+
+export default ThemeProvider;

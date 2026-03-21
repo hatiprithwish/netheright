@@ -4,10 +4,10 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
-import { AuthProvider } from "@/frontend/providers/auth-provider";
-import { ThemeProvider } from "@/frontend/providers/theme-provider";
+import AuthProvider from "@/frontend/providers/auth-provider";
+import ThemeProvider from "@/frontend/providers/theme-provider";
 import { TooltipProvider } from "@/frontend/components/shadcn/tooltip";
-import { SWRProvider } from "@/frontend/providers/swr-provider";
+import SWRProvider from "@/frontend/providers/swr-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
