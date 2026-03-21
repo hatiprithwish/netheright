@@ -14,7 +14,7 @@ function SignInContent() {
       {/* Left Side - Hero/Brand */}
       <div className="hidden lg:flex flex-col justify-between bg-zinc-900 relative overflow-hidden">
         {/* Background Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900" />
+        <div className="absolute inset-0 bg-linear-to-br from-slate-900 via-indigo-950 to-slate-900" />
 
         {/* Ghosted Diagram Background */}
         <div className="absolute inset-0 opacity-10 pointer-events-none">

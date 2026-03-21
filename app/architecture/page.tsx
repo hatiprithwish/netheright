@@ -9,7 +9,7 @@ import WhyNextJsSection from "@/frontend/pages/architecture/WhyNextJsSection";
 
 const ArchitecturePage = () => {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+    <main className="min-h-screen bg-linear-to-br from-background via-background to-muted/20">
       <WhyNextJsSection />
       <ThreeLayerArchitectureSection />
       <DatabaseSchemaSection />

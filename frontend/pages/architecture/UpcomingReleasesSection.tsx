@@ -36,7 +36,7 @@ export default function UpcomingReleasesSection() {
         </div>
 
         {/* Feature Flags Section */}
-        <div className="mt-12 rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-chart-1/5 p-8">
+        <div className="mt-12 rounded-2xl border border-primary/20 bg-linear-to-br from-primary/5 to-chart-1/5 p-8">
           <h3 className="mb-6 text-xl font-semibold">
             Beta Features (Feature Gating)
           </h3>

@@ -75,7 +75,7 @@ function Dashboard({
                 className="h-16 w-16 rounded-full border-4 border-card shadow-md"
               />
             ) : (
-              <div className="flex h-16 w-16 items-center justify-center rounded-full border-4 border-card bg-gradient-to-br from-primary to-primary/80 shadow-md">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full border-4 border-card bg-linear-to-br from-primary to-primary/80 shadow-md">
                 <User className="h-8 w-8 text-white" />
               </div>
             )}

@@ -3,11 +3,7 @@
 import Footer from "@/frontend/components/navigation/Footer";
 import Header from "@/frontend/components/navigation/Header";
 
-export default function MainLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Header />

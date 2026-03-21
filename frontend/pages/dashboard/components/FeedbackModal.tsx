@@ -56,7 +56,7 @@ export function FeedbackModal({ sessionId, onClose }: FeedbackModalProps) {
           {!isLoading && !error && data?.scorecard && (
             <div className="space-y-6">
               {/* Overall Grade */}
-              <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/40 dark:via-indigo-950/40 dark:to-purple-950/40 rounded-2xl p-8 text-center overflow-hidden border border-blue-100 dark:border-blue-900/50 relative">
+              <div className="bg-linear-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/40 dark:via-indigo-950/40 dark:to-purple-950/40 rounded-2xl p-8 text-center overflow-hidden border border-blue-100 dark:border-blue-900/50 relative">
                 {/* Decorative background elements */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-blue-200/20 dark:bg-blue-400/10 rounded-full blur-3xl pointer-events-none" />
                 <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-200/20 dark:bg-purple-400/10 rounded-full blur-3xl pointer-events-none" />
