@@ -43,16 +43,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async jwt({ token, user, trigger, session }) {
       if (user || trigger === "update") {
-        const roleId = trigger === "update" ? session.roleId : user.roleId;
+        // DEV_NOTE: While signing in, database row is passed, hence we need role_id
+        const roleId =
+          trigger === "update" ? session.roleId : (user as any).role_id;
         token.roleId = roleId;
 
-        const response = await MetadataRepo.getFeaturesByRoleId(roleId);
-        if (!response) {
-          Log.error(`Failed to fetch features for roleId: ${roleId}`);
-          return token;
+        const { features, roleName } =
+          await MetadataRepo.getRoleDataById(roleId);
+
+        if (!features.length) {
+          Log.warn(`No features found for roleId: ${roleId}`);
         }
 
-        token.features = response;
+        token.roleName = roleName;
+        token.features = features;
       }
       return token;
     },

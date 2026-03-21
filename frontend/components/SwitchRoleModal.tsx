@@ -91,12 +91,12 @@ export function SwitchRoleModal({ children }: SwitchRoleModalProps) {
                 {data?.roles.map((role) => (
                   <div
                     key={role.id}
-                    className="flex items-center space-x-3 rounded-lg border border-border p-3 transition-colors hover:bg-muted/50"
+                    className="flex items-center space-x-3 rounded-lg border border-border p-3 transition-colors hover:bg-muted/50 cursor-pointer"
                   >
                     <RadioGroupItem value={role.id} id={role.id} />
                     <Label
                       htmlFor={role.id}
-                      className="flex-1 cursor-pointer font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      className="flex-1 font-medium leading-none"
                     >
                       {role.name}
                     </Label>

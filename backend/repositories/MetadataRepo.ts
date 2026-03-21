@@ -54,9 +54,17 @@ class MetadataRepo {
     );
   }
 
-  static async getFeaturesByRoleId(roleId: string) {
-    const response = await this.getAllRoleFeatures();
-    return response?.[roleId];
+  static async getRoleDataById(roleId: string) {
+    const [featuresMap, rolesResponse] = await Promise.all([
+      this.getAllRoleFeatures(),
+      this.getAllRoles(),
+    ]);
+
+    const role = rolesResponse?.roles?.find((r) => r.id === roleId);
+    return {
+      features: featuresMap?.[roleId] || [],
+      roleName: role?.name,
+    };
   }
 }
 
