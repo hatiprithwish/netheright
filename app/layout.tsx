@@ -7,6 +7,7 @@ import { Toaster } from "sonner";
 import { AuthProvider } from "@/frontend/providers/auth-provider";
 import { ThemeProvider } from "@/frontend/providers/theme-provider";
 import { TooltipProvider } from "@/frontend/components/shadcn/tooltip";
+import { SWRProvider } from "@/frontend/providers/swr-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,7 +48,9 @@ export default function RootLayout({
       >
         <ThemeProvider defaultTheme="system" enableSystem>
           <TooltipProvider>
-            <AuthProvider>{children}</AuthProvider>
+            <SWRProvider>
+              <AuthProvider>{children}</AuthProvider>
+            </SWRProvider>
           </TooltipProvider>
         </ThemeProvider>
         <Toaster />
