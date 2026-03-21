@@ -48,18 +48,18 @@ export default function Footer() {
             <ul className="flex flex-col gap-2">
               <li>
                 <Link
-                  href="#architecture"
+                  href="/"
                   className="text-sm text-muted-foreground hover:text-foreground hover:underline"
                 >
-                  Architecture
+                  Home
                 </Link>
               </li>
               <li>
                 <Link
-                  href="#tech"
+                  href="/architecture"
                   className="text-sm text-muted-foreground hover:text-foreground hover:underline"
                 >
-                  Tech Stack
+                  Architecture
                 </Link>
               </li>
             </ul>
