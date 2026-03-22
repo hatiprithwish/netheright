@@ -13,9 +13,11 @@ const handler = async (
 ) => {
   const response = await InterviewRepo.getChatStream(validatedBody);
 
-  return NextResponse.json(response.stream, {
-    status: response.isSuccess ? 200 : 400,
-  });
+  if (!response.stream) {
+    return NextResponse.json({ error: response.message }, { status: 500 });
+  }
+
+  return response.stream;
 };
 
 export const POST = routeWrapper(

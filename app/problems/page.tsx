@@ -12,14 +12,8 @@ import { InterviewStartModal } from "@/frontend/pages/problems/InterviewStartMod
 
 const ProblemsPage = () => {
   const { data, isLoading, error } = useProblems();
-  const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selectedProblem, setSelectedProblem] =
     useState<Schemas.ProblemBase | null>(null);
-
-  const handleProblemClick = (problem: Schemas.ProblemBase) => {
-    setSelectedProblem(problem);
-    setIsOpen(true);
-  };
 
   if (isLoading) {
     return (
@@ -66,7 +60,7 @@ const ProblemsPage = () => {
             return (
               <div
                 key={problem.id}
-                onClick={() => handleProblemClick(problem)}
+                onClick={() => setSelectedProblem(problem)}
                 className="bg-card text-card-foreground rounded-xl shadow-soft hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 p-6 text-left border border-border hover:border-brand-primary/30 group cursor-pointer"
               >
                 <div className="flex items-start gap-4">
@@ -117,13 +111,11 @@ const ProblemsPage = () => {
       </div>
 
       {/* Modal */}
-      {isOpen && selectedProblem && (
+      {selectedProblem && (
         <InterviewStartModal
-          problemId={selectedProblem.id}
-          problemTitle={selectedProblem.title}
+          problem={selectedProblem}
           onClose={() => {
             setSelectedProblem(null);
-            setIsOpen(false);
           }}
         />
       )}

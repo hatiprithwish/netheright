@@ -15,16 +15,15 @@ import {
   DialogTitle,
 } from "@/frontend/components/shadcn/dialog";
 import { INTERVIEW_PHASES } from "./utils";
+import * as Schemas from "@/schemas";
 
 interface InterviewStartModalProps {
-  problemId: number;
-  problemTitle: string;
+  problem: Schemas.ProblemBase;
   onClose: () => void;
 }
 
 export function InterviewStartModal({
-  problemId,
-  problemTitle,
+  problem,
   onClose,
 }: InterviewStartModalProps) {
   const router = useRouter();
@@ -38,9 +37,9 @@ export function InterviewStartModal({
 
     setIsCreating(true);
     try {
-      const response = await createInterviewSession({ problemId });
+      const response = await createInterviewSession({ problemId: problem.id });
       if (response?.interview) {
-        router.push(`/interview/${problemId}/${response.interview.id}`);
+        router.push(`/interview/${problem.id}/${response.interview.id}`);
       }
     } catch (err) {
       toast.error("Failed to start interview. Please try again.");
@@ -56,7 +55,7 @@ export function InterviewStartModal({
         <DialogHeader className="bg-card border-b border-border px-6 py-4 flex flex-row items-center justify-between pointer-events-none">
           <div className="flex flex-col gap-1 text-left pointer-events-auto">
             <DialogTitle className="text-2xl font-bold text-foreground">
-              Start Interview: {problemTitle}
+              Start Interview: {problem.title}
             </DialogTitle>
             <DialogDescription className="flex items-center gap-2 text-sm font-medium">
               <Clock className="w-4 h-4" />

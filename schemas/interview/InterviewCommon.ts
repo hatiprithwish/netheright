@@ -17,6 +17,7 @@ export interface Interview {
   status: InterviewStatusIntEnum;
   statusLabel: InterviewStatusLabelEnum;
   currentPhase: InterviewPhaseIntEnum;
+  isTest: Boolean;
   currentPhaseLabel: InterviewPhaseLabelEnum;
   overallGrade?: InterviewGradeIntEnum | null;
   scorecard?: InterviewScorecard;

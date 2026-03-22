@@ -1,7 +1,7 @@
 import { ProblemDifficultyEnum } from "./ProblemsEnum";
 
 export interface ProblemBase {
-  id: number;
+  id: string;
   title: string;
   description: string;
   difficulty: ProblemDifficultyEnum;

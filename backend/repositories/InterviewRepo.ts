@@ -1,86 +1,120 @@
-// DONE_PRITH
 import InterviewDAL from "@/backend/data-access-layer/InterviewDAL";
 import ProblemsDAL from "@/backend/data-access-layer/ProblemsDAL";
 import * as Schemas from "../../schemas";
 import gemini from "@/lib/gemini";
-import { streamText, convertToModelMessages, UIMessage, tool } from "ai";
+import {
+  streamText,
+  convertToModelMessages,
+  UIMessage,
+  tool,
+  generateText,
+  Output,
+} from "ai";
 import Constants from "@/constants";
 import Utilities from "@/utils";
 import z from "zod";
 import Log from "@/lib/pino/Log";
-import { generateObject } from "ai";
 
 class InterviewRepo {
-  // TODO: Clean this up
-  static async getChatStream(params: Schemas.GetChatStreamRequest) {
-    // 1. Persist user message
+  private static async persistUserMessage(
+    params: Pick<
+      Schemas.GetChatStreamRequest,
+      "messages" | "interviewId" | "phase"
+    >,
+  ) {
     const lastMessage = params.messages[params.messages.length - 1];
-    if (lastMessage.role === Schemas.ChatRoleLabelEnum.User) {
-      await InterviewDAL.createInterviewChat({
-        interviewId: params.interviewId,
-        role: Schemas.ChatRoleIntEnum.User,
-        content: lastMessage.parts[0].text,
-        phase: params.phase,
-      });
-    }
+    if (lastMessage.role !== Schemas.ChatRoleLabelEnum.User) return;
 
-    // 2. Fetch message history from database (clean, without tool invocations)
-    const response = await InterviewDAL.getInterviewChats({
+    await InterviewDAL.createInterviewChat({
+      interviewId: params.interviewId,
+      role: Schemas.ChatRoleIntEnum.User,
+      content: lastMessage.parts[0].text,
+      phase: params.phase,
+    });
+  }
+
+  private static async buildModelMessages(params: {
+    interviewId: string;
+    graph?: Schemas.SanitizedGraph;
+  }) {
+    const { messages } = await InterviewDAL.getInterviewChats({
       interviewId: params.interviewId,
     });
 
-    // 3. Convert DB messages to UIMessage format
-    const uiMessages: UIMessage[] = response.messages.map((msg) => ({
+    const uiMessages: UIMessage[] = messages.map((msg) => ({
       id: msg.id,
       role: msg.role as "user" | "assistant",
       parts: [{ type: "text", text: msg.content }],
     }));
+
     const modelMessages = await convertToModelMessages(uiMessages);
 
-    // 4. Get problem details
-    const problemDetailsResponse = await ProblemsDAL.getProblem(
-      params.problemId,
-    );
-    if (!problemDetailsResponse.problem) {
-      Log.error(`Problem details not found for problemId ${params.problemId}`);
-      return {
-        isSuccess: false,
-        message: "Problem details not found",
-      };
-    }
-
-    // 5. Generate system prompt
-    const systemPrompt = Constants.systemPrompts({
-      phase: params.phase,
-      systemName: problemDetailsResponse.problem?.title,
-      botEAssumptions: problemDetailsResponse.problem?.boteFactors?.join("\n"),
-      functionalRequirements:
-        problemDetailsResponse.problem?.functionalRequirements?.join("\n"),
-      nonFunctionalRequirements:
-        problemDetailsResponse.problem?.nonFunctionalRequirements?.join("\n"),
-    });
-
-    // 6. If the request is HLD design, append the graph to the last model message
     if (params.graph) {
       const graphStr = Utilities.graphToString(params.graph);
-      const lastModelMessage = modelMessages[modelMessages.length - 1];
-      if (lastModelMessage.role === "user") {
-        const note = `\n\nHere is the serialized HLD graph:\n${graphStr}\n\nPlease analyze this graph and provide feedback as per the phase requirements.`;
+      const lastMessage = modelMessages[modelMessages.length - 1];
+      const graphNote = `\n\nHere is the serialized HLD graph:\n${graphStr}\n\nPlease analyze this graph and provide feedback as per the phase requirements.`;
 
-        if (typeof lastModelMessage.content === "string") {
-          lastModelMessage.content += note;
-        } else if (Array.isArray(lastModelMessage.content)) {
-          const textPart = lastModelMessage.content.find(
-            (p) => p.type === "text",
-          );
+      if (lastMessage.role === Schemas.ChatRoleLabelEnum.User) {
+        if (typeof lastMessage.content === "string") {
+          lastMessage.content += graphNote;
+        } else if (Array.isArray(lastMessage.content)) {
+          const textPart = lastMessage.content.find((p) => p.type === "text");
           if (textPart && "text" in textPart) {
-            (textPart as any).text += note;
+            (textPart as { type: "text"; text: string }).text += graphNote;
           } else {
-            lastModelMessage.content.push({ type: "text", text: note });
+            lastMessage.content.push({ type: "text", text: graphNote });
           }
         }
       }
     }
+
+    return modelMessages;
+  }
+
+  private static async generateAndSaveScorecard(interviewId: string) {
+    const { messages } = await InterviewDAL.getInterviewChats({ interviewId });
+    const conversationHistory = messages
+      .map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
+      .join("\n\n");
+
+    const scorecardResult = await generateText({
+      model: gemini("gemini-2.5-flash"),
+      output: Output.object({ schema: Schemas.ZInterviewScorecard }),
+      prompt: Constants.scoreCardPrompt({ conversationHistory }),
+    });
+
+    const scorecard = scorecardResult.output;
+    return await InterviewDAL.createInterviewScorecard({
+      interviewId,
+      overallGrade: scorecard.overallGrade,
+      requirementsGathering: scorecard.categories.requirementsGathering,
+      dataModeling: scorecard.categories.dataModeling,
+      tradeOffAnalysis: scorecard.categories.tradeOffAnalysis,
+      scalability: scorecard.categories.scalability,
+      strengths: scorecard.strengths,
+      growthAreas: scorecard.growthAreas,
+      actionableFeedback: scorecard.actionableFeedback,
+    });
+  }
+
+  static async getChatStream(params: Schemas.GetChatStreamRequest) {
+    await InterviewRepo.persistUserMessage(params);
+
+    const modelMessages = await InterviewRepo.buildModelMessages(params);
+
+    const { problem } = await ProblemsDAL.getProblem(params.problemId);
+    if (!problem) {
+      Log.error(`Problem not found for problemId ${params.problemId}`);
+      return { isSuccess: false, message: "Problem details not found" };
+    }
+
+    const systemPrompt = Constants.systemPrompts({
+      phase: params.phase,
+      systemName: problem.title,
+      botEAssumptions: problem.boteFactors?.join("\n"),
+      functionalRequirements: problem.functionalRequirements?.join("\n"),
+      nonFunctionalRequirements: problem.nonFunctionalRequirements?.join("\n"),
+    });
 
     const result = streamText({
       model: gemini("gemini-2.5-flash"),
@@ -92,74 +126,35 @@ class InterviewRepo {
             "Call this when the current phase is complete to move to the next phase.",
           inputSchema: Schemas.ZTransitionToPhaseParams,
           execute: async ({ nextPhase }) => {
-            const response = await InterviewDAL.updateInterview({
+            const newPhase = Schemas.interviewPhaseLabelToInt[nextPhase];
+            const { isSuccess } = await InterviewDAL.updateInterview({
               interviewId: params.interviewId,
-              phase: Schemas.interviewPhaseLabelToInt[nextPhase],
+              phase: newPhase,
               status: null,
             });
-            if (response.isSuccess) {
-              return {
-                status: "transition_complete",
-                newPhase: Schemas.interviewPhaseLabelToInt[nextPhase],
-              };
-            } else {
-              return {
-                status: "transition_failed",
-                newPhase: Schemas.interviewPhaseLabelToInt[nextPhase],
-              };
-            }
+            return {
+              newPhase,
+              status: isSuccess ? "transition_complete" : "transition_failed",
+            };
           },
         }),
         endInterview: tool({
           description: "Call this when the interview is complete.",
           inputSchema: z.object({}),
           execute: async () => {
-            await InterviewDAL.updateInterview({
-              interviewId: params.interviewId,
-              status: Schemas.InterviewStatusIntEnum.Completed,
-              phase: null,
-            });
-
-            // Generate scorecard by sending entire chat history to LLM
-            const interviewChatsResponse = await InterviewDAL.getInterviewChats(
-              {
-                interviewId: params.interviewId,
-              },
-            );
-
-            // Create a conversation summary for the LLM
-            const conversationHistory = interviewChatsResponse.messages
-              .map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
-              .join("\n\n");
-
             try {
-              const scorecardResult = await generateObject({
-                model: gemini("gemini-2.5-flash"),
-                schema: Schemas.ZInterviewScorecard,
-                prompt: Constants.scoreCardPrompt({ conversationHistory }),
-              });
-
-              // Save scorecard to database
-              await InterviewDAL.createInterviewScorecard({
-                interviewId: params.interviewId,
-                overallGrade: scorecardResult.object.overallGrade,
-                requirementsGathering:
-                  scorecardResult.object.categories.requirementsGathering,
-                dataModeling: scorecardResult.object.categories.dataModeling,
-                tradeOffAnalysis:
-                  scorecardResult.object.categories.tradeOffAnalysis,
-                scalability: scorecardResult.object.categories.scalability,
-                strengths: scorecardResult.object.strengths,
-                growthAreas: scorecardResult.object.growthAreas,
-                actionableFeedback: scorecardResult.object.actionableFeedback,
-              });
+              const response = await InterviewRepo.generateAndSaveScorecard(
+                params.interviewId,
+              );
+              return {
+                status: response.isSuccess
+                  ? "interview_completed"
+                  : "interview_failed",
+              };
             } catch (error) {
               Log.error({ error }, "Failed to generate or save scorecard");
+              return { status: "interview_failed" };
             }
-
-            return {
-              status: "interview_completed",
-            };
           },
         }),
       },
@@ -172,7 +167,7 @@ class InterviewRepo {
         onFinish: async ({ messages }) => {
           const assistantMessage = messages[messages.length - 1];
           const content = assistantMessage.parts
-            .map((p) => (p.type == "text" ? p.text : ""))
+            .map((p) => (p.type === "text" ? p.text : ""))
             .join("");
 
           await InterviewDAL.createInterviewChat({
@@ -187,7 +182,10 @@ class InterviewRepo {
   }
 
   static async createInterview(params: Schemas.CreateInterviewRepoRequest) {
-    return await InterviewDAL.createInterview(params);
+    return await InterviewDAL.createInterview({
+      userId: params.userId,
+      problemId: Number(params.problemId),
+    });
   }
 
   static async getInterview(params: Schemas.GetInterviewApiRequest) {

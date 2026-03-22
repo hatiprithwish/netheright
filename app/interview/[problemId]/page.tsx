@@ -6,7 +6,7 @@ import InterviewPage from "@/frontend/pages/interview";
 import * as Schemas from "@/schemas";
 
 type Props = {
-  params: Promise<{ problemId: number; sessionId?: string }>;
+  params: Promise<{ problemId: string; sessionId?: string }>;
 };
 
 export default async function index({ params }: Props) {

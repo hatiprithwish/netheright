@@ -7,7 +7,7 @@ import { ZAiMessage } from "./InterviewCommon";
 import { ZSanitizedGraph } from "../common";
 
 export const ZCreateInterviewRequest = z.object({
-  problemId: z.number(),
+  problemId: z.string(),
 });
 
 export type CreateInterviewRequest = z.infer<typeof ZCreateInterviewRequest>;
