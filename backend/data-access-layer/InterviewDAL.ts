@@ -100,13 +100,12 @@ class InterviewDAL {
       interviews: [],
     };
     try {
-      const sortCol =
-        interviews[
-          params.sortColumn as keyof Pick<
-            typeof interviews,
-            "id" | "status" | "created_at"
-          >
-        ];
+      const sortColumnMap = {
+        [Schemas.InterviewSortColumn.Id]: interviews.id,
+        [Schemas.InterviewSortColumn.Status]: interviews.status,
+        [Schemas.InterviewSortColumn.CreatedAt]: interviews.created_at,
+      };
+      const sortCol = sortColumnMap[params.sortColumn] ?? interviews.created_at;
       const orderExpr =
         params.sortDirection === "desc" ? desc(sortCol) : asc(sortCol);
       const offset = (params.pageNo - 1) * params.pageSize;
@@ -399,6 +398,55 @@ class InterviewDAL {
       });
       response.isSuccess = false;
       response.message = "Failed to fetch scorecard";
+    }
+    return response;
+  }
+
+  static async getInterviewsSummary(params: { userId: string }) {
+    const response: Schemas.GetInterviewsSummaryResponse = {
+      isSuccess: true,
+      message: "Successfully fetched interviews summary",
+      summary: null,
+    };
+    try {
+      const rows = await neonDBClient
+        .select({
+          status: interviews.status,
+          count: sql<number>`count(*)::int`,
+        })
+        .from(interviews)
+        .where(eq(interviews.user_id, params.userId))
+        .groupBy(interviews.status);
+
+      let totalCount = 0;
+      let completedCount = 0;
+      let inProgressCount = 0;
+      let abandonedCount = 0;
+
+      for (const row of rows) {
+        totalCount += row.count;
+        if (row.status === Schemas.InterviewStatusIntEnum.Completed) {
+          completedCount += row.count;
+        } else if (row.status === Schemas.InterviewStatusIntEnum.Active) {
+          inProgressCount += row.count;
+        } else if (row.status === Schemas.InterviewStatusIntEnum.Abandoned) {
+          abandonedCount += row.count;
+        }
+      }
+
+      response.summary = {
+        totalCount,
+        completedCount,
+        inProgressCount,
+        abandonedCount,
+      };
+    } catch (error) {
+      Log.error({
+        err: error,
+        msg: "Unknown error occured while fetching interviews summary",
+      });
+      response.isSuccess = false;
+      response.message = "Failed to fetch interviews summary";
     }
     return response;
   }

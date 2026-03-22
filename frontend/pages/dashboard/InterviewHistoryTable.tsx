@@ -36,7 +36,7 @@ interface InterviewHistoryTableProps {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function InterviewHistoryTable({
+function InterviewHistoryTable({
   interviews,
   totalRecords,
   isLoading,
@@ -133,7 +133,7 @@ export function InterviewHistoryTable({
     {
       key: "startTime",
       header: "Date",
-      sortKey: Schemas.InterviewSortColumn.createdAt,
+      sortKey: Schemas.InterviewSortColumn.CreatedAt,
       cell: (row) => (
         <span className="whitespace-nowrap text-muted-foreground">
           {row.createdAt ? formatDate(row.createdAt.toString()) : "—"}
@@ -238,3 +238,5 @@ export function InterviewHistoryTable({
     </>
   );
 }
+
+export default InterviewHistoryTable;

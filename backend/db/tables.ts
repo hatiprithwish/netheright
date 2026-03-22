@@ -116,6 +116,7 @@ export const interviews = pgTable("interviews", {
     .default(Schemas.InterviewPhaseIntEnum.RequirementsGathering),
   start_time: timestamp("start_time").notNull().defaultNow(),
   end_time: timestamp("end_time"),
+  is_test: boolean("is_test").notNull().default(false),
   created_at: timestamp("created_at").notNull().defaultNow(),
 });
 

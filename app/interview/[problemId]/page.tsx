@@ -12,7 +12,7 @@ type Props = {
 export default async function index({ params }: Props) {
   const { hasFeature } = await serverAuth();
 
-  if (!hasFeature(Schemas.Feature.AttendInterview)) {
+  if (!hasFeature(Schemas.FeatureEnum.AttendInterview)) {
     redirect(Schemas.AppStaticRoute.Forbidden);
   }
 

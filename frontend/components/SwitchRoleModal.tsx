@@ -3,7 +3,7 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@/frontend/hooks/useAuth";
+import { useAuth } from "@/lib/next-auth/useAuth";
 import { useGetRoles } from "@/frontend/api/cachedQueries";
 import {
   Dialog,

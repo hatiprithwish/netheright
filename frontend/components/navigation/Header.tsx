@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Code2 } from "lucide-react";
-import { useAuth } from "@/frontend/hooks/useAuth";
+import { useAuth } from "@/lib/next-auth/useAuth";
 import ThemeToggler from "./ThemeToggler";
 import DesktopNav from "./DesktopNav";
 import UserDropdown from "./UserDropdown";

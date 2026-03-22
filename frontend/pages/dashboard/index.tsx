@@ -1,75 +1,56 @@
 "use client";
 
 import Image from "next/image";
-import { InterviewHistoryTable } from "@/frontend/pages/dashboard/components/InterviewHistoryTable";
 import {
   useGetInterviewsByUser,
-  useGetInterviewsByUserCount,
+  useGetInterviewsSummary,
 } from "@/frontend/api/cachedQueries";
 import { BarChart3, Plus, User } from "lucide-react";
-import { useState } from "react";
 import * as Schemas from "@/schemas";
+import { useAuth } from "@/lib/next-auth/useAuth";
+import { useDashboardStore } from "./zustand";
+import InterviewHistoryTable from "./InterviewHistoryTable";
+import Constants from "@/constants";
 
-interface DashboardContentProps {
-  userId: string;
-  userName: string;
-  userEmail: string;
-  userImage?: string | null;
-}
-
-function Dashboard({
-  userId,
-  userName,
-  userEmail,
-  userImage,
-}: DashboardContentProps) {
-  const [pageNo, setPageNo] = useState(1);
-  const [sortBy, setSortBy] = useState<Schemas.InterviewSortColumn>(
-    Schemas.InterviewSortColumn.createdAt,
-  );
-  const [sortOrder, setSortOrder] = useState<Schemas.SortDirection>(
-    Schemas.SortDirection.Desc,
-  );
-  const pageSize = 10;
+function DashboardPage() {
+  const { currentUser } = useAuth();
+  const { pageNo, sortBy, sortOrder, setPageNo, setSort } = useDashboardStore();
 
   const {
     data,
     isLoading,
     handleRefresh: mutate,
   } = useGetInterviewsByUser({
-    userId,
     pageNo,
-    pageSize,
+    pageSize: Constants.DEFAULT_PAGE_SIZE,
     sortColumn: sortBy,
     sortDirection: sortOrder,
   });
-  const interviews = data?.interviews ?? [];
 
   const {
-    data: countData,
-    isLoading: isCountLoading,
-    handleRefresh: refreshCount,
-  } = useGetInterviewsByUserCount({ userId });
-
-  const totalRecords = countData?.totalRecords ?? 0;
+    data: summaryData,
+    isLoading: isSummaryLoading,
+    handleRefresh: refreshSummary,
+  } = useGetInterviewsSummary();
 
   const handleSort = (
     newSortBy: Schemas.InterviewSortColumn,
     newSortOrder: Schemas.SortDirection,
   ) => {
-    setSortBy(newSortBy);
-    setSortOrder(newSortOrder);
+    setSort(newSortBy, newSortOrder);
   };
+
+  if (!currentUser) return null;
 
   return (
     <div className="min-h-screen bg-brand-bg text-foreground">
       <div className="mx-auto max-w-7xl px-6 py-8">
         <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            {userImage ? (
+            {currentUser?.image ? (
               <Image
-                src={userImage}
-                alt={userName}
+                src={currentUser.image}
+                alt="User avatar"
                 width={64}
                 height={64}
                 className="h-16 w-16 rounded-full border-4 border-card shadow-md"
@@ -81,9 +62,9 @@ function Dashboard({
             )}
             <div>
               <h1 className="text-3xl font-bold text-foreground">
-                Welcome back, {userName.split(" ")[0]}!
+                Welcome back, {currentUser?.name?.split(" ")[0]}!
               </h1>
-              <p className="text-muted-foreground">{userEmail}</p>
+              <p className="text-muted-foreground">{currentUser?.email}</p>
             </div>
           </div>
           <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -109,7 +90,7 @@ function Dashboard({
               </span>
             </div>
             <p className="text-3xl font-bold text-foreground">
-              {isCountLoading ? "—" : totalRecords}
+              {isSummaryLoading ? "—" : summaryData?.summary?.totalCount}
             </p>
           </div>
 
@@ -123,8 +104,9 @@ function Dashboard({
               </span>
             </div>
             <p className="text-3xl font-bold text-foreground">
-              {/* Completed count is no longer tracked separately */}
-              {isCountLoading ? "—" : "—"}
+              {isSummaryLoading
+                ? "—"
+                : (summaryData?.summary?.completedCount ?? 0)}
             </p>
           </div>
 
@@ -138,8 +120,9 @@ function Dashboard({
               </span>
             </div>
             <p className="text-3xl font-bold text-foreground">
-              {/* In-progress count is no longer tracked separately */}
-              {isCountLoading ? "—" : "—"}
+              {isSummaryLoading
+                ? "—"
+                : (summaryData?.summary?.inProgressCount ?? 0)}
             </p>
           </div>
 
@@ -153,8 +136,9 @@ function Dashboard({
               </span>
             </div>
             <p className="text-3xl font-bold text-foreground">
-              {/* Abandoned count is no longer tracked separately */}
-              {isCountLoading ? "—" : "—"}
+              {isSummaryLoading
+                ? "—"
+                : (summaryData?.summary?.abandonedCount ?? 0)}
             </p>
           </div>
         </div>
@@ -165,8 +149,8 @@ function Dashboard({
             Interview History
           </h2>
           <InterviewHistoryTable
-            interviews={interviews}
-            totalRecords={totalRecords}
+            interviews={data?.interviews ?? []}
+            totalRecords={summaryData?.summary?.totalCount ?? 0}
             isLoading={isLoading}
             page={pageNo}
             sortBy={sortBy}
@@ -175,10 +159,10 @@ function Dashboard({
             onSort={handleSort}
             onDeleteSuccess={() => {
               mutate();
-              refreshCount();
+              refreshSummary();
             }}
             onRefresh={async () => {
-              await Promise.all([mutate(), refreshCount()]);
+              await Promise.all([mutate(), refreshSummary()]);
             }}
           />
         </div>
@@ -187,4 +171,4 @@ function Dashboard({
   );
 }
 
-export default Dashboard;
+export default DashboardPage;

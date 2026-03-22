@@ -24,7 +24,7 @@ export enum UserRole {
   Tester = "TESTER",
 }
 
-export enum Feature {
+export enum FeatureEnum {
   SkipInterviewPhase = "SKPINTVPH",
   ManageDashboard = "MNGDSHBD",
   AttendInterview = "ATTNDINTV",

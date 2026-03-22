@@ -6,19 +6,21 @@ import UserDAL from "../data-access-layer/UserDAL";
 import InterviewDAL from "../data-access-layer/InterviewDAL";
 
 class UserRepo {
-  static async getInterviewsByUser(params: Schemas.GetInterviewsByUserRequest) {
+  static async getInterviewsByUser(
+    params: Schemas.GetInterviewsByUserRepoRequest,
+  ) {
     return await InterviewDAL.getInterviews({
       userId: params.userId,
       pageNo: params.pageNo ?? Constants.DEFAULT_PAGE_NO,
       pageSize: params.pageSize ?? Constants.DEFAULT_PAGE_SIZE,
-      sortColumn: params.sortColumn ?? Schemas.InterviewSortColumn.createdAt,
+      sortColumn: params.sortColumn ?? Schemas.InterviewSortColumn.CreatedAt,
       sortDirection: params.sortDirection ?? Schemas.SortDirection.Desc,
       status: params.status ?? null,
     });
   }
 
   static async getInterviewsByUserCount(
-    params: Schemas.GetInterviewsByUserCountRequest,
+    params: Schemas.GetInterviewsByUserCountRepoRequest,
   ) {
     return await InterviewDAL.getInterviewsCount({
       userId: params.userId,
@@ -31,6 +33,10 @@ class UserRepo {
       userId: params.userId,
       roleId: params.roleId,
     });
+  }
+
+  static async getInterviewsSummary(params: { userId: string }) {
+    return await InterviewDAL.getInterviewsSummary(params);
   }
 }
 

@@ -9,6 +9,10 @@ export const ZGetInterviewsByUserCountRequest = z.object({
 
 export type GetInterviewsByUserCountRequest = z.infer<
   typeof ZGetInterviewsByUserCountRequest
+>;
+
+export type GetInterviewsByUserCountRepoRequest = z.infer<
+  typeof ZGetInterviewsByUserCountRequest
 > & {
   userId: string;
 };
@@ -22,6 +26,10 @@ export const ZGetInterviewsByUserRequest =
   });
 
 export type GetInterviewsByUserRequest = z.infer<
+  typeof ZGetInterviewsByUserRequest
+>;
+
+export type GetInterviewsByUserRepoRequest = z.infer<
   typeof ZGetInterviewsByUserRequest
 > & {
   userId: string;

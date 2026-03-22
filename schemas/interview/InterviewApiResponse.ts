@@ -38,3 +38,12 @@ export interface GetInterviewChatsResponse extends ApiResponse {
 export interface CreateInterviewScorecardResponse extends ApiResponse {
   scorecard: InterviewScorecard | null;
 }
+
+export interface GetInterviewsSummaryResponse extends ApiResponse {
+  summary: {
+    totalCount: number;
+    completedCount: number;
+    inProgressCount: number;
+    abandonedCount: number;
+  } | null;
+}

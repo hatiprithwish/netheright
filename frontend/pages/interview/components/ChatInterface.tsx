@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { useRef, useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { useAuth } from "@/frontend/hooks/useAuth";
+import { useAuth } from "@/lib/next-auth/useAuth";
 
 interface ChatInterfaceProps {
   messages: any[];

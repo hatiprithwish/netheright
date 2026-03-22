@@ -15,7 +15,7 @@ import { RequirementsStep } from "./phases/requirements-gathering";
 import { BotECalculationStep } from "./phases/bote-calculations";
 import { HighLevelDesign } from "./phases/high-level-design";
 import { useInterviewChat } from "../../../hooks/useInterviewChat";
-import { useAuth } from "@/frontend/hooks/useAuth";
+import { useAuth } from "@/lib/next-auth/useAuth";
 
 export function InterviewInterface({
   sessionId,

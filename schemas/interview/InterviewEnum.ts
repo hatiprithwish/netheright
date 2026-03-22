@@ -124,7 +124,7 @@ export enum RedFlagTypeEnum {
 export enum InterviewSortColumn {
   Id = "id",
   Status = "status",
-  createdAt = "createdAt",
+  CreatedAt = "createdAt",
 }
 export const ZInterviewSortColumn = z.enum(InterviewSortColumn);
 

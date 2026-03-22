@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createInterviewSession } from "@/frontend/api/mutations";
 import { Loader2, ArrowRight, Clock } from "lucide-react";
 import { toast } from "sonner";
-import { useAuth } from "@/frontend/hooks/useAuth";
+import { useAuth } from "@/lib/next-auth/useAuth";
 import { Button } from "@/frontend/components/shadcn/button";
 import {
   Dialog,

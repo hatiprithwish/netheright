@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { routeWrapper } from "@/backend/middlewares/RouteWrapper";
 import { checkAuth } from "@/backend/middlewares/CheckAuth";
 import { validateRequestSchema } from "@/backend/middlewares/ValidateRequestSchema";
-import { auth } from "@/lib/next-auth";
 import UserRepo from "@/backend/repositories/UserRepo";
 import * as Schemas from "@/schemas";
 import type { Logger } from "@/lib/pino";
@@ -24,7 +23,7 @@ const getHandler = async (
 
 const postHandler = async (
   _req: NextRequest,
-  validatedBody: Schemas.GetInterviewsByUserRequest,
+  validatedBody: Schemas.GetInterviewsByUserRepoRequest,
   _logger: Logger,
   context: RouteContext,
 ): Promise<NextResponse> => {

@@ -1,7 +1,7 @@
 import useSWR from "swr";
 import { fetcher, apiClient } from "./apiClient";
 import * as Schemas from "@/schemas";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "../../lib/next-auth/useAuth";
 
 export const useGetInterview = (interviewId: string | null) => {
   const { currentUser } = useAuth();
@@ -37,7 +37,7 @@ export const useGetInterviewsByUser = (
     mutate: handleRefresh,
   } = useSWR<Schemas.GetInterviewsResponse>(
     cachedKey,
-    ([url, reqBody]: [string, Schemas.GetInterviewsByUserRequest]) =>
+    ([url, reqBody]: [string, Schemas.GetInterviewsByUserRepoRequest]) =>
       apiClient.post<Schemas.GetInterviewsResponse>(url, reqBody),
   );
 
@@ -63,6 +63,25 @@ export const useGetInterviewsByUserCount = (
     error,
     mutate: handleRefresh,
   } = useSWR<Schemas.TotalRecordsResponse>(cachedKey, fetcher);
+
+  return {
+    data,
+    error,
+    isLoading: !isDisabled && !error && !data,
+    handleRefresh,
+  };
+};
+
+export const useGetInterviewsSummary = () => {
+  const { currentUser } = useAuth();
+  const isDisabled = !currentUser;
+  const cachedKey = !isDisabled ? `/api/${currentUser?.id}/interviews/summary` : null;
+
+  const {
+    data,
+    error,
+    mutate: handleRefresh,
+  } = useSWR<Schemas.GetInterviewsSummaryResponse>(cachedKey, fetcher);
 
   return {
     data,
