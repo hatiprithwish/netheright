@@ -10,6 +10,7 @@ import {
 import { useRef, useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { useAuth } from "@/lib/next-auth/useAuth";
+import * as Schemas from "@/schemas";
 
 interface ChatInterfaceProps {
   messages: any[];
@@ -85,14 +86,14 @@ export function ChatInterface({
             <p className="text-sm text-muted-foreground">{subtitle}</p>
           )}
         </div>
-        {hasFeature("SKIP_INTV_PHASE") && onSkipPhase && (
+        {hasFeature(Schemas.FeatureEnum.SkipInterviewPhase) && onSkipPhase && (
           <button
             onClick={onSkipPhase}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:hover:bg-orange-900/50 rounded-md transition-colors border border-orange-200 dark:border-orange-800 cursor-pointer"
             title="Tester Feature: Skip to the next phase immediately"
           >
             <FastForward className="w-3.5 h-3.5" />
-            Skip Phase (Tester)
+            Skip Phase
           </button>
         )}
       </div>
@@ -107,107 +108,111 @@ export function ChatInterface({
               </div>
             )}
 
-        {messages.map((m) => (
-          <div
-            key={m.id}
-            className={`flex items-start gap-3 ${
-              m.role === "user" ? "flex-row-reverse" : ""
-            }`}
-          >
+        {messages.map((m) => {
+          const textParts = m.parts
+            ? (m.parts as any[]).filter((p) => p.type === "text")
+            : null;
+
+          // Skip messages that have no visible text (e.g. tool-only messages)
+          if (textParts && textParts.length === 0) return null;
+
+          return (
             <div
-              className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-sm ${
-                m.role === "user"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-card border border-border text-primary"
+              key={m.id}
+              className={`flex items-start gap-3 ${
+                m.role === "user" ? "flex-row-reverse" : ""
               }`}
             >
-              {m.role === "user" ? (
-                <User className="w-4 h-4" />
-              ) : (
-                <Bot className="w-4 h-4" />
-              )}
+              <div
+                className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-sm ${
+                  m.role === "user"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-card border border-border text-primary"
+                }`}
+              >
+                {m.role === "user" ? (
+                  <User className="w-4 h-4" />
+                ) : (
+                  <Bot className="w-4 h-4" />
+                )}
+              </div>
+              <div
+                className={`p-4 rounded-2xl max-w-[85%] text-sm leading-relaxed shadow-sm ${
+                  m.role === "user"
+                    ? "bg-primary text-primary-foreground rounded-tr-sm"
+                    : "bg-card border border-border text-foreground rounded-tl-sm"
+                }`}
+              >
+                {textParts ? (
+                  textParts.map((part: any, index: number) => (
+                    <ReactMarkdown
+                      key={index}
+                      components={{
+                        p: ({ children }) => (
+                          <p className="mb-2 last:mb-0 whitespace-pre-wrap">
+                            {children}
+                          </p>
+                        ),
+                        strong: ({ children }) => (
+                          <strong
+                            className={`font-bold ${
+                              m.role === "user"
+                                ? "text-primary-foreground"
+                                : "text-foreground"
+                            }`}
+                          >
+                            {children}
+                          </strong>
+                        ),
+                        ul: ({ children }) => (
+                          <ul className="list-disc list-inside mb-2 space-y-1">
+                            {children}
+                          </ul>
+                        ),
+                        ol: ({ children }) => (
+                          <ol className="list-decimal list-inside mb-2 space-y-1">
+                            {children}
+                          </ol>
+                        ),
+                        li: ({ children }) => (
+                          <li className="ml-2">{children}</li>
+                        ),
+                        code: ({ children }) => (
+                          <code
+                            className={`${
+                              m.role === "user"
+                                ? "bg-white/20 text-white"
+                                : "bg-muted text-foreground"
+                            } px-1.5 py-0.5 rounded text-xs font-mono`}
+                          >
+                            {children}
+                          </code>
+                        ),
+                        pre: ({ children }) => (
+                          <pre
+                            className={`${
+                              m.role === "user"
+                                ? "bg-black/20 text-white"
+                                : "bg-muted/50 text-foreground border border-border"
+                            } p-3 rounded-md overflow-x-auto mb-2`}
+                          >
+                            {children}
+                          </pre>
+                        ),
+                        br: () => <br />,
+                      }}
+                    >
+                      {part.text}
+                    </ReactMarkdown>
+                  ))
+                ) : (
+                  // Fallback for string content
+                  <p className="whitespace-pre-wrap">{m.content}</p>
+                )}
+              </div>
             </div>
-            <div
-              className={`p-4 rounded-2xl max-w-[85%] text-sm leading-relaxed shadow-sm ${
-                m.role === "user"
-                  ? "bg-primary text-primary-foreground rounded-tr-sm"
-                  : "bg-card border border-border text-foreground rounded-tl-sm"
-              }`}
-            >
-              {m.parts ? (
-                m.parts.map((part: any, index: number) => {
-                  if (part.type === "text") {
-                    return (
-                      <ReactMarkdown
-                        key={index}
-                        components={{
-                          p: ({ children }) => (
-                            <p className="mb-2 last:mb-0 whitespace-pre-wrap">
-                              {children}
-                            </p>
-                          ),
-                          strong: ({ children }) => (
-                            <strong
-                              className={`font-bold ${
-                                m.role === "user"
-                                  ? "text-primary-foreground"
-                                  : "text-foreground"
-                              }`}
-                            >
-                              {children}
-                            </strong>
-                          ),
-                          ul: ({ children }) => (
-                            <ul className="list-disc list-inside mb-2 space-y-1">
-                              {children}
-                            </ul>
-                          ),
-                          ol: ({ children }) => (
-                            <ol className="list-decimal list-inside mb-2 space-y-1">
-                              {children}
-                            </ol>
-                          ),
-                          li: ({ children }) => (
-                            <li className="ml-2">{children}</li>
-                          ),
-                          code: ({ children }) => (
-                            <code
-                              className={`${
-                                m.role === "user"
-                                  ? "bg-white/20 text-white"
-                                  : "bg-muted text-foreground"
-                              } px-1.5 py-0.5 rounded text-xs font-mono`}
-                            >
-                              {children}
-                            </code>
-                          ),
-                          pre: ({ children }) => (
-                            <pre
-                              className={`${
-                                m.role === "user"
-                                  ? "bg-black/20 text-white"
-                                  : "bg-muted/50 text-foreground border border-border"
-                              } p-3 rounded-md overflow-x-auto mb-2`}
-                            >
-                              {children}
-                            </pre>
-                          ),
-                          br: () => <br />,
-                        }}
-                      >
-                        {part.text}
-                      </ReactMarkdown>
-                    );
-                  }
-                  return null;
-                })
-              ) : (
-                // Fallback for string content
-                <p className="whitespace-pre-wrap">{m.content}</p>
-              )}
-            </div>
-          </div>
-        ))}
+          );
+        })}
 
         {/* Typing Indicator */}
         {isLoading && (

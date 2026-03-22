@@ -24,7 +24,7 @@ class UserDAL {
       }
 
       const isUserIdValid = await neonDBClient.query.users.findFirst({
-        where: (users, { eq }) => eq(users.id, params.roleId),
+        where: (users, { eq }) => eq(users.id, params.userId),
       });
       if (!isUserIdValid) {
         Log.error({

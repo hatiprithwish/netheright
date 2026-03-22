@@ -64,7 +64,7 @@ function DashboardPage() {
               <h1 className="text-3xl font-bold text-foreground">
                 Welcome back, {currentUser?.name?.split(" ")[0]}!
               </h1>
-              <p className="text-muted-foreground">{currentUser?.email}</p>
+              <p className="text-muted-foreground">{currentUser?.roleName}</p>
             </div>
           </div>
           <div className="flex items-center gap-3 w-full sm:w-auto">

@@ -66,18 +66,25 @@ export function useInterviewChat({
     const lastMessage = messages[messages.length - 1];
 
     if (lastMessage.role !== "assistant") return;
-    lastMessage.parts.forEach((part) => {
+    lastMessage.parts.forEach((part: any) => {
       // Handle phase transition
-      if (part.type === "tool-transitionToPhase" && part.output) {
+      if (
+        part.type === "tool-transitionToPhase" &&
+        part.state === "output-available" &&
+        part.output
+      ) {
         const result = part.output as { newPhase: number; status: string };
-
         if (result.newPhase && result.newPhase !== phase) {
           setPendingPhaseTransition(result.newPhase);
         }
       }
 
       // Handle interview completion
-      if (part.type === "tool-endInterview" && part.output) {
+      if (
+        part.type === "tool-endInterview" &&
+        part.state === "output-available" &&
+        part.output
+      ) {
         const result = part.output as { status: string };
         if (result.status === "interview_completed") {
           onCompleted?.();

@@ -142,19 +142,18 @@ class InterviewRepo {
           description: "Call this when the interview is complete.",
           inputSchema: z.object({}),
           execute: async () => {
-            try {
-              const response = await InterviewRepo.generateAndSaveScorecard(
-                params.interviewId,
-              );
-              return {
-                status: response.isSuccess
-                  ? "interview_completed"
-                  : "interview_failed",
-              };
-            } catch (error) {
-              Log.error({ error }, "Failed to generate or save scorecard");
-              return { status: "interview_failed" };
-            }
+            await InterviewDAL.updateInterview({
+              interviewId: params.interviewId,
+              status: Schemas.InterviewStatusIntEnum.Completed,
+              phase: null,
+            });
+
+            InterviewRepo.generateAndSaveScorecard(params.interviewId).catch(
+              (error) =>
+                Log.error({ error }, "Failed to generate or save scorecard"),
+            );
+
+            return { status: "interview_completed" };
           },
         }),
       },

@@ -308,27 +308,20 @@ class InterviewDAL {
       scorecard: null,
     };
     try {
-      const [result] = await neonDBClient.transaction(async (tx) => {
-        await tx
-          .update(interviews)
-          .set({ status: Schemas.InterviewStatusIntEnum.Completed })
-          .where(eq(interviews.id, params.interviewId));
-
-        return tx
-          .insert(scorecards)
-          .values({
-            interview_id: params.interviewId,
-            overall_grade: params.overallGrade,
-            requirements_gathering: params.requirementsGathering,
-            data_modeling: params.dataModeling,
-            trade_off_analysis: params.tradeOffAnalysis,
-            scalability: params.scalability,
-            strengths: params.strengths,
-            growth_areas: params.growthAreas,
-            actionable_feedback: params.actionableFeedback,
-          })
-          .returning();
-      });
+      const [result] = await neonDBClient
+        .insert(scorecards)
+        .values({
+          interview_id: params.interviewId,
+          overall_grade: params.overallGrade,
+          requirements_gathering: params.requirementsGathering,
+          data_modeling: params.dataModeling,
+          trade_off_analysis: params.tradeOffAnalysis,
+          scalability: params.scalability,
+          strengths: params.strengths,
+          growth_areas: params.growthAreas,
+          actionable_feedback: params.actionableFeedback,
+        })
+        .returning();
 
       response.scorecard = {
         overallGrade: result.overall_grade,
