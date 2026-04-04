@@ -1,6 +1,6 @@
 // DONE_PRITH
 import neonDBClient from "@/lib/neon-db";
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ne, sql } from "drizzle-orm";
 import {
   interview_chats,
   interviews,
@@ -141,6 +141,9 @@ class InterviewDAL {
         .where(() => {
           const conditions = [];
           conditions.push(eq(interviews.user_id, params.userId));
+          conditions.push(
+            ne(interviews.status, Schemas.InterviewStatusIntEnum.Deleted),
+          );
           if (params.status) {
             conditions.push(eq(interviews.status, params.status));
           }
@@ -365,6 +368,12 @@ class InterviewDAL {
           strengths: scorecards.strengths,
           growthAreas: scorecards.growth_areas,
           actionableFeedback: scorecards.actionable_feedback,
+          interviewStatusLabel: sql<Schemas.InterviewStatusLabelEnum>`CASE
+            WHEN ${interviews.status} = ${Schemas.InterviewStatusIntEnum.Completed} THEN ${Schemas.InterviewStatusLabelEnum.Completed}
+            WHEN ${interviews.status} = ${Schemas.InterviewStatusIntEnum.Abandoned} THEN ${Schemas.InterviewStatusLabelEnum.Abandoned}
+            WHEN ${interviews.status} = ${Schemas.InterviewStatusIntEnum.Deleted} THEN ${Schemas.InterviewStatusLabelEnum.Deleted}
+            ELSE ${Schemas.InterviewStatusLabelEnum.Active}
+            END`,
         })
         .from(scorecards)
         .innerJoin(interviews, eq(scorecards.interview_id, interviews.id))

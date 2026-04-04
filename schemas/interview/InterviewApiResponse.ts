@@ -1,6 +1,5 @@
 import { ApiResponse } from "../common";
 import { Interview, InterviewScorecard } from "./InterviewCommon";
-import { z } from "zod";
 import { ChatRoleLabelEnum } from "./InterviewEnum";
 
 export interface CreateInterviewResponse extends ApiResponse {

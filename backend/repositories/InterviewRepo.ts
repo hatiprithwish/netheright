@@ -79,18 +79,18 @@ class InterviewRepo {
 
     const scorecardResult = await generateText({
       model: gemini("gemini-2.5-flash"),
-      output: Output.object({ schema: Schemas.ZInterviewScorecard }),
+      output: Output.object({ schema: Schemas.ZLLMGeneratedScorecard }),
       prompt: Constants.scoreCardPrompt({ conversationHistory }),
     });
 
     const scorecard = scorecardResult.output;
     return await InterviewDAL.createInterviewScorecard({
       interviewId,
-      overallGrade: scorecard.overallGrade,
-      requirementsGathering: scorecard.categories.requirementsGathering,
-      dataModeling: scorecard.categories.dataModeling,
-      tradeOffAnalysis: scorecard.categories.tradeOffAnalysis,
-      scalability: scorecard.categories.scalability,
+      overallGrade: Schemas.interviewGradeLabelToInt[scorecard.overallGrade] ?? Schemas.InterviewGradeIntEnum.F,
+      requirementsGathering: Schemas.interviewGradeLabelToInt[scorecard.categories.requirementsGathering] ?? Schemas.InterviewGradeIntEnum.F,
+      dataModeling: Schemas.interviewGradeLabelToInt[scorecard.categories.dataModeling] ?? Schemas.InterviewGradeIntEnum.F,
+      tradeOffAnalysis: Schemas.interviewGradeLabelToInt[scorecard.categories.tradeOffAnalysis] ?? Schemas.InterviewGradeIntEnum.F,
+      scalability: Schemas.interviewGradeLabelToInt[scorecard.categories.scalability] ?? Schemas.InterviewGradeIntEnum.F,
       strengths: scorecard.strengths,
       growthAreas: scorecard.growthAreas,
       actionableFeedback: scorecard.actionableFeedback,

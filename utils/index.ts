@@ -1,5 +1,7 @@
 import type { Node, Edge } from "@xyflow/react";
 import * as Schemas from "@/schemas";
+import Constants from "@/constants";
+import dayjs from "dayjs";
 
 class Utilities {
   static sanitizeGraph(nodes: Node[], edges: Edge[]): Schemas.SanitizedGraph {
@@ -52,6 +54,14 @@ class Utilities {
       default:
         return "text-gray-700 bg-gray-50 border border-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:border-gray-700";
     }
+  };
+
+  static formatDate = (
+    date?: string | null,
+    format: string = Constants.DEFAULT_DATE_FORMAT,
+  ) => {
+    if (!date) return date;
+    return dayjs(date).format(format);
   };
 }
 

@@ -3,9 +3,8 @@
 import { useGetInterview } from "@/frontend/api/cachedQueries";
 import * as Schemas from "@/schemas";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
-import { InterviewCompletionScreen } from "./components/InterviewCompletionScreen";
-import { InterviewInterface } from "./components/InterviewInterface";
+import { useCallback, useEffect } from "react";
+import { InterviewInterface } from "./InterviewInterface";
 
 export default function InterviewPage({
   problemId,
@@ -30,12 +29,16 @@ export default function InterviewPage({
     : (session?.currentPhase ??
       Schemas.InterviewPhaseIntEnum.RequirementsGathering);
 
-  const handlePhaseChange = (newPhase: number) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("phase", String(newPhase));
-    router.push(`?${params.toString()}`);
-    mutate();
-  };
+  const handlePhaseChange = useCallback(
+    (newPhase: number) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("phase", String(newPhase));
+      router.push(`?${params.toString()}`);
+      mutate();
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [searchParams],
+  );
 
   // Sync URL with phase if missing
   useEffect(() => {
@@ -58,10 +61,6 @@ export default function InterviewPage({
         <div className="text-slate-600">Interview not found</div>
       </div>
     );
-  }
-
-  if (session.status === Schemas.InterviewStatusIntEnum.Completed) {
-    return <InterviewCompletionScreen />;
   }
 
   return (

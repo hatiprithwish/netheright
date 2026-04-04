@@ -1,7 +1,7 @@
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import * as Schemas from "@/schemas";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Constants from "@/constants";
 import { updateInterviewSessionStatus } from "@/frontend/api/mutations";
 
@@ -60,6 +60,13 @@ export function useInterviewChat({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase]);
 
+  const onPhaseTransitionRef = useRef(onPhaseTransition);
+  const onCompletedRef = useRef(onCompleted);
+  useEffect(() => {
+    onPhaseTransitionRef.current = onPhaseTransition;
+    onCompletedRef.current = onCompleted;
+  });
+
   useEffect(() => {
     if (!messages || messages.length === 0) return;
 
@@ -87,11 +94,11 @@ export function useInterviewChat({
       ) {
         const result = part.output as { status: string };
         if (result.status === "interview_completed") {
-          onCompleted?.();
+          onCompletedRef.current?.();
         }
       }
     });
-  }, [messages, phase, onCompleted]);
+  }, [messages, phase]);
 
   const confirmTransition = () => {
     if (pendingPhaseTransition !== null) {

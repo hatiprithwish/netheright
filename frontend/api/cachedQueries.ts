@@ -93,7 +93,7 @@ export const useGetInterviewsSummary = () => {
 
 export const useGetInterviewFeedbackDetails = (sessionId: string | null) => {
   const isDisabled = !sessionId;
-  const cachedKey = !isDisabled ? `/api/interview/${sessionId}/feedback` : null;
+  const cachedKey = !isDisabled ? `/api/interview/${sessionId}/scorecard` : null;
 
   const {
     data,

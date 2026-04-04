@@ -1,16 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2, Loader2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import * as Schemas from "@/schemas";
 import { deleteInterview } from "@/frontend/api/mutations";
 import { GradeBadge } from "./GradeBadge";
-import { FeedbackModal } from "./FeedbackModal";
 import { AppTable } from "@/frontend/components/app-table";
 import { AppTablePagination } from "@/frontend/components/app-table/AppTablePagination";
 import { AppTableColumn } from "@/frontend/components/app-table/AppTable.types";
 import { cn } from "@/lib/utils";
 import Utilities from "@/utils";
+import { useRouter } from "next/navigation";
+import { Button } from "@/frontend/components/shadcn/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/frontend/components/shadcn/tooltip";
+import { ConfirmationModal } from "@/frontend/components/ConfirmationModal";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -48,18 +55,9 @@ function InterviewHistoryTable({
   onDeleteSuccess,
   onRefresh,
 }: InterviewHistoryTableProps) {
-  const [feedbackSessionId, setFeedbackSessionId] = useState<string | null>(
-    null,
-  );
+  const router = useRouter();
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-
-  const formatDate = (dateString: string) =>
-    new Date(dateString).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
 
   const formatShortId = (id: string) => id.slice(-8).toUpperCase();
 
@@ -136,7 +134,7 @@ function InterviewHistoryTable({
       sortKey: Schemas.InterviewSortColumn.CreatedAt,
       cell: (row) => (
         <span className="whitespace-nowrap text-muted-foreground">
-          {row.createdAt ? formatDate(row.createdAt.toString()) : "—"}
+          {row.createdAt ? Utilities.formatDate(row.createdAt.toString()) : "—"}
         </span>
       ),
     },
@@ -144,16 +142,22 @@ function InterviewHistoryTable({
       key: "actions",
       header: "Actions",
       cell: (row) => (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setDeleteTargetId(row.id);
-          }}
-          className="cursor-pointer rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-          title="Delete"
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-        </button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              onClick={(e) => {
+                e.stopPropagation();
+                setDeleteTargetId(row.id);
+              }}
+              className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+            >
+              <Trash2 />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Delete Interview</TooltipContent>
+        </Tooltip>
       ),
     },
   ];
@@ -166,14 +170,11 @@ function InterviewHistoryTable({
         keyExtractor={(row) => row.id}
         isLoading={isLoading}
         skeletonRows={ITEMS_PER_PAGE}
-        // emptyState={EMPTY_STATE}
         sortBy={sortBy}
         sortOrder={sortOrder}
         onSort={handleSort}
         onRowClick={(row) => {
-          if (row.overallGrade) {
-            setFeedbackSessionId(row.id);
-          }
+          router.push(`/feedback/${row.id}`);
         }}
         getRowClassName={(row) =>
           row.overallGrade ? "cursor-pointer" : "cursor-default"
@@ -192,49 +193,17 @@ function InterviewHistoryTable({
         showJumpButtons
       />
 
-      {/* Delete Confirmation Dialog */}
-      {deleteTargetId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="mx-4 w-full max-w-md rounded-xl border border-border bg-card p-6 text-card-foreground shadow-xl">
-            <h3 className="mb-2 text-lg font-semibold">Delete Interview?</h3>
-            <p className="mb-6 text-muted-foreground">
-              Are you sure you want to delete this interview? This action cannot
-              be undone.
-            </p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setDeleteTargetId(null)}
-                disabled={isDeleting}
-                className="cursor-pointer rounded-lg bg-secondary px-4 py-2 font-medium text-secondary-foreground transition-colors hover:bg-secondary/80 disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDelete}
-                disabled={isDeleting}
-                className="flex cursor-pointer items-center gap-2 rounded-lg bg-destructive px-4 py-2 font-medium text-white transition-colors hover:bg-destructive/90 disabled:opacity-50"
-              >
-                {isDeleting ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Deleting...
-                  </>
-                ) : (
-                  "Delete"
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Feedback Modal */}
-      {feedbackSessionId && (
-        <FeedbackModal
-          sessionId={feedbackSessionId}
-          onClose={() => setFeedbackSessionId(null)}
-        />
-      )}
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        open={!!deleteTargetId}
+        onOpenChange={(open) => !open && setDeleteTargetId(null)}
+        title="Delete Interview?"
+        description="Are you sure you want to delete this interview? This action cannot be undone."
+        confirmText="Delete"
+        onConfirm={handleDelete}
+        isLoading={isDeleting}
+        variant="destructive"
+      />
     </>
   );
 }

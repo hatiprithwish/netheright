@@ -6,6 +6,8 @@ import {
   InterviewStatusLabelEnum,
   InterviewGradeIntEnum,
   ZInterviewGradeIntEnum,
+  ZInterviewStatusLabelEnum,
+  ZInterviewGradeLabelEnum,
 } from "./InterviewEnum";
 import { z } from "zod";
 
@@ -35,9 +37,25 @@ export const ZInterviewScorecard = z.object({
   strengths: z.array(z.string()),
   growthAreas: z.array(z.string()),
   actionableFeedback: z.string(),
+  interviewStatusLabel: ZInterviewStatusLabelEnum.nullable().optional(),
 });
 
 export type InterviewScorecard = z.infer<typeof ZInterviewScorecard>;
+
+export const ZLLMGeneratedScorecard = z.object({
+  overallGrade: ZInterviewGradeLabelEnum,
+  categories: z.object({
+    requirementsGathering: ZInterviewGradeLabelEnum,
+    dataModeling: ZInterviewGradeLabelEnum,
+    tradeOffAnalysis: ZInterviewGradeLabelEnum,
+    scalability: ZInterviewGradeLabelEnum,
+  }),
+  strengths: z.array(z.string()),
+  growthAreas: z.array(z.string()),
+  actionableFeedback: z.string(),
+});
+
+export type LLMGeneratedScorecard = z.infer<typeof ZLLMGeneratedScorecard>;
 
 export const ZAiMessage = z.object({
   id: z.string(),

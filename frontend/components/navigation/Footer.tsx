@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Code2 } from "lucide-react";
+import dayjs from "dayjs";
 
 export default function Footer() {
   return (
@@ -90,7 +91,7 @@ export default function Footer() {
         </div>
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border/40 pt-8 sm:flex-row">
           <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} Netheright. All rights reserved.
+            &copy; {dayjs().year()} Netheright. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
             <a

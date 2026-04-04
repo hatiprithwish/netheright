@@ -11,6 +11,12 @@ import { useRef, useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { useAuth } from "@/lib/next-auth/useAuth";
 import * as Schemas from "@/schemas";
+import { Button } from "@/frontend/components/shadcn/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/frontend/components/shadcn/tooltip";
 
 interface ChatInterfaceProps {
   messages: any[];
@@ -87,14 +93,22 @@ export function ChatInterface({
           )}
         </div>
         {hasFeature(Schemas.FeatureEnum.SkipInterviewPhase) && onSkipPhase && (
-          <button
-            onClick={onSkipPhase}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:hover:bg-orange-900/50 rounded-md transition-colors border border-orange-200 dark:border-orange-800 cursor-pointer"
-            title="Tester Feature: Skip to the next phase immediately"
-          >
-            <FastForward className="w-3.5 h-3.5" />
-            Skip Phase
-          </button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="xs"
+                onClick={onSkipPhase}
+                className="bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:hover:bg-orange-900/50 border-orange-200 dark:border-orange-800 font-semibold"
+              >
+                <FastForward className="w-3.5 h-3.5" />
+                Skip Phase
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              Tester Feature: Skip to the next phase immediately
+            </TooltipContent>
+          </Tooltip>
         )}
       </div>
 
@@ -234,13 +248,13 @@ export function ChatInterface({
         pendingPhaseTransition !== undefined &&
         onConfirmTransition && (
           <div className="px-4 py-3 bg-blue-50 dark:bg-blue-950/20 border-t border-blue-200 dark:border-blue-900/50">
-            <button
+            <Button
               onClick={onConfirmTransition}
-              className="w-full cursor-pointer bg-primary text-primary-foreground px-4 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+              className="w-full py-6 text-base shadow-md hover:shadow-lg font-bold"
             >
               <span>Continue to Next Phase</span>
               <ChevronRightIcon className="w-4 h-4" />
-            </button>
+            </Button>
           </div>
         )}
 
@@ -260,13 +274,13 @@ export function ChatInterface({
               disabled={isInputDisabled}
               rows={1}
             />
-            <button
+            <Button
               type="submit"
-              className="bg-primary cursor-pointer text-primary-foreground px-3 py-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors"
+              size="icon"
               disabled={isInputDisabled || !input.trim() || isLoading}
             >
               <SendIcon className="w-4 h-4" />
-            </button>
+            </Button>
           </form>
         </div>
       )}

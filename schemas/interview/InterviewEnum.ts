@@ -77,6 +77,33 @@ export enum InterviewGradeIntEnum {
 }
 export const ZInterviewGradeIntEnum = z.enum(InterviewGradeIntEnum);
 
+export enum InterviewGradeLabelEnum {
+  F = "F",
+  C = "C",
+  B = "B",
+  A = "A",
+  S = "S",
+}
+
+export const ZInterviewGradeLabelEnum = z.enum([
+  InterviewGradeLabelEnum.F,
+  InterviewGradeLabelEnum.C,
+  InterviewGradeLabelEnum.B,
+  InterviewGradeLabelEnum.A,
+  InterviewGradeLabelEnum.S,
+]);
+
+export const interviewGradeLabelToInt: Record<
+  InterviewGradeLabelEnum,
+  InterviewGradeIntEnum
+> = {
+  [InterviewGradeLabelEnum.F]: InterviewGradeIntEnum.F,
+  [InterviewGradeLabelEnum.C]: InterviewGradeIntEnum.C,
+  [InterviewGradeLabelEnum.B]: InterviewGradeIntEnum.B,
+  [InterviewGradeLabelEnum.A]: InterviewGradeIntEnum.A,
+  [InterviewGradeLabelEnum.S]: InterviewGradeIntEnum.S,
+};
+
 export enum InterviewStatusIntEnum {
   Active = 1,
   Completed = 2,
@@ -91,6 +118,7 @@ export enum InterviewStatusLabelEnum {
   Abandoned = "Abandoned",
   Deleted = "Deleted",
 }
+export const ZInterviewStatusLabelEnum = z.enum(InterviewStatusLabelEnum);
 
 export const interviewStatusLabelToInt: Record<
   InterviewStatusLabelEnum,

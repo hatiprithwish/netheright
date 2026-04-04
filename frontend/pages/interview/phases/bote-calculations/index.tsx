@@ -1,9 +1,9 @@
 "use client";
 
-import { ChatInterface } from "../../ChatInterface";
+import { ChatInterface } from "../../../ChatInterface";
 import { InterviewPhaseProps } from "../../../utils";
 
-export function RequirementsStep({
+export function BotECalculationStep({
   messages,
   sendMessage,
   isLoading,
@@ -14,21 +14,18 @@ export function RequirementsStep({
   return (
     <div className="h-full max-w-4xl mx-auto flex flex-col">
       <ChatInterface
-        title="Phase 1: Requirements Gathering"
-        subtitle="Ask questions to clarify the problem scope."
+        title="Phase 2: Back-of-the-Envelope Calculations"
+        subtitle="Estimate system scale and resource requirements."
         messages={messages}
         onSendMessage={(text) => sendMessage({ text })}
         isLoading={isLoading}
-        placeholder="Asking clarifying questions..."
+        placeholder="Share your calculations..."
         pendingPhaseTransition={pendingPhaseTransition}
         onConfirmTransition={onConfirmTransition}
         onSkipPhase={onSkipPhase}
         emptyState={
           <div className="text-center text-muted-foreground py-10">
-            <p>
-              Start the discussion by greeting the interviewer or asking about
-              the requirements.
-            </p>
+            <p>Start by estimating the scale of the system.</p>
           </div>
         }
       />

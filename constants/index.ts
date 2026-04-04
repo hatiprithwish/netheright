@@ -190,6 +190,7 @@ class Constants {
   static readonly DEFAULT_CACHE_KEY_TTL = 60 * 60; // 60 minutes
   static readonly DEFAULT_PAGE_NO = 1;
   static readonly DEFAULT_PAGE_SIZE = 10;
+  static readonly DEFAULT_DATE_FORMAT = "MMM D, YYYY";
 }
 
 export default Constants;
