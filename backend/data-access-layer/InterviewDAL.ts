@@ -1,13 +1,14 @@
-import { db } from "@/backend/db";
-import { eq, sql } from "drizzle-orm";
+// DONE_PRITH
+import neonDBClient from "@/lib/neon-db";
+import { and, asc, desc, eq, ne, sql } from "drizzle-orm";
 import {
+  interview_chats,
   interviews,
-  aiChats,
-  redFlags,
-  sdiProblems,
-  sdiScorecards,
-} from "@/backend/db/models";
+  problems,
+  scorecards,
+} from "@/backend/db/tables";
 import * as Schemas from "@/schemas";
+import Log from "@/lib/pino/Log";
 
 class InterviewDAL {
   static async createInterview(params: Schemas.CreateInterviewSqlRequest) {
@@ -17,40 +18,105 @@ class InterviewDAL {
       interview: null,
     };
     try {
-      const [interview] = await db
+      const [interview] = await neonDBClient
         .insert(interviews)
         .values({
-          userId: params.userId,
-          problemId: params.problemId,
+          user_id: params.userId,
+          problem_id: params.problemId,
           status: Schemas.InterviewStatusIntEnum.Active,
-          currentPhase: Schemas.InterviewPhaseIntEnum.RequirementsGathering,
+          phase: Schemas.InterviewPhaseIntEnum.RequirementsGathering,
         })
-        .returning();
+        .returning({ id: interviews.id });
 
-      const interviewDetails = await this.getInterview(interview.id);
+      const interviewDetailsResponse = await this.getInterview({
+        interviewId: interview.id,
+      });
 
-      response.interview = interviewDetails.interview;
+      response.interview = interviewDetailsResponse.interview;
       response.isSuccess = true;
       response.message = "Interview session created successfully";
     } catch (error) {
-      console.log(error);
+      Log.error({
+        err: error,
+        msg: "Unknown error occured while creating interview",
+      });
+      response.isSuccess = false;
+      response.message = "Failed to create interview";
     }
     return response;
   }
 
-  static async getInterview(sessionId: string) {
+  static async getInterview(params: Schemas.GetInterviewSqlRequest) {
     const response: Schemas.GetInterviewResponse = {
       isSuccess: true,
-      message: "",
+      message: "Interview session fetched successfully",
       interview: null,
     };
     try {
-      const [session] = await db
+      const result = await neonDBClient
         .select({
           id: interviews.id,
-          userId: interviews.userId,
-          problemId: interviews.problemId,
-          problemTitle: sdiProblems.title,
+          userId: interviews.user_id,
+          problemId: interviews.problem_id,
+          problemTitle: problems.title,
+          status: interviews.status,
+          isTest: interviews.is_test,
+          statusLabel: sql<Schemas.InterviewStatusLabelEnum>`CASE
+            WHEN ${interviews.status} = ${Schemas.InterviewStatusIntEnum.Completed} THEN ${Schemas.InterviewStatusLabelEnum.Completed}
+            WHEN ${interviews.status} = ${Schemas.InterviewStatusIntEnum.Abandoned} THEN ${Schemas.InterviewStatusLabelEnum.Abandoned}
+            WHEN ${interviews.status} = ${Schemas.InterviewStatusIntEnum.Deleted} THEN ${Schemas.InterviewStatusLabelEnum.Deleted}
+            ELSE ${Schemas.InterviewStatusLabelEnum.Active}
+            END`,
+          currentPhase: interviews.phase,
+          currentPhaseLabel: sql<Schemas.InterviewPhaseLabelEnum>`CASE
+            WHEN ${interviews.phase} = ${Schemas.InterviewPhaseIntEnum.BotECalculation} THEN ${Schemas.InterviewPhaseLabelEnum.BotECalculation}
+            WHEN ${interviews.phase} = ${Schemas.InterviewPhaseIntEnum.HighLevelDesign} THEN ${Schemas.InterviewPhaseLabelEnum.HighLevelDesign}
+            WHEN ${interviews.phase} = ${Schemas.InterviewPhaseIntEnum.ComponentDeepDive} THEN ${Schemas.InterviewPhaseLabelEnum.ComponentDeepDive}
+            WHEN ${interviews.phase} = ${Schemas.InterviewPhaseIntEnum.BottlenecksDiscussion} THEN ${Schemas.InterviewPhaseLabelEnum.BottlenecksDiscussion}
+            ELSE ${Schemas.InterviewPhaseLabelEnum.RequirementsGathering}
+            END`,
+          createdAt: interviews.created_at,
+        })
+        .from(interviews)
+        .innerJoin(problems, eq(interviews.problem_id, problems.id))
+        .where(eq(interviews.id, params.interviewId))
+        .limit(1);
+
+      response.interview = result[0];
+    } catch (error) {
+      Log.error({
+        err: error,
+        msg: "Unknown error occured while fetching interview session",
+      });
+      response.isSuccess = false;
+      response.message = "Failed to fetch interview session";
+    }
+    return response;
+  }
+
+  static async getInterviews(params: Schemas.GetInterviewsSqlRequest) {
+    const response: Schemas.GetInterviewsResponse = {
+      isSuccess: true,
+      message: "Successfully fetched interviews",
+      interviews: [],
+    };
+    try {
+      const sortColumnMap = {
+        [Schemas.InterviewSortColumn.Id]: interviews.id,
+        [Schemas.InterviewSortColumn.Status]: interviews.status,
+        [Schemas.InterviewSortColumn.CreatedAt]: interviews.created_at,
+      };
+      const sortCol = sortColumnMap[params.sortColumn] ?? interviews.created_at;
+      const orderExpr =
+        params.sortDirection === "desc" ? desc(sortCol) : asc(sortCol);
+      const offset = (params.pageNo - 1) * params.pageSize;
+
+      const result = await neonDBClient
+        .select({
+          id: interviews.id,
+          problemId: interviews.problem_id,
+          problemTitle: problems.title,
+          userId: interviews.user_id,
           status: interviews.status,
           statusLabel: sql<Schemas.InterviewStatusLabelEnum>`CASE
             WHEN ${interviews.status} = ${Schemas.InterviewStatusIntEnum.Completed} THEN ${Schemas.InterviewStatusLabelEnum.Completed}
@@ -58,176 +124,340 @@ class InterviewDAL {
             WHEN ${interviews.status} = ${Schemas.InterviewStatusIntEnum.Deleted} THEN ${Schemas.InterviewStatusLabelEnum.Deleted}
             ELSE ${Schemas.InterviewStatusLabelEnum.Active}
             END`,
-          currentPhase: interviews.currentPhase,
+          currentPhase: interviews.phase,
           currentPhaseLabel: sql<Schemas.InterviewPhaseLabelEnum>`CASE
-            WHEN ${interviews.currentPhase} = ${Schemas.InterviewPhaseIntEnum.BotECalculation} THEN ${Schemas.InterviewPhaseLabelEnum.BotECalculation}
-            WHEN ${interviews.currentPhase} = ${Schemas.InterviewPhaseIntEnum.HighLevelDesign} THEN ${Schemas.InterviewPhaseLabelEnum.HighLevelDesign}
-            WHEN ${interviews.currentPhase} = ${Schemas.InterviewPhaseIntEnum.ComponentDeepDive} THEN ${Schemas.InterviewPhaseLabelEnum.ComponentDeepDive}
-            WHEN ${interviews.currentPhase} = ${Schemas.InterviewPhaseIntEnum.BottlenecksDiscussion} THEN ${Schemas.InterviewPhaseLabelEnum.BottlenecksDiscussion}
+            WHEN ${interviews.phase} = ${Schemas.InterviewPhaseIntEnum.BotECalculation} THEN ${Schemas.InterviewPhaseLabelEnum.BotECalculation}
+            WHEN ${interviews.phase} = ${Schemas.InterviewPhaseIntEnum.HighLevelDesign} THEN ${Schemas.InterviewPhaseLabelEnum.HighLevelDesign}
+            WHEN ${interviews.phase} = ${Schemas.InterviewPhaseIntEnum.ComponentDeepDive} THEN ${Schemas.InterviewPhaseLabelEnum.ComponentDeepDive}
+            WHEN ${interviews.phase} = ${Schemas.InterviewPhaseIntEnum.BottlenecksDiscussion} THEN ${Schemas.InterviewPhaseLabelEnum.BottlenecksDiscussion}
             ELSE ${Schemas.InterviewPhaseLabelEnum.RequirementsGathering}
             END`,
-          createdAt: interviews.createdAt,
+          overallGrade: scorecards.overall_grade,
+          createdAt: interviews.created_at,
         })
         .from(interviews)
-        .leftJoin(sdiProblems, eq(interviews.problemId, sdiProblems.id))
-        .where(eq(interviews.id, sessionId));
+        .innerJoin(problems, eq(interviews.problem_id, problems.id))
+        .leftJoin(scorecards, eq(interviews.id, scorecards.interview_id))
+        .where(() => {
+          const conditions = [];
+          conditions.push(eq(interviews.user_id, params.userId));
+          conditions.push(
+            ne(interviews.status, Schemas.InterviewStatusIntEnum.Deleted),
+          );
+          if (params.status) {
+            conditions.push(eq(interviews.status, params.status));
+          }
+          return and(...conditions);
+        })
+        .orderBy(orderExpr)
+        .limit(params.pageSize)
+        .offset(offset);
 
-      response.interview = {
-        ...session,
-        problemTitle: session.problemTitle ?? "Unknown Problem",
-        createdAt: session.createdAt.toISOString(),
-      };
-
-      response.message = "Interview session fetched successfully";
+      response.interviews = result.map((r) => ({
+        ...r,
+        startTime: r.createdAt,
+      })) as any;
     } catch (error) {
+      Log.error({
+        err: error,
+        msg: "Unknown error occured while fetching interviews",
+      });
       response.isSuccess = false;
-      response.message = "Failed to fetch interview session";
+      response.message = "Failed to fetch interviews";
     }
     return response;
   }
 
-  static async updateInterviewPhase(
-    sessionId: string,
-    phase: Schemas.InterviewPhaseIntEnum,
+  static async getInterviewsCount(
+    params: Schemas.GetInterviewsCountSqlRequest,
   ) {
-    const [updated] = await db
-      .update(interviews)
-      .set({ currentPhase: phase })
-      .where(eq(interviews.id, sessionId))
-      .returning();
-    return updated;
+    const response: Schemas.TotalRecordsResponse = {
+      totalRecords: 0,
+      isSuccess: true,
+      message: "Successfully fetched interviews count",
+    };
+    try {
+      const result = await neonDBClient
+        .select({ count: sql<number>`count(*)` })
+        .from(interviews)
+        .innerJoin(problems, eq(interviews.problem_id, problems.id))
+        .where(() => {
+          const conditions = [];
+          conditions.push(eq(interviews.user_id, params.userId));
+          if (params.status) {
+            conditions.push(eq(interviews.status, params.status));
+          }
+          return and(...conditions);
+        });
+      response.totalRecords = result[0].count;
+    } catch (error) {
+      Log.error({
+        err: error,
+        msg: "Unknown error occured while fetching interviews count",
+      });
+      response.isSuccess = false;
+      response.message = "Failed to fetch interviews count";
+    }
+    return response;
   }
 
-  static async createMessageInAiChats(params: Schemas.CreateMessageSqlRequest) {
-    const [message] = await db
-      .insert(aiChats)
-      .values({
-        sessionId: params.sessionId,
+  static async updateInterview(params: Schemas.UpdateInterviewSqlRequest) {
+    const response: Schemas.ApiResponse = {
+      isSuccess: true,
+      message: "Successfully updated interview",
+    };
+    try {
+      const fieldsToUpdate: Partial<typeof interviews.$inferInsert> = {};
+      if (params.phase) {
+        fieldsToUpdate.phase = params.phase;
+      }
+      if (params.status) {
+        fieldsToUpdate.status = params.status;
+      }
+      if (Object.keys(fieldsToUpdate).length > 0) {
+        await neonDBClient
+          .update(interviews)
+          .set(fieldsToUpdate)
+          .where(
+            (() => {
+              const conditions = [];
+              conditions.push(eq(interviews.id, params.interviewId));
+              return and(...conditions);
+            })(),
+          );
+      }
+    } catch (error) {
+      Log.error({
+        err: error,
+        msg: "Unknown error occured while updating interview",
+      });
+      response.isSuccess = false;
+      response.message = "Failed to update interview";
+    }
+    return response;
+  }
+
+  static async createInterviewChat(
+    params: Schemas.CreateInterviewChatSqlRequest,
+  ) {
+    const response: Schemas.ApiResponse = {
+      isSuccess: true,
+      message: "Successfully created message",
+    };
+    try {
+      await neonDBClient.insert(interview_chats).values({
+        interview_id: params.interviewId,
         role: params.role,
         content: params.content,
         phase: params.phase,
-      })
-      .returning();
-    return message;
-  }
-
-  static async createRedFlag(data: Schemas.CreateRedFlagSqlRequest) {
-    const [redFlag] = await db
-      .insert(redFlags)
-      .values({
-        sessionId: data.sessionId,
-        type: data.type,
-        reason: data.reason,
-        phase: data.phase,
-      })
-      .returning();
-    return redFlag;
-  }
-
-  static async getMessagesBySession(
-    sessionId: string,
-    upToPhase?: Schemas.InterviewPhaseIntEnum,
-    exactPhase?: Schemas.InterviewPhaseIntEnum,
-  ) {
-    let query = db
-      .select({
-        id: aiChats.id,
-        role: aiChats.role,
-        content: aiChats.content,
-        phase: aiChats.phase,
-        createdAt: aiChats.createdAt,
-      })
-      .from(aiChats)
-      .where(eq(aiChats.sessionId, sessionId));
-
-    const messages = await query.orderBy(aiChats.createdAt);
-
-    // Filter by phase if specified
-    let filteredMessages = messages;
-
-    if (exactPhase !== undefined) {
-      // Return only messages from the exact phase
-      filteredMessages = messages.filter((msg) => msg.phase === exactPhase);
-    } else if (upToPhase !== undefined) {
-      // Return messages up to and including the specified phase
-      filteredMessages = messages.filter((msg) => msg.phase <= upToPhase);
+      });
+    } catch (error) {
+      Log.error({
+        err: error,
+        msg: "Unknown error occured while creating message",
+      });
+      response.isSuccess = false;
+      response.message = "Failed to create message";
     }
-
-    return filteredMessages.map((msg) => ({
-      id: msg.id.toString(),
-      role: Schemas.chatRoleIntToLabel[msg.role as Schemas.ChatRoleIntEnum],
-      content: msg.content as string,
-    }));
+    return response;
   }
 
-  static async createScorecard(data: Schemas.CreateScorecardSqlRequest) {
-    const [scorecard] = await db
-      .insert(sdiScorecards)
-      .values({
-        sessionId: data.sessionId,
-        overallGrade: data.overallGrade,
-        requirementsGathering: data.requirementsGathering,
-        dataModeling: data.dataModeling,
-        tradeOffAnalysis: data.tradeOffAnalysis,
-        scalability: data.scalability,
-        strengths: data.strengths,
-        growthAreas: data.growthAreas,
-        actionableFeedback: data.actionableFeedback,
-      })
-      .returning();
-    return scorecard;
-  }
-
-  static async getInterviewFeedbackDetails(sessionId: string, userId: string) {
-    const result = await db
-      .select({
-        overallGrade: sdiScorecards.overallGrade,
-        requirementsGathering: sdiScorecards.requirementsGathering,
-        dataModeling: sdiScorecards.dataModeling,
-        tradeOffAnalysis: sdiScorecards.tradeOffAnalysis,
-        scalability: sdiScorecards.scalability,
-        strengths: sdiScorecards.strengths,
-        growthAreas: sdiScorecards.growthAreas,
-        actionableFeedback: sdiScorecards.actionableFeedback,
-      })
-      .from(sdiScorecards)
-      .innerJoin(interviews, eq(sdiScorecards.sessionId, interviews.id))
-      .where(
-        sql`${sdiScorecards.sessionId} = ${sessionId} AND ${interviews.userId} = ${userId}`,
-      )
-      .limit(1);
-
-    if (result.length === 0) {
-      return null;
-    }
-
-    return result[0];
-  }
-
-  static async updateInterviewStatus(
-    sessionId: string,
-    status: Schemas.InterviewStatusIntEnum,
-  ) {
-    const response: Schemas.ApiResponse = {
-      isSuccess: false,
-      message: "Failed to update interview status",
+  static async getInterviewChats(params: Schemas.GetInterviewChatsSqlRequest) {
+    const response: Schemas.GetInterviewChatsResponse = {
+      isSuccess: true,
+      message: "Successfully fetched messages",
+      messages: [],
     };
     try {
-      const [updated] = await db
-        .update(interviews)
-        .set({
-          status,
-          endTime: new Date(),
+      let result = await neonDBClient
+        .select({
+          id: sql<string>`CAST(${interview_chats.id} AS TEXT)`,
+          role: sql<Schemas.ChatRoleLabelEnum>`CASE
+            WHEN ${interview_chats.role} = ${Schemas.ChatRoleIntEnum.User} THEN ${Schemas.ChatRoleLabelEnum.User}
+            WHEN ${interview_chats.role} = ${Schemas.ChatRoleIntEnum.Assistant} THEN ${Schemas.ChatRoleLabelEnum.Assistant}
+            ELSE ${Schemas.ChatRoleLabelEnum.User}
+            END`,
+          content: interview_chats.content,
         })
-        .where(eq(interviews.id, sessionId))
+        .from(interview_chats)
+        .where(() => {
+          const conditions = [];
+          conditions.push(eq(interview_chats.interview_id, params.interviewId));
+          return and(...conditions);
+        })
+        .orderBy(interview_chats.created_at);
+
+      response.messages = result.map((m) => ({
+        ...m,
+        content: m.content as string,
+      }));
+    } catch (error) {
+      Log.error({
+        err: error,
+        msg: "Unknown error occured while fetching messages",
+      });
+      response.isSuccess = false;
+      response.message = "Failed to fetch messages";
+    }
+    return response;
+  }
+
+  static async createInterviewScorecard(
+    params: Schemas.CreateInterviewScorecardSqlRequest,
+  ) {
+    const response: Schemas.CreateInterviewScorecardResponse = {
+      isSuccess: true,
+      message: "Successfully created scorecard",
+      scorecard: null,
+    };
+    try {
+      const [result] = await neonDBClient
+        .insert(scorecards)
+        .values({
+          interview_id: params.interviewId,
+          overall_grade: params.overallGrade,
+          requirements_gathering: params.requirementsGathering,
+          data_modeling: params.dataModeling,
+          trade_off_analysis: params.tradeOffAnalysis,
+          scalability: params.scalability,
+          strengths: params.strengths,
+          growth_areas: params.growthAreas,
+          actionable_feedback: params.actionableFeedback,
+        })
         .returning();
 
-      response.isSuccess = updated ? true : false;
-      response.message = updated
-        ? "Interview status updated successfully"
-        : "Interview not found";
+      response.scorecard = {
+        overallGrade: result.overall_grade,
+        categories: {
+          requirementsGathering: result.requirements_gathering,
+          dataModeling: result.data_modeling,
+          tradeOffAnalysis: result.trade_off_analysis,
+          scalability: result.scalability,
+        },
+        strengths: result.strengths,
+        growthAreas: result.growth_areas,
+        actionableFeedback: result.actionable_feedback,
+      };
     } catch (error) {
-      console.log(error);
+      Log.error({
+        err: error,
+        msg: "Unknown error occured while creating scorecard",
+      });
+      response.isSuccess = false;
+      response.message = "Failed to create scorecard";
+    }
+    return response;
+  }
+
+  static async getInterviewScorecard(
+    params: Schemas.GetInterviewScorecardSqlRequest,
+  ) {
+    const response: Schemas.GetInterviewScorecardResponse = {
+      isSuccess: true,
+      message: "Successfully fetched feedback details",
+      scorecard: null,
+    };
+    try {
+      const [result] = await neonDBClient
+        .select({
+          overallGrade: scorecards.overall_grade,
+          requirementsGathering: scorecards.requirements_gathering,
+          dataModeling: scorecards.data_modeling,
+          tradeOffAnalysis: scorecards.trade_off_analysis,
+          scalability: scorecards.scalability,
+          strengths: scorecards.strengths,
+          growthAreas: scorecards.growth_areas,
+          actionableFeedback: scorecards.actionable_feedback,
+          interviewStatusLabel: sql<Schemas.InterviewStatusLabelEnum>`CASE
+            WHEN ${interviews.status} = ${Schemas.InterviewStatusIntEnum.Completed} THEN ${Schemas.InterviewStatusLabelEnum.Completed}
+            WHEN ${interviews.status} = ${Schemas.InterviewStatusIntEnum.Abandoned} THEN ${Schemas.InterviewStatusLabelEnum.Abandoned}
+            WHEN ${interviews.status} = ${Schemas.InterviewStatusIntEnum.Deleted} THEN ${Schemas.InterviewStatusLabelEnum.Deleted}
+            ELSE ${Schemas.InterviewStatusLabelEnum.Active}
+            END`,
+        })
+        .from(scorecards)
+        .innerJoin(interviews, eq(scorecards.interview_id, interviews.id))
+        .where(() => {
+          const conditions = [];
+          conditions.push(eq(scorecards.interview_id, params.interviewId));
+          conditions.push(eq(interviews.user_id, params.userId));
+          return and(...conditions);
+        })
+        .limit(1);
+
+      if (result) {
+        response.scorecard = {
+          overallGrade: result.overallGrade,
+          categories: {
+            requirementsGathering: result.requirementsGathering,
+            dataModeling: result.dataModeling,
+            tradeOffAnalysis: result.tradeOffAnalysis,
+            scalability: result.scalability,
+          },
+          strengths: result.strengths,
+          growthAreas: result.growthAreas,
+          actionableFeedback: result.actionableFeedback,
+        };
+      } else {
+        response.isSuccess = false;
+        response.message = "Scorecard not found";
+      }
+    } catch (error) {
+      Log.error({
+        err: error,
+        msg: "Unknown error occured while fetching scorecard",
+      });
+      response.isSuccess = false;
+      response.message = "Failed to fetch scorecard";
+    }
+    return response;
+  }
+
+  static async getInterviewsSummary(params: { userId: string }) {
+    const response: Schemas.GetInterviewsSummaryResponse = {
+      isSuccess: true,
+      message: "Successfully fetched interviews summary",
+      summary: null,
+    };
+    try {
+      const rows = await neonDBClient
+        .select({
+          status: interviews.status,
+          count: sql<number>`count(*)::int`,
+        })
+        .from(interviews)
+        .where(eq(interviews.user_id, params.userId))
+        .groupBy(interviews.status);
+
+      let totalCount = 0;
+      let completedCount = 0;
+      let inProgressCount = 0;
+      let abandonedCount = 0;
+
+      for (const row of rows) {
+        totalCount += row.count;
+        if (row.status === Schemas.InterviewStatusIntEnum.Completed) {
+          completedCount += row.count;
+        } else if (row.status === Schemas.InterviewStatusIntEnum.Active) {
+          inProgressCount += row.count;
+        } else if (row.status === Schemas.InterviewStatusIntEnum.Abandoned) {
+          abandonedCount += row.count;
+        }
+      }
+
+      response.summary = {
+        totalCount,
+        completedCount,
+        inProgressCount,
+        abandonedCount,
+      };
+    } catch (error) {
+      Log.error({
+        err: error,
+        msg: "Unknown error occured while fetching interviews summary",
+      });
+      response.isSuccess = false;
+      response.message = "Failed to fetch interviews summary";
     }
     return response;
   }

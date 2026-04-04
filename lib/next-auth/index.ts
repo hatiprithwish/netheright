@@ -1,52 +1,30 @@
+// DONE_PRITH
 import NextAuth from "next-auth";
-import type { DefaultSession } from "next-auth";
 import Google from "next-auth/providers/google";
 import GitHub from "next-auth/providers/github";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
-import { db } from "@/backend/db";
-import * as schema from "@/backend/db/models";
+import neonDBClient from "@/lib/neon-db";
 import { envConfig } from "@/lib/envConfig";
-import UserDAL from "@/backend/data-access-layer/UserDAL";
-import UserRepo from "@/backend/repositories/UserRepo";
 import MetadataRepo from "@/backend/repositories/MetadataRepo";
-import { JWT } from "next-auth/jwt";
+import { accounts, users } from "@/backend/db/tables";
+import * as Schemas from "@/schemas";
+import Log from "../pino/Log";
 
-// Augment the session user type to include `id`, `roleId`, and `features`
-declare module "next-auth" {
-  interface Session {
-    user: {
-      id: string;
-      roleId: string;
-      roleName: string;
-      features: string[];
-    } & DefaultSession["user"];
-  }
-}
-
-declare module "next-auth/jwt" {
-  interface JWT {
-    roleId: string;
-    roleName: string;
-    features: string[];
-    access: number[];
-  }
-}
-
-export interface CurrentUser {
-  id: string;
-  name?: string | null;
-  email?: string | null;
-  image?: string | null;
-  roleId: string;
-  roleName: string;
-  features: string[];
-}
+const drizzleAdapter = DrizzleAdapter(neonDBClient, {
+  usersTable: users,
+  accountsTable: accounts,
+});
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  adapter: DrizzleAdapter(db, {
-    usersTable: schema.users,
-    accountsTable: schema.accounts,
-  }),
+  adapter: {
+    ...drizzleAdapter,
+    createUser: async (data: any) => {
+      return drizzleAdapter.createUser!({
+        ...data,
+        role_id: Schemas.UserRole.Learner,
+      });
+    },
+  },
   providers: [
     Google({
       clientId: envConfig.GOOGLE_CLIENT_ID,
@@ -65,33 +43,29 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async jwt({ token, user, trigger, session }) {
       if (user || trigger === "update") {
+        // DEV_NOTE: While signing in, database row is passed, hence we need role_id
         const roleId =
-          trigger === "update"
-            ? session.roleId
-            : ((user as typeof user & { roleId?: string }).roleId ?? "LEARNER");
+          trigger === "update" ? session.roleId : (user as any).role_id;
         token.roleId = roleId;
 
-        const allRoles = await MetadataRepo.getAllRoles();
-        const foundRole = allRoles.find(
-          (r: { id: string; name: string }) => r.id === roleId,
-        );
-        token.roleName = foundRole ? foundRole.name : "Unknown Role";
+        const { features, roleName } =
+          await MetadataRepo.getRoleDataById(roleId);
 
-        // Fetch feature IDs for this role
-        const featureIds = await UserDAL.getFeaturesByRole(roleId);
-        token.features = featureIds;
+        if (!features.length) {
+          Log.warn(`No features found for roleId: ${roleId}`);
+        }
 
-        // Compute access bitmask and store securely in token
-        token.access = await UserRepo.calculateAccessBitmask(featureIds);
+        token.roleName = roleName;
+        token.features = features;
       }
       return token;
     },
     async session({ session, token }) {
       if (token.sub) {
         session.user.id = token.sub;
-        session.user.roleId = token.roleId;
-        session.user.roleName = token.roleName;
-        session.user.features = token.features;
+        session.user.roleId = token.roleId as string;
+        session.user.roleName = token.roleName as string;
+        session.user.features = token.features as string[];
       }
       return session;
     },
@@ -102,23 +76,33 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: !!envConfig.AUTH_TRUST_HOST,
 });
 
-// Server-side helper to get the current authenticated user.
+// Server-side helper — the async mirror of the client-side useAuth() hook.
 
-export async function currentUser(): Promise<CurrentUser | null> {
+interface ServerAuthResponse {
+  currentUser: Schemas.CurrentUser | null;
+  isAuthenticated: boolean;
+  hasFeature: (featureId: string) => boolean;
+}
+
+export async function serverAuth(): Promise<ServerAuthResponse> {
   const session = await auth();
-
   const { id, name, email, image, roleId, roleName, features } =
     session?.user ?? {};
 
-  if (!id) return null;
+  const currentUser: Schemas.CurrentUser | null = id
+    ? {
+        id,
+        name,
+        email,
+        image,
+        roleId: roleId ?? "",
+        roleName: roleName ?? "",
+        features: features ?? [],
+      }
+    : null;
 
-  return {
-    id,
-    name,
-    email,
-    image,
-    roleId: roleId ?? "",
-    roleName: roleName ?? "",
-    features: features ?? [],
-  };
+  const hasFeature = (featureId: string): boolean =>
+    currentUser?.features?.includes(featureId) ?? false;
+
+  return { currentUser, isAuthenticated: !!currentUser, hasFeature };
 }

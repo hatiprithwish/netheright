@@ -1,49 +1,17 @@
-import { z } from "zod";
+// DONE_PRITH
 
-const envSchema = z.object({
-  // Auth
-  AUTH_SECRET: z.string().min(1, "AUTH_SECRET is required"),
-  NEXTAUTH_URL: z.url("NEXTAUTH_URL must be a valid URL"),
-
-  // OAuth Providers
-  GOOGLE_CLIENT_ID: z.string().min(1, "GOOGLE_CLIENT_ID is required"),
-  GOOGLE_CLIENT_SECRET: z.string().min(1, "GOOGLE_CLIENT_SECRET is required"),
-  GITHUB_CLIENT_ID: z.string().min(1, "GITHUB_CLIENT_ID is required"),
-  GITHUB_CLIENT_SECRET: z.string().min(1, "GITHUB_CLIENT_SECRET is required"),
-
-  // Database
-  DATABASE_URL: z.url("DATABASE_URL must be a valid URL"),
-
-  // Sentry
-  SENTRY_AUTH_TOKEN: z.string().optional(),
-  SENTRY_DSN: z.url().optional(),
-
-  // AI
-  GOOGLE_GENERATIVE_AI_API_KEY: z
-    .string()
-    .min(1, "GOOGLE_GENERATIVE_AI_API_KEY is required"),
-
-  AUTH_TRUST_HOST: z
-    .string("AUTH_TRUST_HOST is required")
-    .transform((val) => val === "true"),
-  NODE_ENV: z.string().min(1, "NODE_ENV is required"),
-});
-
-type EnvSchema = z.infer<typeof envSchema>;
+import * as Schemas from "@/schemas";
 
 export class EnvConfig {
   private static instance: EnvConfig;
-  private readonly env: EnvSchema;
+  private readonly env: Schemas.EnvSchema;
 
   private constructor() {
-    const parsed = envSchema.safeParse(process.env);
+    const parsed = Schemas.ZEnvSchema.safeParse(process.env);
 
     if (!parsed.success) {
-      console.error(
-        "❌ Invalid environment variables:",
-        JSON.stringify(parsed.error.format(), null, 4),
-      );
-      throw new Error("Invalid environment variables");
+      // DEV_NOTE: Throwing error explicitly because app shouldn't boot if env variables are invalid
+      throw new Error("Invalid environment variables", { cause: parsed.error });
     }
 
     this.env = parsed.data;
@@ -91,6 +59,18 @@ export class EnvConfig {
   }
   public get NODE_ENV() {
     return this.env.NODE_ENV;
+  }
+  public get REDIS_USERNAME() {
+    return this.env.REDIS_USERNAME;
+  }
+  public get REDIS_PASSWORD() {
+    return this.env.REDIS_PASSWORD;
+  }
+  public get REDIS_HOST() {
+    return this.env.REDIS_HOST;
+  }
+  public get REDIS_PORT() {
+    return this.env.REDIS_PORT;
   }
 }
 

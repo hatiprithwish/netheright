@@ -1,0 +1,174 @@
+"use client";
+
+import Image from "next/image";
+import {
+  useGetInterviewsByUser,
+  useGetInterviewsSummary,
+} from "@/frontend/api/cachedQueries";
+import { BarChart3, Plus, User } from "lucide-react";
+import * as Schemas from "@/schemas";
+import { useAuth } from "@/lib/next-auth/useAuth";
+import { useDashboardStore } from "./zustand";
+import InterviewHistoryTable from "./InterviewHistoryTable";
+import Constants from "@/constants";
+
+function DashboardPage() {
+  const { currentUser } = useAuth();
+  const { pageNo, sortBy, sortOrder, setPageNo, setSort } = useDashboardStore();
+
+  const {
+    data,
+    isLoading,
+    handleRefresh: mutate,
+  } = useGetInterviewsByUser({
+    pageNo,
+    pageSize: Constants.DEFAULT_PAGE_SIZE,
+    sortColumn: sortBy,
+    sortDirection: sortOrder,
+  });
+
+  const {
+    data: summaryData,
+    isLoading: isSummaryLoading,
+    handleRefresh: refreshSummary,
+  } = useGetInterviewsSummary();
+
+  const handleSort = (
+    newSortBy: Schemas.InterviewSortColumn,
+    newSortOrder: Schemas.SortDirection,
+  ) => {
+    setSort(newSortBy, newSortOrder);
+  };
+
+  if (!currentUser) return null;
+
+  return (
+    <div className="min-h-screen bg-brand-bg text-foreground">
+      <div className="mx-auto max-w-7xl px-6 py-8">
+        <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            {currentUser?.image ? (
+              <Image
+                src={currentUser.image}
+                alt="User avatar"
+                width={64}
+                height={64}
+                className="h-16 w-16 rounded-full border-4 border-card shadow-md"
+              />
+            ) : (
+              <div className="flex h-16 w-16 items-center justify-center rounded-full border-4 border-card bg-linear-to-br from-primary to-primary/80 shadow-md">
+                <User className="h-8 w-8 text-white" />
+              </div>
+            )}
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">
+                Welcome back, {currentUser?.name?.split(" ")[0]}!
+              </h1>
+              <p className="text-muted-foreground">{currentUser?.roleName}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <a
+              href="/problems"
+              className="flex w-full sm:w-auto items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors shadow-md hover:shadow-lg"
+            >
+              <Plus className="w-5 h-5" />
+              Start New Interview
+            </a>
+          </div>
+        </div>
+
+        {/* Stats Summary */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
+          <div className="bg-card rounded-xl border border-border shadow-soft p-6">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="rounded-full bg-blue-50 dark:bg-blue-900/20 p-2">
+                <BarChart3 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <span className="text-sm font-medium text-muted-foreground">
+                Total Interviews
+              </span>
+            </div>
+            <p className="text-3xl font-bold text-foreground">
+              {isSummaryLoading ? "—" : summaryData?.summary?.totalCount}
+            </p>
+          </div>
+
+          <div className="bg-card rounded-xl border border-border shadow-soft p-6">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="rounded-full bg-emerald-50 dark:bg-emerald-900/20 p-2">
+                <BarChart3 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              </div>
+              <span className="text-sm font-medium text-muted-foreground">
+                Completed
+              </span>
+            </div>
+            <p className="text-3xl font-bold text-foreground">
+              {isSummaryLoading
+                ? "—"
+                : (summaryData?.summary?.completedCount ?? 0)}
+            </p>
+          </div>
+
+          <div className="bg-card rounded-xl border border-border shadow-soft p-6">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="rounded-full bg-amber-50 dark:bg-amber-900/20 p-2">
+                <BarChart3 className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+              </div>
+              <span className="text-sm font-medium text-muted-foreground">
+                In Progress
+              </span>
+            </div>
+            <p className="text-3xl font-bold text-foreground">
+              {isSummaryLoading
+                ? "—"
+                : (summaryData?.summary?.inProgressCount ?? 0)}
+            </p>
+          </div>
+
+          <div className="bg-card rounded-xl border border-border shadow-soft p-6">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="rounded-full bg-red-50 dark:bg-red-900/20 p-2">
+                <BarChart3 className="w-5 h-5 text-red-600 dark:text-red-400" />
+              </div>
+              <span className="text-sm font-medium text-muted-foreground">
+                Abandoned
+              </span>
+            </div>
+            <p className="text-3xl font-bold text-foreground">
+              {isSummaryLoading
+                ? "—"
+                : (summaryData?.summary?.abandonedCount ?? 0)}
+            </p>
+          </div>
+        </div>
+
+        {/* Interview History */}
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-foreground mb-6">
+            Interview History
+          </h2>
+          <InterviewHistoryTable
+            interviews={data?.interviews ?? []}
+            totalRecords={summaryData?.summary?.totalCount ?? 0}
+            isLoading={isLoading}
+            page={pageNo}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onPageChange={setPageNo}
+            onSort={handleSort}
+            onDeleteSuccess={() => {
+              mutate();
+              refreshSummary();
+            }}
+            onRefresh={async () => {
+              await Promise.all([mutate(), refreshSummary()]);
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default DashboardPage;

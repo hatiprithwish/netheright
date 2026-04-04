@@ -1,11 +1,13 @@
+// DONE_PRITH
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
-import { SessionProvider } from "next-auth/react";
-import HeaderWrapper from "@/frontend/ui/common/HeaderWrapper";
-import FooterWrapper from "@/frontend/ui/common/FooterWrapper";
-import { ThemeProvider } from "@/frontend/ui/common/providers/theme-provider";
+import AuthProvider from "@/frontend/providers/auth-provider";
+import ThemeProvider from "@/frontend/providers/theme-provider";
+import { TooltipProvider } from "@/frontend/components/shadcn/tooltip";
+import SWRProvider from "@/frontend/providers/swr-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,20 +42,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      {/* DEV_NOTE: suppressHydrationWarning is required by next-themes to prevent hydration mismatch on the html tag when inserting the data-theme attribute */}
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <SessionProvider>
-            <HeaderWrapper />
-            {children}
-            <FooterWrapper />
-          </SessionProvider>
+        <ThemeProvider defaultTheme="system" enableSystem>
+          <TooltipProvider>
+            <SWRProvider>
+              <AuthProvider>{children}</AuthProvider>
+            </SWRProvider>
+          </TooltipProvider>
         </ThemeProvider>
         <Toaster />
       </body>

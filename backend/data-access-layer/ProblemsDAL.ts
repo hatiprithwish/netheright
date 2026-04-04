@@ -1,85 +1,78 @@
-import { db } from "@/backend/db";
-import { sdiProblems } from "@/backend/db/models";
+// DONE_PRITH
+
+import neonDBClient from "@/lib/neon-db";
+import { problems } from "@/backend/db/tables";
 import * as Schemas from "@/schemas";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
+import Log from "@/lib/pino/Log";
 
 class ProblemsDAL {
-  static async getProblemDetails(problemId: number) {
-    let response: Schemas.GetProblemDetailsResponse = {
-      isSuccess: false,
-      message: "Failed to get sdi problem details",
+  static async getProblem(problemId: number) {
+    const response: Schemas.GetProblemResponse = {
+      isSuccess: true,
+      message: "Successfully fetched problem details",
       problem: null,
     };
 
     try {
-      const [dbResult] = await db
+      const [result] = await neonDBClient
         .select({
-          id: sdiProblems.id,
-          title: sdiProblems.title,
-          description: sdiProblems.description,
-          functionalRequirements: sdiProblems.functionalRequirements,
-          nonFunctionalRequirements: sdiProblems.nonFunctionalRequirements,
-          boteFactors: sdiProblems.boteFactors,
-          difficulty: sdiProblems.difficulty,
-          tags: sdiProblems.tags,
+          id: sql<string>`problems.id`,
+          title: problems.title,
+          description: problems.description,
+          functionalRequirements: problems.functional_requirements,
+          nonFunctionalRequirements: problems.non_functional_requirements,
+          boteFactors: problems.bote_factors,
+          difficulty: problems.difficulty,
+          tags: problems.tags,
         })
-        .from(sdiProblems)
-        .where(eq(sdiProblems.id, BigInt(problemId)))
+        .from(problems)
+        .where(eq(problems.id, BigInt(problemId)))
         .limit(1);
 
-      response.problem = {
-        ...dbResult,
-        id: Number(dbResult.id),
-        functionalRequirements: dbResult.functionalRequirements.join("\n"),
-        nonFunctionalRequirements:
-          dbResult.nonFunctionalRequirements.join("\n"),
-        boteFactors: dbResult.boteFactors.join("\n"),
-        difficulty: dbResult.difficulty,
-        tags: dbResult.tags ?? [],
-      };
-
-      response.isSuccess = true;
-      response.message = "Sdi problem details fetched successfully";
-      return response;
+      response.problem = result;
     } catch (error) {
-      return response;
+      Log.error({
+        err: error,
+        msg: "Unknown error occured while fetching sdi problem details",
+      });
+      response.isSuccess = false;
+      response.message = "Failed to get sdi problem details";
     }
+
+    return response;
   }
 
   static async getProblems() {
     const response: Schemas.GetProblemsResponse = {
-      isSuccess: false,
-      message: "Failed to get problems",
+      isSuccess: true,
+      message: "Successfully fetched problems",
       problems: [],
     };
 
     try {
-      const dbResults = await db
+      const result = await neonDBClient
         .select({
-          id: sdiProblems.id,
-          title: sdiProblems.title,
-          description: sdiProblems.description,
-          difficulty: sdiProblems.difficulty,
-          tags: sdiProblems.tags,
+          id: sql<string>`problems.id`,
+          title: problems.title,
+          description: problems.description,
+          difficulty: problems.difficulty,
+          tags: problems.tags,
         })
-        .from(sdiProblems)
-        .orderBy(sdiProblems.id);
+        .from(problems)
+        .orderBy(problems.id);
 
-      response.problems = dbResults.map((problem) => ({
-        id: Number(problem.id),
-        title: problem.title,
-        description: problem.description,
-        difficulty: problem.difficulty,
-        tags: problem.tags ?? [],
-      }));
-
-      response.isSuccess = true;
-      response.message = "Problems fetched successfully";
-      return response;
+      response.problems = result;
     } catch (error) {
-      console.error("Error fetching problems:", error);
-      return response;
+      Log.error({
+        err: error,
+        msg: "Unknown error occured while fetching problems",
+      });
+      response.isSuccess = false;
+      response.message = "Failed to get problems";
     }
+
+    return response;
   }
 }
 

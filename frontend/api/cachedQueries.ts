@@ -1,11 +1,12 @@
 import useSWR from "swr";
 import { fetcher, apiClient } from "./apiClient";
 import * as Schemas from "@/schemas";
-import { useAuth } from "../ui/hooks/useAuth";
+import { useAuth } from "../../lib/next-auth/useAuth";
 
-export const useInterviewSession = (sessionId: string | null) => {
-  const isDisabled = !sessionId;
-  const cachedKey = !isDisabled ? `/api/interview/${sessionId}` : null;
+export const useGetInterview = (interviewId: string | null) => {
+  const { currentUser } = useAuth();
+  const isDisabled = !interviewId || !currentUser;
+  const cachedKey = !isDisabled ? `/api/interview/${interviewId}` : null;
 
   const {
     data,
@@ -34,10 +35,10 @@ export const useGetInterviewsByUser = (
     data,
     error,
     mutate: handleRefresh,
-  } = useSWR<Schemas.GetInterviewHistoryResponse>(
+  } = useSWR<Schemas.GetInterviewsResponse>(
     cachedKey,
-    ([url, reqBody]: [string, Schemas.GetInterviewsByUserRequest]) =>
-      apiClient.post<Schemas.GetInterviewHistoryResponse>(url, reqBody),
+    ([url, reqBody]: [string, Schemas.GetInterviewsByUserRepoRequest]) =>
+      apiClient.post<Schemas.GetInterviewsResponse>(url, reqBody),
   );
 
   return {
@@ -48,15 +49,39 @@ export const useGetInterviewsByUser = (
   };
 };
 
-export const useGetInterviewsByUserCount = (userId: string | null) => {
-  const isDisabled = !userId;
-  const cachedKey = !isDisabled ? `/api/${userId}/interviews/count` : null;
+export const useGetInterviewsByUserCount = (
+  body: Schemas.GetInterviewsByUserCountRequest,
+) => {
+  const { currentUser } = useAuth();
+  const isDisabled = !body || !currentUser;
+  const cachedKey = !isDisabled
+    ? [`/api/query/${currentUser?.id}/interviews/count`, body]
+    : null;
 
   const {
     data,
     error,
     mutate: handleRefresh,
-  } = useSWR<Schemas.GetInterviewCountResponse>(cachedKey, fetcher);
+  } = useSWR<Schemas.TotalRecordsResponse>(cachedKey, fetcher);
+
+  return {
+    data,
+    error,
+    isLoading: !isDisabled && !error && !data,
+    handleRefresh,
+  };
+};
+
+export const useGetInterviewsSummary = () => {
+  const { currentUser } = useAuth();
+  const isDisabled = !currentUser;
+  const cachedKey = !isDisabled ? `/api/${currentUser?.id}/interviews/summary` : null;
+
+  const {
+    data,
+    error,
+    mutate: handleRefresh,
+  } = useSWR<Schemas.GetInterviewsSummaryResponse>(cachedKey, fetcher);
 
   return {
     data,
@@ -68,13 +93,13 @@ export const useGetInterviewsByUserCount = (userId: string | null) => {
 
 export const useGetInterviewFeedbackDetails = (sessionId: string | null) => {
   const isDisabled = !sessionId;
-  const cachedKey = !isDisabled ? `/api/interview/${sessionId}/feedback` : null;
+  const cachedKey = !isDisabled ? `/api/interview/${sessionId}/scorecard` : null;
 
   const {
     data,
     error,
     mutate: handleRefresh,
-  } = useSWR<Schemas.GetInterviewFeedbackDetailsResponse>(cachedKey, fetcher);
+  } = useSWR<Schemas.GetInterviewScorecardResponse>(cachedKey, fetcher);
 
   return {
     data,
@@ -84,7 +109,26 @@ export const useGetInterviewFeedbackDetails = (sessionId: string | null) => {
   };
 };
 
-// Public API
+export const useGetRoles = () => {
+  const { currentUser } = useAuth();
+  const isDisabled = !currentUser;
+  const cachedKey = !isDisabled ? "/api/metadata/roles" : null;
+
+  const {
+    data,
+    error,
+    mutate: handleRefresh,
+  } = useSWR<Schemas.GetAllRolesResponse>(cachedKey, fetcher);
+
+  return {
+    data,
+    error,
+    isLoading: !isDisabled && !error && !data,
+    handleRefresh,
+  };
+};
+
+// ------ Public APIs ------
 export const useProblems = () => {
   const cachedKey = "/api/problems";
 
@@ -98,23 +142,6 @@ export const useProblems = () => {
     data,
     error,
     isLoading: !error && !data,
-    handleRefresh,
-  };
-};
-
-export const useGetRoles = (isOpen: boolean) => {
-  const cachedKey = isOpen ? "/api/metadata/roles" : null;
-
-  const {
-    data,
-    error,
-    mutate: handleRefresh,
-  } = useSWR<{ data: Schemas.Role[] }>(cachedKey, fetcher);
-
-  return {
-    data,
-    error,
-    isLoading: isOpen && !error && !data,
     handleRefresh,
   };
 };

@@ -2,9 +2,9 @@ import { ApiResponse } from "../common";
 import { Problem, ProblemBase } from "./ProblemsCommon";
 
 export interface GetProblemsResponse extends ApiResponse {
-  problems: ProblemBase[] | null;
+  problems: ProblemBase[];
 }
 
-export interface GetProblemDetailsResponse extends ApiResponse {
+export interface GetProblemResponse extends ApiResponse {
   problem: Problem | null;
 }

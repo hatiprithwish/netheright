@@ -1,23 +1,70 @@
-import CacheManager from "@/lib/CacheManager";
+// DONE_PRITH
+
+import RedisCache from "@/lib/redis/cache";
 import MetadataDAL from "@/backend/data-access-layer/MetadataDAL";
 import Constants from "@/constants";
 import * as Schemas from "@/schemas";
 
 class MetadataRepo {
-  static async getAllFeatures(): Promise<Schemas.Feature[]> {
-    return CacheManager.get(
-      Constants.FEATURES_CACHE_KEY,
-      () => MetadataDAL.getAllFeatures(),
+  static async getAllFeatures() {
+    const response: Schemas.GetAllFeaturesResponse = {
+      isSuccess: true,
+      message: "Features fetched successfully",
+      features: [],
+    };
+
+    try {
+      response.features = await RedisCache.get(
+        Constants.FEATURES_CACHE_KEY,
+        async () => (await MetadataDAL.getAllFeatures()).features,
+      );
+    } catch {
+      response.isSuccess = false;
+      response.message = "Failed to fetch features";
+    }
+
+    return response;
+  }
+
+  static async getAllRoles() {
+    const response: Schemas.GetAllRolesResponse = {
+      isSuccess: true,
+      message: "Roles feched successfully",
+      roles: [],
+    };
+
+    try {
+      response.roles = await RedisCache.get(
+        Constants.ROLES_CACHE_KEY,
+        async () => (await MetadataDAL.getAllRoles()).roles,
+      );
+    } catch (error) {
+      response.isSuccess = false;
+      response.message = "Falied to fetch roles";
+    }
+
+    return response;
+  }
+
+  static async getAllRoleFeatures() {
+    return await RedisCache.get<Schemas.GetAllRoleFeaturesResponse["map"]>(
+      Constants.ROLE_FEATURES_CACHE_KEY,
+      async () => (await MetadataDAL.getAllRoleFeatures()).map,
       Constants.DEFAULT_CACHE_KEY_TTL,
     );
   }
 
-  static async getAllRoles(): Promise<Schemas.Role[]> {
-    return CacheManager.get(
-      Constants.ROLES_CACHE_KEY,
-      () => MetadataDAL.getAllRoles(),
-      Constants.DEFAULT_CACHE_KEY_TTL,
-    );
+  static async getRoleDataById(roleId: string) {
+    const [featuresMap, rolesResponse] = await Promise.all([
+      this.getAllRoleFeatures(),
+      this.getAllRoles(),
+    ]);
+
+    const role = rolesResponse?.roles?.find((r) => r.id === roleId);
+    return {
+      features: featuresMap?.[roleId] || [],
+      roleName: role?.name,
+    };
   }
 }
 

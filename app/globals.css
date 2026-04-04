@@ -1,7 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@source "../utils";
+@source "../lib";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:is(.dark *, [data-theme="dark"] *));
 
 @theme inline {
   --color-background: var(--background);
@@ -134,7 +136,8 @@
   --sidebar-ring: oklch(0.709 0.01 56.259);
 }
 
-.dark {
+.dark,
+[data-theme="dark"] {
   /* "Engineering Pro" Dark Mode Palette */
   --background: oklch(
     0.13 0.028 261.692

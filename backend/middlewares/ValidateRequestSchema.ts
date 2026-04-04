@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Logger } from "@/lib/logger";
+import { Logger } from "@/lib/pino";
 import { type RouteHandler } from "./RouteWrapper";
 
 export interface RequestSchemaOptions {

@@ -4,6 +4,7 @@ import { signIn } from "next-auth/react";
 import { Code2, Github, AlertCircle } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import dayjs from "dayjs";
 
 function SignInContent() {
   const searchParams = useSearchParams();
@@ -14,18 +15,18 @@ function SignInContent() {
       {/* Left Side - Hero/Brand */}
       <div className="hidden lg:flex flex-col justify-between bg-zinc-900 relative overflow-hidden">
         {/* Background Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900" />
+        <div className="absolute inset-0 bg-linear-to-br from-slate-900 via-indigo-950 to-slate-900" />
 
         {/* Ghosted Diagram Background */}
         <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:20px_20px]"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-[radial-gradient(#fff_1px,transparent_1px)] bg-size-[20px_20px]"></div>
           {/* Abstract Nodes */}
           <div className="absolute top-1/3 left-1/4 w-32 h-20 border border-white/30 rounded-lg"></div>
           <div className="absolute top-1/3 right-1/4 w-32 h-20 border border-white/30 rounded-lg"></div>
           <div className="absolute bottom-1/3 left-1/2 -translate-x-1/2 w-48 h-24 border border-white/30 rounded-lg"></div>
           {/* Lines */}
-          <div className="absolute top-[45%] left-[35%] w-[30%] h-[1px] bg-white/20"></div>
-          <div className="absolute top-[38%] left-1/2 h-[20%] w-[1px] bg-white/20"></div>
+          <div className="absolute top-[45%] left-[35%] w-[30%] h-px bg-white/20"></div>
+          <div className="absolute top-[38%] left-1/2 h-[20%] w-px bg-white/20"></div>
         </div>
 
         <div className="relative z-10 p-12">
@@ -49,7 +50,7 @@ function SignInContent() {
         </div>
 
         <div className="relative z-10 p-12 text-sm text-zinc-500 border-t border-white/5">
-          © {new Date().getFullYear()} Netheright Inc.
+          © {dayjs().year()} Netheright Inc.
         </div>
       </div>
 
