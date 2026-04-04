@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { InterviewStatusLabelEnum } from "../interview";
 
 export enum SortDirection {
   Asc = "asc",
