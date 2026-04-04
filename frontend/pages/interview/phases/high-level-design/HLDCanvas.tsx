@@ -2,21 +2,18 @@ import { useCallback, useMemo } from "react";
 import {
   ReactFlow,
   Background,
-  Controls,
-  MiniMap,
   addEdge,
   Connection,
   Node,
   Panel,
   MarkerType,
-  Edge,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { useInterviewStore } from "../../../zustand";
 import { Plus, Trash2 } from "lucide-react";
 import { CustomNode } from "./CustomNode";
 import { CustomEdge } from "./CustomEdge";
 import { useTheme } from "next-themes";
+import { useInterviewStore } from "../../zustand";
 
 export function HLDCanvas() {
   const { theme, systemTheme } = useTheme();

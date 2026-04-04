@@ -1,7 +1,7 @@
 import { memo, Fragment } from "react";
 import { Handle, Position, NodeProps } from "@xyflow/react";
 import { useReactFlow } from "@xyflow/react";
-import { useInterviewStore } from "../../../zustand";
+import { useInterviewStore } from "../../zustand";
 import { Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -72,7 +72,7 @@ export const CustomNode = memo(
                   id={`${id}-${position}-source`}
                   type="source"
                   className={cn(
-                    "z-50 w-4 h-4 !bg-muted-foreground transition-opacity",
+                    "z-50 w-4 h-4 bg-muted-foreground! transition-opacity",
                     selected
                       ? "opacity-100"
                       : "opacity-0 group-hover:opacity-100",
@@ -84,7 +84,7 @@ export const CustomNode = memo(
                   id={`${id}-${position}-target`}
                   type="target"
                   className={cn(
-                    "z-40 w-4 h-4 !bg-muted-foreground transition-opacity",
+                    "z-40 w-4 h-4 bg-muted-foreground! transition-opacity",
                     selected
                       ? "opacity-100"
                       : "opacity-0 group-hover:opacity-100",

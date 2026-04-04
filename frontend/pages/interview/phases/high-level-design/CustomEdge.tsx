@@ -5,7 +5,7 @@ import {
   getBezierPath,
   useReactFlow,
 } from "@xyflow/react";
-import { useInterviewStore } from "../../../zustand";
+import { useInterviewStore } from "../../zustand";
 import { X } from "lucide-react";
 
 export function CustomEdge({

@@ -1,9 +1,9 @@
 "use client";
 
-import { ChatInterface } from "../../../ChatInterface";
-import { InterviewPhaseProps } from "../../../utils";
+import { ChatInterface } from "../../ChatInterface";
+import { InterviewPhaseProps } from "../../utils";
 
-export function BotECalculationStep({
+export default function BotECalculationStep({
   messages,
   sendMessage,
   isLoading,

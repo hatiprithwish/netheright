@@ -17,7 +17,7 @@ class ProblemsDAL {
     try {
       const [result] = await neonDBClient
         .select({
-          id: sql<number>`problems.id`,
+          id: sql<string>`problems.id`,
           title: problems.title,
           description: problems.description,
           functionalRequirements: problems.functional_requirements,
@@ -53,7 +53,7 @@ class ProblemsDAL {
     try {
       const result = await neonDBClient
         .select({
-          id: sql<number>`problems.id`,
+          id: sql<string>`problems.id`,
           title: problems.title,
           description: problems.description,
           difficulty: problems.difficulty,

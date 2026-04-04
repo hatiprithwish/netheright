@@ -1,14 +1,14 @@
 "use client";
 
-import { useInterviewStore } from "../../../zustand";
 import { HLDCanvas } from "./HLDCanvas";
 import Utilities from "@/utils";
 import { useState } from "react";
 import { Bot, Loader2, Wand2 } from "lucide-react";
-import { ChatInterface } from "../../../ChatInterface";
-import { InterviewPhaseProps } from "../../../utils";
+import { ChatInterface } from "../../ChatInterface";
+import { InterviewPhaseProps } from "../../utils";
+import { useInterviewStore } from "../../zustand";
 
-export function HighLevelDesign({
+export default function HighLevelDesign({
   messages,
   sendMessage,
   isLoading,

@@ -1,8 +1,8 @@
 import React from "react";
 import * as Schemas from "@/schemas";
-import { RequirementsStep } from "./phases/requirements-gathering";
-import { BotECalculationStep } from "./phases/bote-calculations";
-import { HighLevelDesign } from "./phases/high-level-design";
+import RequirementsStep from "./phases/requirements-gathering";
+import BotECalculationStep from "./phases/bote-calculations";
+import HighLevelDesign from "./phases/high-level-design";
 
 export const PHASE_COMPONENT_MAP: Record<
   Schemas.InterviewPhaseIntEnum,
@@ -11,8 +11,6 @@ export const PHASE_COMPONENT_MAP: Record<
   [Schemas.InterviewPhaseIntEnum.RequirementsGathering]: RequirementsStep,
   [Schemas.InterviewPhaseIntEnum.BotECalculation]: BotECalculationStep,
   [Schemas.InterviewPhaseIntEnum.HighLevelDesign]: HighLevelDesign,
-  // Phases 4 & 5 are defined in the enum but not yet rendered; cast to satisfy
-  // the full-enum Record requirement until components exist.
   [Schemas.InterviewPhaseIntEnum.ComponentDeepDive]:
     HighLevelDesign as React.ComponentType<InterviewPhaseProps>,
   [Schemas.InterviewPhaseIntEnum.BottlenecksDiscussion]:
