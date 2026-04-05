@@ -14,24 +14,26 @@ export default function DatabaseSchemaSection() {
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <DatabaseTableCard
-            tableName="sdi_sessions"
+            tableName="interviews"
             description="Interview session tracking"
             columns={[
               { name: "id", type: "UUID", note: "Primary key" },
               { name: "user_id", type: "TEXT", note: "Foreign key" },
               { name: "problem_id", type: "INTEGER" },
-              { name: "current_phase", type: "INTEGER" },
               { name: "status", type: "INTEGER" },
+              { name: "phase", type: "INTEGER" },
               { name: "start_time", type: "TIMESTAMP" },
+              { name: "end_time", type: "TIMESTAMP" },
+              { name: "is_test", type: "BOOLEAN" },
             ]}
             designDecision="UUID for distributed system compatibility"
           />
           <DatabaseTableCard
-            tableName="ai_chats"
+            tableName="interview_chats"
             description="Conversation history per phase"
             columns={[
-              { name: "id", type: "BIGSERIAL", note: "Auto-increment" },
-              { name: "session_id", type: "UUID", note: "Foreign key" },
+              { name: "id", type: "BIGINT", note: "Auto-increment" },
+              { name: "interview_id", type: "TEXT", note: "Foreign key" },
               { name: "role", type: "INTEGER", note: "User/Assistant" },
               { name: "content", type: "JSONB", note: "Flexible schema" },
               { name: "phase", type: "INTEGER" },
@@ -39,14 +41,18 @@ export default function DatabaseSchemaSection() {
             designDecision="JSONB for flexible message content structure"
           />
           <DatabaseTableCard
-            tableName="sdi_scorecards"
+            tableName="scorecards"
             description="AI-generated performance evaluation"
             columns={[
-              { name: "id", type: "BIGSERIAL" },
-              { name: "session_id", type: "UUID" },
+              { name: "id", type: "BIGINT" },
+              { name: "interview_id", type: "TEXT", note: "Foreign key" },
               { name: "overall_grade", type: "INTEGER" },
+              { name: "requirements_gathering", type: "INTEGER" },
+              { name: "data_modeling", type: "INTEGER" },
+              { name: "trade_off_analysis", type: "INTEGER" },
+              { name: "scalability", type: "INTEGER" },
               { name: "strengths", type: "TEXT[]", note: "Array" },
-              { name: "growth_areas", type: "TEXT[]" },
+              { name: "growth_areas", type: "TEXT[]", note: "Array" },
               { name: "actionable_feedback", type: "TEXT" },
             ]}
             designDecision="Denormalized for fast scorecard retrieval"

@@ -48,7 +48,6 @@ export default function TechStackSection() {
             category="DevOps & Monitoring"
             technologies={[
               { name: "Vercel", purpose: "Edge deployment" },
-              { name: "Sentry", purpose: "Error tracking" },
               { name: "Pino", purpose: "Structured logging" },
               { name: "TypeScript", purpose: "Type safety" },
             ]}
