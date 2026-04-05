@@ -15,7 +15,7 @@ export default function CTASection() {
           standards.
         </p>
         <Link
-          href="/dashboard"
+          href="/problems"
           className="group inline-flex items-center gap-2 rounded-xl bg-brand-primary px-8 py-4 text-lg font-semibold text-white shadow-lg transition-all hover:bg-brand-primary/90 hover:shadow-xl hover:-translate-y-0.5"
         >
           Start Mock Interview
