@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Code2 } from "lucide-react";
 import dayjs from "dayjs";
 
@@ -95,20 +96,46 @@ export default function Footer() {
           </p>
           <div className="flex items-center gap-6">
             <a
-              href="https://github.com/hatiprithwish"
+              href="https://github.com/hatiprithwish/netheright"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              className="text-sm transition-colors"
             >
-              GitHub
+              <Image
+                src="/github.svg"
+                alt="GitHub"
+                width={16}
+                height={16}
+                className="opacity-70 transition-opacity hover:opacity-100 dark:invert"
+              />
             </a>
             <a
               href="https://linkedin.com/in/hatiprithwish"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              className="text-sm transition-colors"
             >
-              LinkedIn
+              <Image
+                src="/linkedin.svg"
+                alt="LinkedIn"
+                width={16}
+                height={16}
+                className="opacity-70 transition-opacity hover:opacity-100 dark:invert"
+              />
+            </a>
+            <a
+              href="https://x.com/hatiprithwish"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm transition-colors"
+            >
+              <Image
+                src="/x.svg"
+                alt="X (Twitter)"
+                width={16}
+                height={16}
+                className="opacity-70 transition-opacity hover:opacity-100 dark:invert"
+              />
             </a>
           </div>
         </div>
