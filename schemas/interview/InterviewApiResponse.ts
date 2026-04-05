@@ -1,6 +1,6 @@
 import { ApiResponse } from "../common";
-import { Interview } from "./InterviewCommon";
-import { z } from "zod";
+import { Interview, InterviewScorecard } from "./InterviewCommon";
+import { ChatRoleLabelEnum } from "./InterviewEnum";
 
 export interface CreateInterviewResponse extends ApiResponse {
   interview: Interview | null;
@@ -10,30 +10,39 @@ export interface GetInterviewResponse extends ApiResponse {
   interview: Interview | null;
 }
 
-export const ZScorecardSchema = z.object({
-  overallGrade: z.number().min(1).max(5),
-  categories: z.object({
-    requirementsGathering: z.number().min(1).max(5),
-    dataModeling: z.number().min(1).max(5),
-    tradeOffAnalysis: z.number().min(1).max(5),
-    scalability: z.number().min(1).max(5),
-  }),
-  strengths: z.array(z.string()),
-  growthAreas: z.array(z.string()),
-  actionableFeedback: z.string(),
-});
+export interface GetInterviewsResponse extends ApiResponse {
+  interviews: Interview[];
+}
 
-export type ScorecardSchema = z.infer<typeof ZScorecardSchema>;
+export interface GetInterviewScorecardResponse extends ApiResponse {
+  scorecard: InterviewScorecard | null;
+}
 
-export interface GetInterviewFeedbackDetailsResponse extends ApiResponse {
-  feedback: {
-    overallGrade: number;
-    requirementsGathering: number;
-    dataModeling: number;
-    tradeOffAnalysis: number;
-    scalability: number;
-    strengths: string[];
-    growthAreas: string[];
-    actionableFeedback: string;
+export interface CreateMessageResponse extends ApiResponse {
+  messageData: any | null;
+}
+
+export interface GetChatStreamResponse extends ApiResponse {
+  stream?: Response;
+}
+
+export interface GetInterviewChatsResponse extends ApiResponse {
+  messages: {
+    id: string;
+    role: ChatRoleLabelEnum;
+    content: string;
+  }[];
+}
+
+export interface CreateInterviewScorecardResponse extends ApiResponse {
+  scorecard: InterviewScorecard | null;
+}
+
+export interface GetInterviewsSummaryResponse extends ApiResponse {
+  summary: {
+    totalCount: number;
+    completedCount: number;
+    inProgressCount: number;
+    abandonedCount: number;
   } | null;
 }

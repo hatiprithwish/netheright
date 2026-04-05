@@ -1,0 +1,32 @@
+import { NextRequest, NextResponse } from "next/server";
+import { routeWrapper } from "@/backend/middlewares/RouteWrapper";
+import { checkAuth } from "@/backend/middlewares/CheckAuth";
+import { validateRequestSchema } from "@/backend/middlewares/ValidateRequestSchema";
+import InterviewRepo from "@/backend/repositories/InterviewRepo";
+import { auth } from "@/lib/next-auth";
+import type { Logger } from "@/lib/pino";
+
+type RouteContext = { params: Promise<{ id: string }> };
+
+const getHandler = async (
+  _req: NextRequest,
+  _body: undefined,
+  _logger: Logger,
+  context: RouteContext,
+) => {
+  const session = await auth();
+  const { id } = await context.params;
+
+  const result = await InterviewRepo.getInterviewScorecard({
+    interviewId: id,
+    userId: session!.user.id,
+  });
+
+  return NextResponse.json(result, {
+    status: result.isSuccess ? 200 : 404,
+  });
+};
+
+export const GET = routeWrapper(
+  checkAuth({}, validateRequestSchema({ params: ["id"] }, getHandler)),
+);

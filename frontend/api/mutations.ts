@@ -6,7 +6,7 @@ export const analyzeDesign = async (sessionId: string, graph: any) => {
 };
 
 export const createInterviewSession = async (
-  params: Schemas.CreateInterviewSessionRequest,
+  params: Schemas.CreateInterviewRequest,
 ) => {
   return apiClient.post<Schemas.CreateInterviewResponse>(
     "/api/interview",
@@ -29,4 +29,11 @@ export const updateInterviewSessionStatus = async (
   return apiClient.patch<Schemas.ApiResponse>(`/api/interview/${sessionId}`, {
     status,
   });
+};
+
+export const updateUserRole = async (
+  userId: string,
+  body: Schemas.UpdateUserRoleRequest,
+) => {
+  return apiClient.post(`/api/${userId}/update-role`, body);
 };

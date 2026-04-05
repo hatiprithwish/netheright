@@ -183,6 +183,16 @@ class Constants {
         ### INPUT DATA
         Chat History: ${conversationHistory}
   `;
+
+
+  // DEV_NOTE: Use process.env.NODE_ENV directly (not envConfig) to avoid client-side Zod validation crashes.
+  static readonly FEATURES_CACHE_KEY = `CK_FEATURES_${process.env.NODE_ENV}`;
+  static readonly ROLES_CACHE_KEY = `CK_ROLES_${process.env.NODE_ENV}`;
+  static readonly ROLE_FEATURES_CACHE_KEY = `CK_ROLE_FEATURES_${process.env.NODE_ENV}`;
+  static readonly DEFAULT_CACHE_KEY_TTL = 60 * 60; // 60 minutes
+  static readonly DEFAULT_PAGE_NO = 1;
+  static readonly DEFAULT_PAGE_SIZE = 10;
+  static readonly DEFAULT_DATE_FORMAT = "MMM D, YYYY";
 }
 
 export default Constants;

@@ -1,28 +1,28 @@
-import { validateRequest } from "@/backend/middlewares/ApiRequestValidator";
+import { NextRequest, NextResponse } from "next/server";
+import { routeWrapper } from "@/backend/middlewares/RouteWrapper";
+import { checkAuth } from "@/backend/middlewares/CheckAuth";
+import { validateRequestSchema } from "@/backend/middlewares/ValidateRequestSchema";
 import InterviewRepo from "@/backend/repositories/InterviewRepo";
 import * as Schemas from "@/schemas";
-import type { Logger } from "@/lib/logger";
-import { NextResponse } from "next/server";
+import type { Logger } from "@/lib/pino";
 
 const handler = async (
-  _req: Request,
+  _req: NextRequest,
   validatedBody: Schemas.GetChatStreamRequest,
-  logger: Logger,
+  _logger: Logger,
 ) => {
-  const response = await InterviewRepo.getChatStream(validatedBody, logger);
-  if (!response) {
-    return NextResponse.json(
-      { error: "Problem not found or invalid session" },
-      { status: 404 },
-    );
+  const response = await InterviewRepo.getChatStream(validatedBody);
+
+  if (!response.stream) {
+    return NextResponse.json({ error: response.message }, { status: 500 });
   }
-  return response;
+
+  return response.stream;
 };
 
-export const POST = validateRequest(
-  {
-    body: Schemas.ZGetChatStreamRequest,
-    requiresAuth: true,
-  },
-  handler,
+export const POST = routeWrapper(
+  checkAuth(
+    {},
+    validateRequestSchema({ body: Schemas.ZGetChatStreamRequest }, handler),
+  ),
 );

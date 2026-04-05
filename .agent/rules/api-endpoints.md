@@ -169,28 +169,50 @@ DELETE /interview/:id/scorecard/:sid    - Delete specific scorecard
 PATCH  /interview/:id/scorecard/:sid    - Update specific scorecard
 ```
 
-### 4. Query Parameters
+### 4. DO NOT USE QUERY PARAMETER FOR FILTER, SORT OR PAGINATION.
 
-Use query parameters for filtering, sorting, and pagination on collection endpoints:
+Use a **Search POST** pattern instead. Dedicated query endpoints live under a `(route-group)/query/` prefix so they are clearly separated from CRUD routes.
+
+#### Directory Structure
+
+By wrapping a folder name in parentheses, Next.js ignores it for routing but allows it to act as a container for your code.
+
+```text
+app/
+└── api/
+    └── (interview)/        <-- Route Group (ignored in URL)
+        ├── query/
+        │   └── interviews/
+        │       └── route.ts         <-- Maps to POST /api/query/interviews
+        └── interviews/
+            ├── [id]/
+            │   └── route.ts         <-- Maps to GET/PATCH /api/interviews/:id
+            └── route.ts             <-- Maps to GET/POST /api/interviews
+```
+
+#### Search POST Handler
 
 ```typescript
-// ✅ GOOD: app/api/interviews/route.ts
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const status = searchParams.get("status");
-  const limit = searchParams.get("limit");
-  const offset = searchParams.get("offset");
+// ✅ GOOD: app/api/(interview-features)/query/interviews/route.ts
+export async function POST(request: Request) {
+  const body = await request.json();
+  const { filters, sort, limit, offset } = body;
 
-  const interviews = await InterviewRepo.listInterviews({
-    status,
-    limit: limit ? parseInt(limit) : 10,
-    offset: offset ? parseInt(offset) : 0,
+  const results = await InterviewRepo.queryInterviews({
+    filters,
+    sort,
+    limit,
+    offset,
   });
 
-  return Response.json(interviews);
+  return Response.json({
+    data: results.data,
+    metadata: { total: results.total },
+  });
 }
 
-// Usage: GET /interviews?status=completed&limit=20&offset=0
+// ❌ BAD: Using GET with query parameters for filtering/sorting/pagination
+// GET /api/interviews?status=completed&limit=20&offset=0&sortBy=createdAt
 ```
 
 ### 5. Response Status Codes
@@ -286,5 +308,5 @@ PATCH /interview/:id
 3. **Use HTTP methods correctly**: GET (read), POST (create), PUT (replace), PATCH (update), DELETE (remove)
 4. **No action verbs in URLs**: Use HTTP methods instead
 5. **Use appropriate status codes**: 200, 201, 204, 404, etc.
-6. **Use query parameters for filtering**: `/interviews?status=active`
+6. **Use request body for filtering, sorting, and pagination**: Never use query parameters for these
 7. **Keep URLs clean and predictable**: Follow RESTful conventions

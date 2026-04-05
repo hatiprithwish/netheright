@@ -1,4 +1,5 @@
 export * from "./interview";
 export * from "./common";
-export * from "./dashboard";
+export * from "./user";
 export * from "./problems";
+export * from "./metadata";

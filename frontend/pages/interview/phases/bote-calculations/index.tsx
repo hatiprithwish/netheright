@@ -1,0 +1,34 @@
+"use client";
+
+import { ChatInterface } from "../../ChatInterface";
+import { InterviewPhaseProps } from "../../utils";
+
+export default function BotECalculationStep({
+  messages,
+  sendMessage,
+  isLoading,
+  pendingPhaseTransition,
+  onConfirmTransition,
+  onSkipPhase,
+}: InterviewPhaseProps) {
+  return (
+    <div className="h-full max-w-4xl mx-auto flex flex-col">
+      <ChatInterface
+        title="Phase 2: Back-of-the-Envelope Calculations"
+        subtitle="Estimate system scale and resource requirements."
+        messages={messages}
+        onSendMessage={(text) => sendMessage({ text })}
+        isLoading={isLoading}
+        placeholder="Share your calculations..."
+        pendingPhaseTransition={pendingPhaseTransition}
+        onConfirmTransition={onConfirmTransition}
+        onSkipPhase={onSkipPhase}
+        emptyState={
+          <div className="text-center text-muted-foreground py-10">
+            <p>Start by estimating the scale of the system.</p>
+          </div>
+        }
+      />
+    </div>
+  );
+}

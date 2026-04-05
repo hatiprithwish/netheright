@@ -1,8 +1,7 @@
 import ProblemsDAL from "@/backend/data-access-layer/ProblemsDAL";
-import * as Schemas from "@/schemas";
 
 class ProblemsRepo {
-  static async getProblems(): Promise<Schemas.GetProblemsResponse> {
+  static async getProblems() {
     return await ProblemsDAL.getProblems();
   }
 }

@@ -1,9 +1,16 @@
-import { ChatRoleIntEnum, InterviewPhaseIntEnum } from "./InterviewEnum";
+import { SortDirection } from "../common";
+import {
+  ChatRoleIntEnum,
+  InterviewGradeIntEnum,
+  InterviewPhaseIntEnum,
+  InterviewSortColumn,
+  InterviewStatusIntEnum,
+} from "./InterviewEnum";
 
-export interface CreateMessageSqlRequest {
-  sessionId: string;
+export interface CreateInterviewChatSqlRequest {
+  interviewId: string;
   role: ChatRoleIntEnum;
-  content: any;
+  content: any; // JSONB
   phase: InterviewPhaseIntEnum;
 }
 
@@ -13,20 +20,51 @@ export interface CreateInterviewSqlRequest {
 }
 
 export interface CreateRedFlagSqlRequest {
-  sessionId: string;
+  interviewId: string;
   type: string;
   reason: string;
   phase: InterviewPhaseIntEnum;
 }
 
-export interface CreateScorecardSqlRequest {
-  sessionId: string;
-  overallGrade: number;
-  requirementsGathering: number;
-  dataModeling: number;
-  tradeOffAnalysis: number;
-  scalability: number;
+export interface CreateInterviewScorecardSqlRequest {
+  interviewId: string;
+  overallGrade: InterviewGradeIntEnum;
+  requirementsGathering: InterviewGradeIntEnum;
+  dataModeling: InterviewGradeIntEnum;
+  tradeOffAnalysis: InterviewGradeIntEnum;
+  scalability: InterviewGradeIntEnum;
   strengths: string[];
   growthAreas: string[];
   actionableFeedback: string;
+}
+
+export interface GetInterviewsCountSqlRequest {
+  userId: string;
+  status: number | null;
+}
+
+export interface GetInterviewsSqlRequest extends GetInterviewsCountSqlRequest {
+  pageNo: number;
+  pageSize: number;
+  sortColumn: InterviewSortColumn;
+  sortDirection: SortDirection;
+}
+
+export interface GetInterviewSqlRequest {
+  interviewId: string;
+}
+
+export interface UpdateInterviewSqlRequest {
+  interviewId: string;
+  phase: InterviewPhaseIntEnum | null;
+  status: InterviewStatusIntEnum | null;
+}
+
+export interface GetInterviewChatsSqlRequest {
+  interviewId: string;
+}
+
+export interface GetInterviewScorecardSqlRequest {
+  interviewId: string;
+  userId: string;
 }

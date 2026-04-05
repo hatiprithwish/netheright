@@ -1,3 +1,6 @@
+import z from "zod";
+import { BadgeColor } from "../common";
+
 export enum ChatRoleIntEnum {
   User = 1,
   Assistant = 2,
@@ -23,6 +26,7 @@ export enum InterviewPhaseIntEnum {
   ComponentDeepDive = 4,
   BottlenecksDiscussion = 5,
 }
+export const ZInterviewPhaseIntEnum = z.enum(InterviewPhaseIntEnum);
 
 export enum InterviewPhaseLabelEnum {
   RequirementsGathering = "Requirements Gathering",
@@ -64,13 +68,41 @@ export const interviewPhaseIntToLabel: Record<
     InterviewPhaseLabelEnum.BotECalculation,
 };
 
-export enum InterviewGrade {
+export enum InterviewGradeIntEnum {
   F = 1,
   C = 2,
   B = 3,
   A = 4,
   S = 5,
 }
+export const ZInterviewGradeIntEnum = z.enum(InterviewGradeIntEnum);
+
+export enum InterviewGradeLabelEnum {
+  F = "F",
+  C = "C",
+  B = "B",
+  A = "A",
+  S = "S",
+}
+
+export const ZInterviewGradeLabelEnum = z.enum([
+  InterviewGradeLabelEnum.F,
+  InterviewGradeLabelEnum.C,
+  InterviewGradeLabelEnum.B,
+  InterviewGradeLabelEnum.A,
+  InterviewGradeLabelEnum.S,
+]);
+
+export const interviewGradeLabelToInt: Record<
+  InterviewGradeLabelEnum,
+  InterviewGradeIntEnum
+> = {
+  [InterviewGradeLabelEnum.F]: InterviewGradeIntEnum.F,
+  [InterviewGradeLabelEnum.C]: InterviewGradeIntEnum.C,
+  [InterviewGradeLabelEnum.B]: InterviewGradeIntEnum.B,
+  [InterviewGradeLabelEnum.A]: InterviewGradeIntEnum.A,
+  [InterviewGradeLabelEnum.S]: InterviewGradeIntEnum.S,
+};
 
 export enum InterviewStatusIntEnum {
   Active = 1,
@@ -78,6 +110,7 @@ export enum InterviewStatusIntEnum {
   Abandoned = 3,
   Deleted = 4,
 }
+export const ZInterviewStatusIntEnum = z.enum(InterviewStatusIntEnum);
 
 export enum InterviewStatusLabelEnum {
   Active = "Active",
@@ -85,6 +118,7 @@ export enum InterviewStatusLabelEnum {
   Abandoned = "Abandoned",
   Deleted = "Deleted",
 }
+export const ZInterviewStatusLabelEnum = z.enum(InterviewStatusLabelEnum);
 
 export const interviewStatusLabelToInt: Record<
   InterviewStatusLabelEnum,
@@ -114,3 +148,20 @@ export enum RedFlagTypeEnum {
   VagueRequirements = "Vague Requirements",
   SkippedTradeoffs = "Skipped Tradeoffs",
 }
+
+export enum InterviewSortColumn {
+  Id = "id",
+  Status = "status",
+  CreatedAt = "createdAt",
+}
+export const ZInterviewSortColumn = z.enum(InterviewSortColumn);
+
+export const InterviewStatusLabelToBadgeColor: Record<
+  InterviewStatusLabelEnum,
+  BadgeColor
+> = {
+  [InterviewStatusLabelEnum.Completed]: BadgeColor.Green,
+  [InterviewStatusLabelEnum.Active]: BadgeColor.Yellow,
+  [InterviewStatusLabelEnum.Abandoned]: BadgeColor.Red,
+  [InterviewStatusLabelEnum.Deleted]: BadgeColor.Gray,
+};

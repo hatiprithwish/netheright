@@ -1,45 +1,147 @@
 import useSWR from "swr";
-import { fetcher } from "./apiClient";
+import { fetcher, apiClient } from "./apiClient";
 import * as Schemas from "@/schemas";
+import { useAuth } from "../../lib/next-auth/useAuth";
 
-export const useInterviewSession = (sessionId: string | null) => {
-  const { data, error, isLoading, mutate } =
-    useSWR<Schemas.GetInterviewResponse>(
-      sessionId ? `/api/interview/${sessionId}` : null,
-      fetcher,
-    );
+export const useGetInterview = (interviewId: string | null) => {
+  const { currentUser } = useAuth();
+  const isDisabled = !interviewId || !currentUser;
+  const cachedKey = !isDisabled ? `/api/interview/${interviewId}` : null;
+
+  const {
+    data,
+    error,
+    mutate: handleRefresh,
+  } = useSWR<Schemas.GetInterviewResponse>(cachedKey, fetcher);
 
   return {
-    session: data?.interview ?? null,
-    isLoading,
-    isError: error,
-    mutate,
+    data,
+    error,
+    isLoading: !isDisabled && !error && !data,
+    handleRefresh,
   };
 };
 
-export const useInterviewHistory = () => {
-  const { data, error, isLoading } =
-    useSWR<Schemas.GetInterviewHistoryResponse>(
-      "/api/dashboard/interviews",
-      fetcher,
-    );
+export const useGetInterviewsByUser = (
+  body: Schemas.GetInterviewsByUserRequest,
+) => {
+  const { currentUser } = useAuth();
+  const isDisabled = !currentUser;
+  const cachedKey = !isDisabled
+    ? [`/api/query/${currentUser?.id}/interviews`, body]
+    : null;
 
-  return {
-    interviews: data?.interviews ?? [],
-    isLoading,
-    error: error?.message ?? null,
-  };
-};
-
-export const useProblems = () => {
-  const { data, error, isLoading } = useSWR<Schemas.GetProblemsResponse>(
-    "/api/problems",
-    fetcher,
+  const {
+    data,
+    error,
+    mutate: handleRefresh,
+  } = useSWR<Schemas.GetInterviewsResponse>(
+    cachedKey,
+    ([url, reqBody]: [string, Schemas.GetInterviewsByUserRepoRequest]) =>
+      apiClient.post<Schemas.GetInterviewsResponse>(url, reqBody),
   );
 
   return {
-    problems: data?.problems ?? [],
-    isLoading,
-    error: error?.message ?? null,
+    data,
+    error,
+    isLoading: !isDisabled && !error && !data,
+    handleRefresh,
+  };
+};
+
+export const useGetInterviewsByUserCount = (
+  body: Schemas.GetInterviewsByUserCountRequest,
+) => {
+  const { currentUser } = useAuth();
+  const isDisabled = !body || !currentUser;
+  const cachedKey = !isDisabled
+    ? [`/api/query/${currentUser?.id}/interviews/count`, body]
+    : null;
+
+  const {
+    data,
+    error,
+    mutate: handleRefresh,
+  } = useSWR<Schemas.TotalRecordsResponse>(cachedKey, fetcher);
+
+  return {
+    data,
+    error,
+    isLoading: !isDisabled && !error && !data,
+    handleRefresh,
+  };
+};
+
+export const useGetInterviewsSummary = () => {
+  const { currentUser } = useAuth();
+  const isDisabled = !currentUser;
+  const cachedKey = !isDisabled ? `/api/${currentUser?.id}/interviews/summary` : null;
+
+  const {
+    data,
+    error,
+    mutate: handleRefresh,
+  } = useSWR<Schemas.GetInterviewsSummaryResponse>(cachedKey, fetcher);
+
+  return {
+    data,
+    error,
+    isLoading: !isDisabled && !error && !data,
+    handleRefresh,
+  };
+};
+
+export const useGetInterviewFeedbackDetails = (sessionId: string | null) => {
+  const isDisabled = !sessionId;
+  const cachedKey = !isDisabled ? `/api/interview/${sessionId}/scorecard` : null;
+
+  const {
+    data,
+    error,
+    mutate: handleRefresh,
+  } = useSWR<Schemas.GetInterviewScorecardResponse>(cachedKey, fetcher);
+
+  return {
+    data,
+    error,
+    isLoading: !isDisabled && !error && !data,
+    handleRefresh,
+  };
+};
+
+export const useGetRoles = () => {
+  const { currentUser } = useAuth();
+  const isDisabled = !currentUser;
+  const cachedKey = !isDisabled ? "/api/metadata/roles" : null;
+
+  const {
+    data,
+    error,
+    mutate: handleRefresh,
+  } = useSWR<Schemas.GetAllRolesResponse>(cachedKey, fetcher);
+
+  return {
+    data,
+    error,
+    isLoading: !isDisabled && !error && !data,
+    handleRefresh,
+  };
+};
+
+// ------ Public APIs ------
+export const useProblems = () => {
+  const cachedKey = "/api/problems";
+
+  const {
+    data,
+    error,
+    mutate: handleRefresh,
+  } = useSWR<Schemas.GetProblemsResponse>(cachedKey, fetcher);
+
+  return {
+    data,
+    error,
+    isLoading: !error && !data,
+    handleRefresh,
   };
 };
