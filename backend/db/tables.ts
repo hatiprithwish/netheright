@@ -1,4 +1,3 @@
-// DONE_PRITH
 import {
   pgTable,
   text,

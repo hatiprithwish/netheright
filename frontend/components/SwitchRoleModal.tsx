@@ -1,5 +1,3 @@
-// DONE_PRITH
-
 "use client";
 
 import { useState } from "react";

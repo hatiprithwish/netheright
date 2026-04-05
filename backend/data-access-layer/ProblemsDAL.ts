@@ -1,5 +1,3 @@
-// DONE_PRITH
-
 import neonDBClient from "@/lib/neon-db";
 import { problems } from "@/backend/db/tables";
 import * as Schemas from "@/schemas";

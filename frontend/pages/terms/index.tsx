@@ -1,5 +1,3 @@
-// DONE_PRITH
-
 import { TERMS_OF_SERVICE_CONTENT } from "./utils";
 import { FileText } from "lucide-react";
 

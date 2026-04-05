@@ -1,5 +1,3 @@
-// DONE_PRITH
-
 import Constants from "@/constants";
 import * as Schemas from "@/schemas";
 import UserDAL from "../data-access-layer/UserDAL";

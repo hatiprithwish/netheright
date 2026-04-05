@@ -1,5 +1,3 @@
-// DONE_PRITH
-
 "use client";
 
 import { useSession, signOut } from "next-auth/react";

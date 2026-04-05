@@ -1,5 +1,3 @@
--- DONE_PRITH
-
 INSERT INTO roles (id, name) VALUES
   ('LEARNER', 'Learner'),
   ('TESTER',  'App Tester');

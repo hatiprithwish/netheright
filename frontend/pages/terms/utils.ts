@@ -1,5 +1,3 @@
-// DONE_PRITH
-
 import { LegalSection } from "../privacy/utils";
 
 export const TERMS_OF_SERVICE_CONTENT: LegalSection[] = [

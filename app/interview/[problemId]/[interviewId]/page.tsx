@@ -1,5 +1,3 @@
-// DONE_PRITH
-
 import InterviewPage from "@/frontend/pages/interview";
 
 type Props = {

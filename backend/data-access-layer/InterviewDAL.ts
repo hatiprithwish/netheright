@@ -1,4 +1,3 @@
-// DONE_PRITH
 import neonDBClient from "@/lib/neon-db";
 import { and, asc, desc, eq, ne, sql } from "drizzle-orm";
 import {

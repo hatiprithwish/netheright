@@ -1,5 +1,3 @@
-// DONE_PRITH
-
 import neonDBClient from "@/lib/neon-db";
 import { eq } from "drizzle-orm";
 import { users } from "@/backend/db/tables";
