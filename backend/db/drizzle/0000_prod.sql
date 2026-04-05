@@ -23,7 +23,7 @@ CREATE TABLE "features" (
 );
 --> statement-breakpoint
 CREATE TABLE "hld_diagrams" (
-	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "hld_diagrams_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1 CACHE 1),
 	"interview_id" text NOT NULL,
 	"topology" jsonb NOT NULL,
 	"raw_diagram" jsonb NOT NULL,
@@ -35,7 +35,7 @@ CREATE TABLE "hld_diagrams" (
 );
 --> statement-breakpoint
 CREATE TABLE "interview_chats" (
-	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "interview_chats_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1 CACHE 1),
 	"interview_id" text NOT NULL,
 	"role" integer NOT NULL,
 	"content" jsonb NOT NULL,
@@ -51,11 +51,12 @@ CREATE TABLE "interviews" (
 	"phase" integer DEFAULT 1 NOT NULL,
 	"start_time" timestamp DEFAULT now() NOT NULL,
 	"end_time" timestamp,
+	"is_test" boolean DEFAULT false NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "problems" (
-	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "problems_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1 CACHE 1),
 	"title" text NOT NULL,
 	"description" text NOT NULL,
 	"functional_requirements" text[] NOT NULL,
@@ -68,7 +69,7 @@ CREATE TABLE "problems" (
 );
 --> statement-breakpoint
 CREATE TABLE "red_flags" (
-	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "red_flags_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1 CACHE 1),
 	"interview_id" text NOT NULL,
 	"type" text NOT NULL,
 	"reason" text NOT NULL,
@@ -77,7 +78,7 @@ CREATE TABLE "red_flags" (
 );
 --> statement-breakpoint
 CREATE TABLE "role_features" (
-	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "role_features_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"role_id" text NOT NULL,
 	"feature_id" text NOT NULL,
 	"is_active" boolean DEFAULT true NOT NULL,
@@ -93,7 +94,7 @@ CREATE TABLE "roles" (
 );
 --> statement-breakpoint
 CREATE TABLE "scorecards" (
-	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "scorecards_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1 CACHE 1),
 	"interview_id" text NOT NULL,
 	"overall_grade" integer NOT NULL,
 	"requirements_gathering" integer NOT NULL,

@@ -1,5 +1,3 @@
-// DONE_PRITH
-
 import TermsPage from "@/frontend/pages/terms";
 import { Metadata } from "next";
 

@@ -1,5 +1,3 @@
-// DONE_PRITH
-
 import { auth } from "@/lib/next-auth";
 
 const proxy = auth((req) => {

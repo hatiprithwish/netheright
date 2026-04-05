@@ -1,5 +1,3 @@
-// DONE_PRITH
-
 export default function MetricsSection() {
   return (
     <section className="container mx-auto px-4 py-20 border-t border-border">

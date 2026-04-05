@@ -1,5 +1,3 @@
-// DONE_PRITH
-
 import { redirect } from "next/navigation";
 import { serverAuth } from "@/lib/next-auth";
 import DashboardPage from "@/frontend/pages/dashboard";

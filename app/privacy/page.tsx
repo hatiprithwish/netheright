@@ -1,5 +1,3 @@
-// DONE_PRITH
-
 import PrivacyPage from "@/frontend/pages/privacy";
 import { Metadata } from "next";
 

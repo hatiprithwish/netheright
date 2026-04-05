@@ -1,5 +1,3 @@
-// DONE_PRITH
-
 import Link from "next/link";
 import { ArrowRight, Zap } from "lucide-react";
 

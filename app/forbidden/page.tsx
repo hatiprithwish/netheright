@@ -1,5 +1,3 @@
-// DONE_PRITH
-
 import Link from "next/link";
 import * as Schemas from "@/schemas";
 

@@ -1,5 +1,3 @@
-// DONE_PRITH
-
 import * as Schemas from "@/schemas";
 
 export class EnvConfig {

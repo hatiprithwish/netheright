@@ -1,5 +1,3 @@
-// DONE_PRITH
-
 import Footer from "@/frontend/components/navigation/Footer";
 import Header from "@/frontend/components/navigation/Header";
 import HeroSection from "@/frontend/pages/home/HeroSection";

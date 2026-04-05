@@ -1,5 +1,3 @@
-// DONE_PRITH
-
 import { PHASES } from "./utils";
 import FeatureRow from "./FeatureRow";
 
@@ -24,12 +22,14 @@ export default function InterviewProcessSection() {
         {/* Phase Rows */}
         <div className="flex flex-col gap-28 lg:gap-36">
           {PHASES.map((phaseData, index) => (
-            <FeatureRow key={phaseData.badgeText} priority={index === 0} {...phaseData} />
+            <FeatureRow
+              key={phaseData.badgeText}
+              priority={index === 0}
+              {...phaseData}
+            />
           ))}
         </div>
       </div>
     </section>
   );
 }
-
-
