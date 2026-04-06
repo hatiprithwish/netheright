@@ -182,11 +182,6 @@ function CompletionBanner({
     router.push("/dashboard");
   };
 
-  const handleViewFeedback = () => {
-    onReset();
-    router.push(`/feedback/${interviewId}`);
-  };
-
   return (
     <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
       <div className="max-w-2xl w-full mx-auto">
@@ -217,20 +212,12 @@ function CompletionBanner({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-            <button
-              onClick={handleViewFeedback}
-              className="px-8 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors shadow-md hover:shadow-lg cursor-pointer"
-            >
-              View Feedback
-            </button>
-            <button
-              onClick={handleGoToDashboard}
-              className="px-8 py-3 bg-muted text-foreground rounded-lg font-semibold hover:bg-muted/80 transition-colors shadow-md hover:shadow-lg cursor-pointer border border-border"
-            >
-              Go to Dashboard
-            </button>
-          </div>
+          <button
+            onClick={handleGoToDashboard}
+            className="px-8 py-3 bg-muted text-foreground rounded-lg font-semibold hover:bg-muted/80 transition-colors shadow-md hover:shadow-lg cursor-pointer border border-border mt-4 mx-auto"
+          >
+            Go to Dashboard
+          </button>
         </div>
       </div>
     </div>

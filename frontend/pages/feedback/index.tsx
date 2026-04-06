@@ -41,8 +41,7 @@ export default function FeedbackPage({ interviewId }: FeedbackPageProps) {
 
           {!isLoading && error && (
             <p className="text-muted-foreground">
-              The requested interview feedback is currently unavailable or could
-              not be retrieved.
+              The requested interview feedback is not available.
             </p>
           )}
 
