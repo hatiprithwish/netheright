@@ -7,6 +7,8 @@ import {
   boolean,
   unique,
   bigint,
+  real,
+  index,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import type { AdapterAccountType } from "next-auth/adapters";
@@ -147,6 +149,77 @@ export const hld_diagrams = pgTable("hld_diagrams", {
   updated_at: timestamp("updated_at"),
   created_by: text("created_by").notNull(),
   updated_by: text("updated_by").notNull(),
+});
+
+export const decks = pgTable("decks", {
+  id: text("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  user_id: text("user_id").notNull(),
+  name: text("name").notNull(),
+  description: text("description"),
+  created_at: timestamp("created_at").notNull().defaultNow(),
+  updated_at: timestamp("updated_at"),
+});
+
+export const cards = pgTable(
+  "cards",
+  {
+    id: text("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    deck_id: text("deck_id").notNull(),
+    front: text("front").notNull(),
+    back: text("back").notNull(),
+    tags: text("tags").array(),
+    created_at: timestamp("created_at").notNull().defaultNow(),
+    updated_at: timestamp("updated_at"),
+  },
+  (table) => [index("IDX_cards_deck_id").on(table.deck_id)],
+);
+
+export const card_schedules = pgTable(
+  "card_schedules",
+  {
+    id: text("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    card_id: text("card_id").notNull(),
+    user_id: text("user_id").notNull(),
+    easiness_factor: real("easiness_factor").notNull().default(2.5),
+    interval: integer("interval").notNull().default(0),
+    repetitions: integer("repetitions").notNull().default(0),
+    next_due: timestamp("next_due").notNull().defaultNow(),
+    updated_at: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    unique("UK_card_schedules_card_user").on(table.card_id, table.user_id),
+  ],
+);
+
+export const card_reviews = pgTable(
+  "card_reviews",
+  {
+    id: text("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    card_id: text("card_id").notNull(),
+    user_id: text("user_id").notNull(),
+    quality: integer("quality").notNull(),
+    reviewed_at: timestamp("reviewed_at").notNull().defaultNow(),
+  },
+  (table) => [index("IDX_card_reviews_card_user").on(table.card_id, table.user_id)],
+);
+
+export const mcp_api_keys = pgTable("mcp_api_keys", {
+  id: text("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  user_id: text("user_id").notNull(),
+  key_hash: text("key_hash").notNull().unique(),
+  name: text("name").notNull(),
+  created_at: timestamp("created_at").notNull().defaultNow(),
+  revoked_at: timestamp("revoked_at"),
 });
 
 export const scorecards = pgTable("scorecards", {
