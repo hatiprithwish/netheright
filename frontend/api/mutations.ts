@@ -37,3 +37,42 @@ export const updateUserRole = async (
 ) => {
   return apiClient.post(`/api/${userId}/update-role`, body);
 };
+
+// ------ Flashcards ------
+
+export const createDeck = (body: Schemas.CreateDeckRequest) =>
+  apiClient.post<Schemas.CreateDeckResponse>("/api/flashcards/decks", body);
+
+export const deleteDeck = (deckId: string) =>
+  apiClient.delete<Schemas.DeleteDeckResponse>(`/api/flashcards/decks/${deckId}`);
+
+export const createCard = (deckId: string, body: Schemas.CreateCardRequest) =>
+  apiClient.post<Schemas.CreateCardResponse>(
+    `/api/flashcards/decks/${deckId}/cards`,
+    body,
+  );
+
+export const bulkCreateCards = (deckId: string, body: Schemas.BulkCreateCardsRequest) =>
+  apiClient.post<Schemas.BulkCreateCardsResponse>(
+    `/api/flashcards/decks/${deckId}/cards/bulk`,
+    body,
+  );
+
+export const deleteCard = (deckId: string, cardId: string) =>
+  apiClient.delete<Schemas.DeleteCardResponse>(
+    `/api/flashcards/decks/${deckId}/cards/${cardId}`,
+  );
+
+export const submitReview = (cardId: string, body: Schemas.SubmitReviewRequest) =>
+  apiClient.post<Schemas.SubmitReviewResponse>(
+    `/api/flashcards/cards/${cardId}/review`,
+    body,
+  );
+
+// ------ MCP Keys ------
+
+export const createMcpKey = (name: string): Promise<{ id: string; key: string; name: string; createdAt: string }> =>
+  apiClient.post<{ id: string; key: string; name: string; createdAt: string }>("/api/mcp-keys", { name });
+
+export const revokeMcpKey = (keyId: string): Promise<void> =>
+  apiClient.delete(`/api/mcp-keys/${keyId}`);
