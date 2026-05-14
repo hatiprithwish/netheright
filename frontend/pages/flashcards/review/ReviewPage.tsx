@@ -7,8 +7,8 @@ import * as Schemas from "@/schemas";
 import {
   useGetDueCards,
   useGetDeck,
-  submitReview,
-} from "@/frontend/api/flashcardsQueries";
+} from "@/frontend/api/cachedQueries";
+import { submitReview } from "@/frontend/api/mutations";
 
 interface Props {
   deckId: string;

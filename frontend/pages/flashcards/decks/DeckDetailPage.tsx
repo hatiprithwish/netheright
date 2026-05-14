@@ -7,10 +7,12 @@ import * as Schemas from "@/schemas";
 import {
   useGetDeck,
   useGetCards,
+} from "@/frontend/api/cachedQueries";
+import {
   createCard,
   bulkCreateCards,
   deleteCard,
-} from "@/frontend/api/flashcardsQueries";
+} from "@/frontend/api/mutations";
 
 interface Props {
   deckId: string;

@@ -3,6 +3,13 @@ import { fetcher, apiClient } from "./apiClient";
 import * as Schemas from "@/schemas";
 import { useAuth } from "../../lib/next-auth/useAuth";
 
+export interface McpKey {
+  id: string;
+  name: string;
+  createdAt: string;
+  revokedAt: string | null;
+}
+
 export const useGetInterview = (interviewId: string | null) => {
   const { currentUser } = useAuth();
   const isDisabled = !interviewId || !currentUser;
@@ -126,6 +133,49 @@ export const useGetRoles = () => {
     isLoading: !isDisabled && !error && !data,
     handleRefresh,
   };
+};
+
+// ------ Flashcards ------
+
+export const useGetDecks = () => {
+  const { currentUser } = useAuth();
+  const key = currentUser ? "/api/flashcards/decks" : null;
+  const { data, error, mutate } = useSWR<Schemas.GetDecksResponse>(key, fetcher);
+  return { data, error, isLoading: !!currentUser && !error && !data, handleRefresh: mutate };
+};
+
+export const useGetDeck = (deckId: string | null) => {
+  const key = deckId ? `/api/flashcards/decks/${deckId}` : null;
+  const { data, error, mutate } = useSWR<Schemas.GetDeckResponse>(key, fetcher);
+  return { data, error, isLoading: !!deckId && !error && !data, handleRefresh: mutate };
+};
+
+export const useGetCards = (deckId: string | null) => {
+  const key = deckId ? `/api/flashcards/decks/${deckId}/cards` : null;
+  const { data, error, mutate } = useSWR<Schemas.GetCardsResponse>(key, fetcher);
+  return { data, error, isLoading: !!deckId && !error && !data, handleRefresh: mutate };
+};
+
+export const useGetDueCards = (deckId: string | null) => {
+  const key = deckId ? `/api/flashcards/decks/${deckId}/due` : null;
+  const { data, error, mutate } = useSWR<Schemas.GetDueCardsResponse>(key, fetcher);
+  return { data, error, isLoading: !!deckId && !error && !data, handleRefresh: mutate };
+};
+
+export const useGetFlashcardStats = (deckId?: string) => {
+  const { currentUser } = useAuth();
+  const key = currentUser
+    ? `/api/flashcards/stats${deckId ? `?deckId=${deckId}` : ""}`
+    : null;
+  const { data, error, mutate } = useSWR<Schemas.GetStatsResponse>(key, fetcher);
+  return { data, error, isLoading: !!currentUser && !error && !data, handleRefresh: mutate };
+};
+
+// ------ MCP Keys ------
+
+export const useGetMcpKeys = () => {
+  const { data, isLoading, mutate } = useSWR<{ keys: McpKey[] }>("/api/mcp-keys", fetcher);
+  return { data, isLoading, handleRefresh: mutate };
 };
 
 // ------ Public APIs ------

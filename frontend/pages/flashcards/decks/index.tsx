@@ -4,16 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { BookOpen, Plus, Trash2, Brain, BarChart3, Clock } from "lucide-react";
 import * as Schemas from "@/schemas";
-import {
-  useGetDecks,
-  useGetStats,
-  createDeck,
-  deleteDeck,
-} from "@/frontend/api/flashcardsQueries";
+import { useGetDecks, useGetFlashcardStats } from "@/frontend/api/cachedQueries";
+import { createDeck, deleteDeck } from "@/frontend/api/mutations";
 
 export default function DecksPage() {
   const { data, isLoading, handleRefresh } = useGetDecks();
-  const { data: statsData } = useGetStats();
+  const { data: statsData } = useGetFlashcardStats();
 
   const [showCreate, setShowCreate] = useState(false);
   const [deckName, setDeckName] = useState("");
