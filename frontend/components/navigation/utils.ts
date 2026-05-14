@@ -16,6 +16,11 @@ export const HeaderLinks = [
     href: "/architecture",
     isProtected: false,
   },
+  {
+    label: "Flashcards",
+    href: "/flashcards",
+    isProtected: true,
+  },
 ];
 
 export enum Theme {

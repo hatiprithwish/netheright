@@ -1,7 +1,7 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { Code2, Github, AlertCircle } from "lucide-react";
+import { Code2, AlertCircle } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import dayjs from "dayjs";
@@ -85,7 +85,7 @@ function SignInContent() {
                 onClick={() => signIn("github", { callbackUrl: "/dashboard" })}
                 className="flex items-center justify-center gap-3 px-4 py-3 bg-[#24292F] text-white rounded-xl font-medium hover:bg-[#24292F]/90 transition-all shadow-sm hover:shadow hover:-translate-y-0.5 cursor-pointer dark:bg-zinc-800 dark:hover:bg-zinc-700"
               >
-                <Github className="h-5 w-5" />
+                <img src="/github.svg" className="h-5 w-5" alt="GitHub" />
                 Continue with GitHub
               </button>
 
