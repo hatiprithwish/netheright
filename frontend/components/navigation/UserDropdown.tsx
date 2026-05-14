@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { User, LogOut, UserCog } from "lucide-react";
+import { User, LogOut, UserCog, Settings } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -91,6 +91,12 @@ export default function UserDropdown({
               <span>Switch Role</span>
             </DropdownMenuItem>
           </SwitchRoleModal>
+          <DropdownMenuItem asChild className="cursor-pointer">
+            <Link href="/settings">
+              <Settings className="mr-2 h-4 w-4 text-muted-foreground" />
+              <span>Settings</span>
+            </Link>
+          </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => signOut()}
             className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"

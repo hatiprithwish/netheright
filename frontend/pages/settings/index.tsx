@@ -69,7 +69,7 @@ function NewKeyModal({
             </p>
             <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2.5 mb-5 font-mono text-sm border border-border">
               <span className="flex-1 truncate select-all">
-                {visible ? rawKey : "mcp_" + "•".repeat(rawKey.length - 4)}
+                {visible ? rawKey : "•".repeat(rawKey.length)}
               </span>
               <button
                 onClick={() => setVisible((v) => !v)}
@@ -80,8 +80,11 @@ function NewKeyModal({
               <CopyButton text={rawKey} />
             </div>
             <div className="bg-muted/60 rounded-lg p-3 mb-5 text-xs text-muted-foreground font-mono leading-relaxed border border-border">
-              <p className="font-semibold text-foreground mb-1.5 font-sans text-xs">Claude config snippet</p>
-              {`"env": {\n  "MCP_API_KEY": "${visible ? rawKey : "<your-key>"}",\n  "APP_URL": "https://your-domain.com"\n}`}
+              <div className="flex items-center justify-between mb-1.5">
+                <p className="font-semibold text-foreground font-sans text-xs">Claude config snippet</p>
+                <CopyButton text={`"netheright": {\n  "type": "http",\n  "url": "${typeof window !== "undefined" ? window.location.origin : ""}/api/mcp",\n  "headers": {\n    "Authorization": "Bearer ${visible ? rawKey : "<your-key>"}"\n  }\n}`} />
+              </div>
+              {`"netheright": {\n  "type": "http",\n  "url": "${typeof window !== "undefined" ? window.location.origin : ""}/api/mcp",\n  "headers": {\n    "Authorization": "Bearer ${visible ? rawKey : "<your-key>"}"\n  }\n}`}
             </div>
             <button
               onClick={onClose}
@@ -181,11 +184,9 @@ export default function SettingsPage() {
             <div className="flex items-start gap-2.5">
               <Terminal className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Add the key to your Claude config under{" "}
-                <code className="bg-muted px-1 py-0.5 rounded text-foreground font-mono">MCP_API_KEY</code>{" "}
-                along with{" "}
-                <code className="bg-muted px-1 py-0.5 rounded text-foreground font-mono">APP_URL</code>.
-                The MCP server connects to your app — your database credentials never leave the server.
+                Add the snippet to your Claude config under{" "}
+                <code className="bg-muted px-1 py-0.5 rounded text-foreground font-mono">mcpServers</code>.
+                Uses HTTP — no local server needed. Your database credentials never leave the server.
               </p>
             </div>
           </div>
