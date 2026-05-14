@@ -81,10 +81,10 @@ function NewKeyModal({
             </div>
             <div className="bg-muted/60 rounded-lg p-3 mb-5 text-xs text-muted-foreground font-mono leading-relaxed border border-border">
               <div className="flex items-center justify-between mb-1.5">
-                <p className="font-semibold text-foreground font-sans text-xs">Claude config snippet</p>
-                <CopyButton text={`"netheright": {\n  "type": "http",\n  "url": "${typeof window !== "undefined" ? window.location.origin : ""}/api/mcp",\n  "headers": {\n    "Authorization": "Bearer ${visible ? rawKey : "<your-key>"}"\n  }\n}`} />
+                <p className="font-semibold text-foreground font-sans text-xs">Remote MCP server URL</p>
+                <CopyButton text={`${typeof window !== "undefined" ? window.location.origin : ""}/api/mcp?key=${visible ? rawKey : "<your-key>"}`} />
               </div>
-              {`"netheright": {\n  "type": "http",\n  "url": "${typeof window !== "undefined" ? window.location.origin : ""}/api/mcp",\n  "headers": {\n    "Authorization": "Bearer ${visible ? rawKey : "<your-key>"}"\n  }\n}`}
+              {`${typeof window !== "undefined" ? window.location.origin : ""}/api/mcp?key=${visible ? rawKey : "<your-key>"}`}
             </div>
             <button
               onClick={onClose}
@@ -184,9 +184,8 @@ export default function SettingsPage() {
             <div className="flex items-start gap-2.5">
               <Terminal className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Add the snippet to your Claude config under{" "}
-                <code className="bg-muted px-1 py-0.5 rounded text-foreground font-mono">mcpServers</code>.
-                Uses HTTP — no local server needed. Your database credentials never leave the server.
+                Paste the URL into claude.ai → Settings → Connectors → Add custom connector.
+                No local setup needed. Your database credentials never leave the server.
               </p>
             </div>
           </div>

@@ -12,7 +12,9 @@ function toText(data: unknown): string {
 
 async function getUserId(req: NextRequest): Promise<string | null> {
   const authHeader = req.headers.get("authorization");
-  const rawKey = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+  const headerKey = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+  const urlKey = req.nextUrl.searchParams.get("key");
+  const rawKey = headerKey ?? urlKey;
   if (!rawKey) return null;
   return McpKeyDAL.verifyKey(rawKey);
 }
