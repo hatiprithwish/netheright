@@ -70,6 +70,9 @@ export class EnvConfig {
   public get REDIS_PORT() {
     return this.env.REDIS_PORT;
   }
+  public get CRON_SECRET() {
+    return this.env.CRON_SECRET;
+  }
 }
 
 export const envConfig = EnvConfig.getInstance();
