@@ -3,5 +3,11 @@
   "framework": "nextjs",
   "buildCommand": "pnpm build",
   "devCommand": "pnpm dev",
-  "installCommand": "pnpm install"
+  "installCommand": "pnpm install",
+  "crons": [
+    {
+      "path": "/api/cron/redis-ping",
+      "schedule": "0 6 * * *"
+    }
+  ]
 }
